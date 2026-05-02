@@ -43,7 +43,9 @@
       "skipLibCheck": true,
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
-      // "paths": {}
+      "paths": {
+        "@prisma/*": ["./generated/prisma/*"]
+      }
   },
 
   // "include": ["src/**/*.ts", "src/*.d.ts"],
