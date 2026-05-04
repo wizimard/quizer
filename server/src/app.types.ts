@@ -2,4 +2,6 @@ export const APP_TYPES = {
 	APP: Symbol('APP'),
 	LOGGER: Symbol('LOGGER'),
 	PRISMA: Symbol('PRISMA'),
+	CONFIG: Symbol('CONFIG'),
+	REQUEST_LOGGER_MIDDLEWARE: Symbol('REQUEST_LOGGER_MIDDLEWARE'),
 };

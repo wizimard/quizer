@@ -6,11 +6,13 @@ import { injectable } from 'inversify';
 @injectable()
 export class LoggerService implements ILogger {
 	info(message: string): void {
-		console.log(chalk.gray('[INFO]') + ' ' + dedent(message));
+		console.log(chalk.blue('[INFO]') + ' ' + dedent(message));
 	}
+
 	error(message: string): void {
 		console.log(chalk.red('[ERROR]') + ' ' + dedent(message));
 	}
+
 	warn(message: string): void {
 		console.log(chalk.yellow('[WARN]') + ' ' + dedent(message));
 	}
