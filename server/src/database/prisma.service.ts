@@ -1,15 +1,18 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
+import { APP_TYPES } from '../app.types';
+import type { IConfigService } from '../config/config.service.interface';
+import type { IPrismaService } from './prisma.service.interface';
 
 @injectable()
-export class PrismaService {
+export class PrismaService implements IPrismaService {
 	public readonly client: PrismaClient;
 
-	constructor() {
+	constructor(@inject(APP_TYPES.CONFIG) private configService: IConfigService) {
 		this.client = new PrismaClient({
 			adapter: new PrismaPg({
-				database: process.env.DATABASE_URL,
+				connectionString: configService.get<string>('DATABASE_URL'),
 			}),
 		});
 	}
