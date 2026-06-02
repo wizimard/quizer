@@ -5,7 +5,7 @@ import type { IRoute } from '@common/route.interface';
 import { ValidateMiddleware } from '@common/validate.middleware';
 import { UserLoginDto } from '../dto/user-login.dto';
 import { UserRegisterDto } from '../dto/user-register.dto';
-import type { IAuthService } from '../services/auth.service.interface';
+import type { IAuthRequestResponse, IAuthService } from '../services/auth.service.interface';
 import { AUTH_TYPES } from '../auth.types';
 import { AuthGuard } from '../guards/auth.guard';
 import type { ITokenPair } from '../services/token.service.interface';
@@ -33,15 +33,15 @@ export class AuthController extends BaseController {
 			},
 			{
 				url: '/logout',
-				method: 'get',
+				method: 'post',
 				handler: this.logout,
 				middlewares: [new AuthGuard()],
 			},
 			{
 				url: '/refresh',
-				method: 'get',
+				method: 'post',
 				handler: this.refresh,
-				middlewares: [new AuthGuard()],
+				middlewares: [],
 			},
 		];
 
@@ -50,23 +50,22 @@ export class AuthController extends BaseController {
 
 	private async login(req: Request<object, object, UserLoginDto>, res: Response, next: NextFunction): Promise<void> {
 		try {
-			const { accessToken, refreshToken }: ITokenPair = await this.authService.login(req.body.email, req.body.password);
+			const { accessToken, refreshToken, user }: IAuthRequestResponse = await this.authService.login(req.body.email, req.body.password);
 
 			this.setRefreshTokenCookie(res, refreshToken);
 
-			this.ok(res, { accessToken });
+			this.ok(res, { accessToken, user: { email: user.email } });
 		} catch (error: unknown) {
 			next(error);
 		}
 	}
 	private async register(req: Request<object, object, UserRegisterDto>, res: Response, next: NextFunction): Promise<void> {
-		console.log(req.body);
 		try {
-			const { accessToken, refreshToken }: ITokenPair = await this.authService.register(req.body.email, req.body.password);
+			const { accessToken, refreshToken, user }: IAuthRequestResponse = await this.authService.register(req.body.email, req.body.password);
 
 			this.setRefreshTokenCookie(res, refreshToken);
 
-			this.created(res, { accessToken });
+			this.created(res, { accessToken, user: { email: user.email } });
 		} catch (error: unknown) {
 			console.log(error);
 			next(error);
@@ -87,7 +86,7 @@ export class AuthController extends BaseController {
 
 	private async refresh(req: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
-			const { accessToken, refreshToken }: ITokenPair = await this.authService.refreshTokens(req.user!.id, req.user!.email);
+			const { accessToken, refreshToken }: ITokenPair = await this.authService.refreshTokens(req.cookies[this.refreshCookieName]);
 
 			this.setRefreshTokenCookie(res, refreshToken);
 
@@ -100,8 +99,8 @@ export class AuthController extends BaseController {
 	private setRefreshTokenCookie(res: Response, refreshToken: string): void {
 		res.cookie(this.refreshCookieName, refreshToken, {
 			httpOnly: true,
-			sameSite: 'strict',
-			secure: process.env.NODE_ENV === 'production',
+			// sameSite: 'strict',
+			// secure: process.env.NODE_ENV === 'production',
 			maxAge: this.refreshCookieMaxAge,
 		});
 	}

@@ -9,12 +9,17 @@ import type { IController } from '@common/controller.interface';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import type { IMiddleware } from '@common/middleware.interface';
-import { USER_TYPES } from './user/user.types';
+import { USER_TYPES } from './user';
+import type { IConfigService } from './config';
+import type { IExceptionFilter } from './error';
+import cors from 'cors';
 
 @injectable()
 export class App {
-	private express: Express;
+	public readonly app: Express;
 	private server: Server;
+
+	private readonly port: number;
 
 	constructor(
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
@@ -23,40 +28,59 @@ export class App {
 		@inject(AUTH_TYPES.AUTH_CONTROLLER) private readonly authController: IController,
 		@inject(AUTH_TYPES.AUTH_MIDDLEWARE) private readonly authMiddleware: IMiddleware,
 		@inject(USER_TYPES.USER_CONTROLLER) private readonly userController: IController,
+		@inject(APP_TYPES.CONFIG) private readonly configService: IConfigService,
+		@inject(APP_TYPES.EXCEPTION_FILTER) private readonly exceptionFilter: IExceptionFilter,
+		@inject(APP_TYPES.SWAGGER) private readonly swaggerController: IController,
 	) {
-		this.express = express();
+		this.app = express();
+
+		this.port = this.configService.get<number>('PORT');
 	}
 
 	public async start(): Promise<void> {
 		this.useMiddlewares();
 		this.useRoutes();
+		this.useExceptionFilter();
 
 		await this.prismaService.connect();
 
-		this.logger.success('[App] Database connected');
+		this.logger.success('[App] database connected');
 
-		this.server = this.express.listen(8031, () => {
-			this.logger.success('[App] Server is running on port 8031');
+		this.server = this.app.listen(this.port, () => {
+			this.logger.success(`[App] server is running on port ${this.port}`);
 		});
 	}
 
 	public async stop(): Promise<void> {
 		this.server.close();
 
-		console.log('Server is stopped');
+		this.logger.success('[App] server is stopped');
 	}
 
 	private useMiddlewares(): void {
-		this.express.use(bodyParser.json());
-		this.express.use(cookieParser());
+		this.app.use(
+			cors({
+				origin: true,
+				preflightContinue: true,
+				credentials: true,
+			}),
+		);
+		this.app.use(bodyParser.json());
+		this.app.use(cookieParser());
 
-		this.express.use(this.authMiddleware.execute.bind(this.authMiddleware));
+		this.app.use(this.authMiddleware.execute.bind(this.authMiddleware));
 
-		this.express.use(this.requestLoggerMiddleware.execute.bind(this.requestLoggerMiddleware));
+		this.app.use(this.requestLoggerMiddleware.execute.bind(this.requestLoggerMiddleware));
 	}
 
 	private useRoutes(): void {
-		this.express.use('/api/auth', this.authController.router);
-		this.express.use('/api/user', this.userController.router);
+		this.app.use(this.swaggerController.router);
+
+		this.app.use('/api/auth', this.authController.router);
+		this.app.use('/api/user', this.userController.router);
+	}
+
+	private useExceptionFilter(): void {
+		this.app.use(this.exceptionFilter.catch.bind(this.exceptionFilter));
 	}
 }

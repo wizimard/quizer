@@ -14,7 +14,7 @@ export class ValidateMiddleware implements IMiddleware {
 			req.body = instance;
 			next();
 		} catch (err: unknown) {
-			res.status(400).json(err).end();
+			res.status(422).json(err).end();
 		}
 	}
 }

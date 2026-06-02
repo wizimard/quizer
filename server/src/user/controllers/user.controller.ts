@@ -19,6 +19,6 @@ export class UserController extends BaseController {
 	}
 
 	getCurrentUser(req: Request, res: Response, next: NextFunction): void {
-		this.ok(res, req.user);
+		this.ok(res, { email: req.user?.email });
 	}
 }

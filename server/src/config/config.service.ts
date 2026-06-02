@@ -19,7 +19,7 @@ export class ConfigService implements IConfigService {
 
 	public get<T extends string | number | boolean>(key: string): T | never {
 		if (!this.parsedConfig[key]) {
-			throw new HttpError(500, '${key} not found', 'ConfigService');
+			throw new HttpError(500, `${key} not found`, 'ConfigService');
 		}
 
 		return this.parsedConfig[key] as T;

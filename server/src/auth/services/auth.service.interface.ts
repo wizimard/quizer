@@ -1,7 +1,11 @@
-import type { ITokenPair } from './token.service.interface';
+import type { ITokenPair, ITokenPayload } from './token.service.interface';
+
+export interface IAuthRequestResponse extends ITokenPair {
+	user: ITokenPayload;
+}
 
 export interface IAuthService {
-	login(email: string, password: string): Promise<ITokenPair>;
-	register(email: string, password: string): Promise<ITokenPair>;
-	refreshTokens(id: string, email: string): Promise<ITokenPair>;
+	login(email: string, password: string): Promise<IAuthRequestResponse>;
+	register(email: string, password: string): Promise<IAuthRequestResponse>;
+	refreshTokens(refreshToken: string): Promise<ITokenPair>;
 }

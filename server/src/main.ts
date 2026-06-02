@@ -1,12 +1,14 @@
 import { Container } from 'inversify';
 import { App } from './app';
 import { APP_TYPES } from './app.types';
-import { LoggerService } from './logger/logger.service';
-import { PrismaService } from './database/prisma.service';
-import { ConfigService } from './config/config.service';
+import { LoggerService } from './logger';
+import { PrismaService } from './database';
+import { ConfigService } from './config';
 import { authModule } from './auth';
 import { userContainer } from './user';
-import { RequestLoggerMiddleware } from './middleware/request-logger.middleware';
+import { RequestLoggerMiddleware } from './common/request-logger.middleware';
+import { ExceptionFilter } from './error';
+import { SwaggerController } from '@common/swagger.controller';
 
 async function bootstrap(): Promise<{ app: App; container: Container }> {
 	const container: Container = new Container();
@@ -16,6 +18,8 @@ async function bootstrap(): Promise<{ app: App; container: Container }> {
 	container.bind(APP_TYPES.CONFIG).to(ConfigService).inSingletonScope();
 	container.bind(APP_TYPES.PRISMA).to(PrismaService).inSingletonScope();
 	container.bind(APP_TYPES.REQUEST_LOGGER_MIDDLEWARE).to(RequestLoggerMiddleware).inSingletonScope();
+	container.bind(APP_TYPES.EXCEPTION_FILTER).to(ExceptionFilter).inSingletonScope();
+	container.bind(APP_TYPES.SWAGGER).to(SwaggerController).inSingletonScope();
 
 	container.load(authModule);
 	container.load(userContainer);
@@ -27,4 +31,4 @@ async function bootstrap(): Promise<{ app: App; container: Container }> {
 	return { app, container };
 }
 
-bootstrap();
+export const boot = bootstrap();

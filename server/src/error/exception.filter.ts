@@ -1,12 +1,12 @@
 import { inject, injectable } from 'inversify';
-import type { IExceptionInterface } from './exception.filter.interface';
+import type { IExceptionFilter } from './exception.filter.interface';
 import type { Request, Response, NextFunction } from 'express';
 import { APP_TYPES } from '@app_types';
 import type { ILogger } from '@logger';
 import { HttpError } from './http.error';
 
 @injectable()
-export class ExceptionFilter implements IExceptionInterface {
+export class ExceptionFilter implements IExceptionFilter {
 	constructor(@inject(APP_TYPES.LOGGER) private readonly logger: ILogger) {}
 
 	catch(err: Error | HttpError, req: Request, res: Response, next: NextFunction): void {

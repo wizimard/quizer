@@ -15,7 +15,9 @@ export class RequestLoggerMiddleware implements IMiddleware {
 			this.logger.info(JSON.stringify(req.user));
 		}
 
-		this.logger.info(JSON.stringify(req.body, undefined, 4));
+		if (req.body) {
+			this.logger.info(JSON.stringify(req.body, undefined, 4));
+		}
 
 		next();
 	}

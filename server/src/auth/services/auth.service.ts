@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
-import type { IAuthService } from './auth.service.interface';
-import type { ITokenPair } from './token.service.interface';
+import type { IAuthRequestResponse, IAuthService } from './auth.service.interface';
+import type { ITokenPair, ITokenPayload } from './token.service.interface';
 import { verifyHash } from '@common/hash';
 import { AUTH_TYPES } from '../auth.types';
 import type { ITokenService } from './token.service.interface';
@@ -15,30 +15,35 @@ export class AuthService implements IAuthService {
 		@inject(AUTH_TYPES.TOKEN_SERVICE) private readonly tokenService: ITokenService,
 	) {}
 
-	public async login(email: string, password: string): Promise<ITokenPair> {
+	public async login(email: string, password: string): Promise<IAuthRequestResponse> {
 		const user: UserModel | null = await this.userRepository.getByEmail(email);
 
 		if (!user) {
-			throw new HttpError(400, 'wrong email or password', 'AuthService');
+			throw new HttpError(422, 'wrong email or password', 'AuthService');
 		}
 
 		const isPasswordValid: boolean = await verifyHash(password, user.password);
 
 		if (!isPasswordValid) {
-			throw new HttpError(400, 'wrong email or password', 'AuthService');
+			throw new HttpError(422, 'wrong email or password', 'AuthService');
 		}
 
-		return this.tokenService.generateAuthTokens({
+		const tokenPayload: ITokenPayload = {
 			id: user.id,
 			email: user.email,
-		});
+		};
+
+		return {
+			...this.tokenService.generateAuthTokens(tokenPayload),
+			user: tokenPayload,
+		};
 	}
 
-	public async register(email: string, password: string): Promise<ITokenPair> {
+	public async register(email: string, password: string): Promise<IAuthRequestResponse> {
 		const existingUser: UserModel | null = await this.userRepository.getByEmail(email);
 
 		if (existingUser) {
-			throw new HttpError(400, 'email is busy', 'AuthService');
+			throw new HttpError(422, 'email is busy', 'AuthService');
 		}
 
 		const userEntity: IUser = new User(email);
@@ -50,16 +55,27 @@ export class AuthService implements IAuthService {
 			throw new HttpError(500, 'user not created', 'AuthService');
 		}
 
-		return this.tokenService.generateAuthTokens({
+		const tokenPayload: ITokenPayload = {
 			id: createdUser.id,
 			email: createdUser.email,
-		});
+		};
+
+		return {
+			...this.tokenService.generateAuthTokens(tokenPayload),
+			user: tokenPayload,
+		};
 	}
 
-	public async refreshTokens(id: string, email: string): Promise<ITokenPair> {
+	public async refreshTokens(refreshToken: string): Promise<ITokenPair> {
+		const payload = this.tokenService.verifyRefreshToken(refreshToken);
+
+		if (!payload) {
+			throw new HttpError(401, 'invalid token credentials', '[AuthService]');
+		}
+
 		return this.tokenService.generateAuthTokens({
-			id,
-			email,
+			id: payload.id,
+			email: payload.email,
 		});
 	}
 }
