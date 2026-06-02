@@ -12,7 +12,7 @@
       "target": "esnext",
       // For nodejs:
       "lib": ["esnext"],
-      "types": ["node"],
+      "types": ["jest", "node"],
       // and npm install -D @types/node
 
       // Other Outputs
@@ -44,7 +44,15 @@
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
       "paths": {
-        "@prisma/*": ["./generated/prisma/*"]
+        "@prisma/*": ["./generated/prisma/*"],
+        "@common/*": ["./src/common/*"],
+        "@database": ["./src/database"],
+        "@logger": ["./src/logger"],
+        "@app_types": ["./src/app.types"],
+        "@config": ["./src/config"],
+        "@user": ["./src/user"],
+        "@auth": ["./src/auth"],
+        "@error": ["./src/error"]
       }
   },
 

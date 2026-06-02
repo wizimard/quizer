@@ -1,0 +1,233 @@
+{
+    "openapi": "3.0.4",
+    "info": {
+        "title": "Quiz API",
+        "description": "",
+        "version": "0.0.1"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8031/api",
+            "description": "Main api server"
+        }
+    ],
+    "paths": {
+        "/auth/login": {
+            "post": {
+                "summary": "Login user",
+                "description": "Login user",
+                "requestBody": {
+                    "description": "Login request body",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserLoginRequestBody"
+                            },
+                            "examples": {
+                                "Login": {
+                                    "summary": "login example",
+                                    "description": "login example",
+                                    "value": {
+                                        "email": "user1@mail.com",
+                                        "password": "password1"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login success response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserAuthResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Login validation failed"
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "summary": "Register user",
+                "description": "Register user",
+                "requestBody": {
+                    "description": "Register request body",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserLoginRequestBody"
+                            },
+                            "examples": {
+                                "Login": {
+                                    "summary": "register example",
+                                    "description": "register example",
+                                    "value": {
+                                        "email": "user1@mail.com",
+                                        "password": "password1"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Register success response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserAuthResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Register validation failed"
+                    },
+                    "500": {
+                        "description": "Register failed"
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "summary": "Refresh token",
+                "description": "Refresh JWT token",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JWT token refreshed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RefreshTokenResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "summary": "Logout",
+                "description": "Logout",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Logout success"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/user/me": {
+            "get": {
+                "summary": "Get authorized user",
+                "description": "Get authorized user",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetUserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        },
+        "schemas": {
+            "UserLoginRequestBody": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                }
+            },
+            "UserAuthResponse": {
+                "type": "object",
+                "required": ["accessToken", "user"],
+                "properties": {
+                    "accessToken": {
+                        "type": "string"
+                    },
+                    "user": {
+                        "type": "object",
+                        "required": ["email"],
+                        "properties": {
+                            "email": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "RefreshTokenResponse": {
+                "type": "object",
+                "required": ["accessToken"],
+                "properties": {
+                    "accessToken": {
+                        "type": "string"
+                    }
+                }
+            },
+            "GetUserResponse": {
+                "type": "object",
+                "required": ["email"],
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
