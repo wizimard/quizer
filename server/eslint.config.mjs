@@ -32,6 +32,7 @@ export default defineConfig([
 			'@typescript-eslint/no-explicit-any': 'off',
 			'@typescript-eslint/explicit-function-return-type': ['warn'],
 			'@typescript-eslint/no-empty-object-type': 'off',
+			'@typescript-eslint/no-unsafe-function-type': 'off',
 
 			'prettier/prettier': [
 				'error',

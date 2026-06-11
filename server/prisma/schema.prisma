@@ -13,4 +13,30 @@ model UserModel {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  quizes QuizModel[]
+}
+
+model QuizModel {
+  id String @id @default(uuid())
+  title String
+  image String?
+  author UserModel @relation(fields: [authorId], references: [id])
+  authorId String
+
+  questions QuizQuestionModel[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model QuizQuestionModel {
+  id String @id @default(uuid())
+
+  quiz QuizModel @relation(fields: [quizId], references: [id])
+  quizId String
+  
+  order Int
+  description String
+  config Json
 }

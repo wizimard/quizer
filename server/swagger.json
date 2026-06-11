@@ -169,6 +169,195 @@
                     }
                 }
             }
+        },
+        "/quiz/{id}": {
+            "get": {
+                "summary": "Get quiz by id",
+                "description": "Get quiz by id",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Quiz found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuizResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "403": {
+                        "description": "Don't have rights"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete quiz by id",
+                "description": "Delete quiz by id",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "403": {
+                        "description": "Don't have rights"
+                    }
+                }
+            }
+        },
+        "/quiz": {
+            "get": {
+                "summary": "Get user's quizes",
+                "description": "Get user's quizes",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/QuizResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create quiz",
+                "description": "Create quiz",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "description": "Create quiz request body",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QuizCreateRequestBody"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Quiz created success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuizResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Validation failed"
+                    },
+                    "500": {
+                        "description": "Creating failed"
+                    }
+                }
+            },
+            "patch": {
+                "summary": "Update quiz",
+                "description": "Update quiz",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "description": "Updating quiz request body",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QuizUpdateRequestBody"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Quiz updated success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuizResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Don't have rights"
+                    },
+                    "422": {
+                        "description": "Validation failed"
+                    },
+                    "500": {
+                        "description": "Creating failed"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -225,6 +414,213 @@
                 "properties": {
                     "email": {
                         "type": "string"
+                    }
+                }
+            },
+            "QuestionConfigInput": {
+                "type": "object",
+                "required": ["answer", "ignore_case"],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": ["input"]
+                    },
+                    "answer": {
+                        "type": "string"
+                    },
+                    "ignore_case": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "QuestionConfigOption": {
+                "type": "object",
+                "required": ["id", "value"],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                }
+            },
+            "QuestionConfigOptionArray": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/QuestionConfigOption"
+                }
+            },
+            "QuestionConfigSingleChoise": {
+                "type": "object",
+                "required": ["answer", "options"],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": ["single_choise"]
+                    },
+                    "answer": {
+                        "type": "string"
+                    },
+                    "options": {
+                        "$ref": "#/components/schemas/QuestionConfigOptionArray"
+                    }
+                }
+            },
+            "QuestionConfigMultipleChoise": {
+                "type": "object",
+                "required": ["answer", "options"],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": ["multiple_choise"]
+                    },
+                    "answer": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "options": {
+                        "$ref": "#/components/schemas/QuestionConfigOptionArray"
+                    }
+                }
+            },
+            "QuestionConfigOrderAnswerOption": {
+                "type": "object",
+                "required": ["optionId", "order"],
+                "properties": {
+                    "optionId": {
+                        "type": "string"
+                    },
+                    "order": {
+                        "type": "number"
+                    }
+                }
+            },
+            "QuestionConfigOrder": {
+                "type": "object",
+                "required": ["answer", "options"],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": ["order"]
+                    },
+                    "answer": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuestionConfigOrderAnswerOption"
+                        }
+                    },
+                    "options": {
+                        "$ref": "#/components/schemas/QuestionConfigOptionArray"
+                    }
+                }
+            },
+            "QuestionRequest": {
+                "type": "object",
+                "required": ["id", "quizId", "order", "description", "type", "config"],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "quizId": {
+                        "type": "string"
+                    },
+                    "order": {
+                        "type": "number"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "config": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/QuestionConfigInput"
+                            },
+                            {
+                                "$ref": "#/components/schemas/QuestionConfigSingleChoise"
+                            },
+                            {
+                                "$ref": "#/components/schemas/QuestionConfigMultipleChoise"
+                            },
+                            {
+                                "$ref": "#/components/schemas/QuestionConfigOrder"
+                            }
+                        ]
+                    }
+                }
+            },
+            "QuizResponse": {
+                "type": "object",
+                "required": ["id", "authorId", "title", "questions", "updatedAt", "createdAt"],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "authorId": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "questions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuestionRequest"
+                        }
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                }
+            },
+            "QuizCreateRequestBody": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "questions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuestionRequest"
+                        }
+                    }
+                }
+            },
+            "QuizUpdateRequestBody": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "add": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuestionRequest"
+                        }
+                    },
+                    "update": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuestionRequest"
+                        }
+                    },
+                    "delete": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
                     }
                 }
             }

@@ -1,0 +1,1 @@
+export { SingleChoiseConfig } from "./SingleChoiseConfig";

@@ -4,7 +4,10 @@ import type { IUser } from './user.entity.interface';
 export class User implements IUser {
 	private _password: string;
 
-	constructor(private _email: string) {}
+	constructor(
+		public readonly id: string,
+		private _email: string,
+	) {}
 
 	get email(): string {
 		return this._email;

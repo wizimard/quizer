@@ -52,7 +52,8 @@
         "@config": ["./src/config"],
         "@user": ["./src/user"],
         "@auth": ["./src/auth"],
-        "@error": ["./src/error"]
+        "@error": ["./src/error"],
+        "@quiz": ["./src/quiz"]
       }
   },
 

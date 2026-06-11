@@ -8,4 +8,10 @@ export class HttpError extends Error {
 		this.statusCode = statusCode;
 		this.context = context;
 	}
+
+	getDataForSend(): object {
+		return {
+			message: this.message,
+		};
+	}
 }

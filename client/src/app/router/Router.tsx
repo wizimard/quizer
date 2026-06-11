@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { appRoutes, type IAppRoute } from "./routes";
 import { Suspense } from "react";
 import { useGetUser, useUser } from "@entities/user";
+import { AuthedLayout } from "../layout/AuthedLayout";
 
 export const AppRouter = () => {
 	const isAuthed = !!useUser((state) => state.user);
@@ -19,7 +20,9 @@ export const AppRouter = () => {
 									key={index}
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
-											<route.element />
+											<AuthedLayout>
+												<route.element />
+											</AuthedLayout>
 										</Suspense>
 									}
 								/>

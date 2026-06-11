@@ -1,1 +1,1 @@
-export { useYupValidationResolver } from "./useYupValidationResolver";
+export { useApi } from "./useApi";
