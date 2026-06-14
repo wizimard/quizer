@@ -9,8 +9,10 @@ export interface IQuestionAdd {
 }
 export const QuestionAdd = ({ appendQuestion }: IQuestionAdd) => {
 	const handleClick = () => {
+		const id: string = "new_" + uuidV4();
 		const question: TQuestionForm = {
-			id: "new_" + uuidV4(),
+			id,
+			questionId: id,
 			description: "",
 			config: null,
 		};

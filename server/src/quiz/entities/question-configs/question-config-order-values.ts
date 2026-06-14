@@ -89,7 +89,7 @@ export class QuestionConfigOrderValues extends QuestionConfigBase implements IQu
 		return {
 			type: this.type,
 			options: this.options.map((option) => option.toObject()),
-			answer: this.answer.join('_'),
+			answer: this.answer,
 		};
 	}
 }

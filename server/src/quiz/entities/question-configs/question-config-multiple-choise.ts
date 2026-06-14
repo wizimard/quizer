@@ -75,7 +75,7 @@ export class QuestionConfigMultipleChoise extends QuestionConfigBase implements 
 		return {
 			type: this.type,
 			options: this.options.map((option) => option.toObject()),
-			answer: this.answer.join('_'),
+			answer: this.answer,
 		};
 	}
 }

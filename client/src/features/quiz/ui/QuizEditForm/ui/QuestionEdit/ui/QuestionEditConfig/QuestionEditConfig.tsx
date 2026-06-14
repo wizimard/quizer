@@ -1,4 +1,3 @@
-import { QUESTION_TYPES } from "@entities/question/model/question.class";
 import { Box } from "@mui/material";
 import { InputConfig } from "./InputConfig";
 import { SingleChoiseConfig } from "./SingleChoiseConfig";
@@ -6,6 +5,7 @@ import { MultipleChoiseConfig } from "./MultipleChoiseConfig";
 // import { OrderConfig } from "./OrderConfig/OrderConfig";
 import type { QuestionRequestConfig } from "@shared/api/generated";
 import type { IEditConfigComponentProps } from "@features/quiz/model/editQuizForm";
+import { QUESTION_TYPES } from "@entities/question";
 
 export interface IQuestionEditConfig {
 	type: string;

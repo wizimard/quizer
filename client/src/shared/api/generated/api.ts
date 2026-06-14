@@ -27,7 +27,7 @@ export interface GetUserResponse {
     'email': string;
 }
 export interface QuestionConfigInput {
-    'type'?: QuestionConfigInputTypeEnum;
+    'type': QuestionConfigInputTypeEnum;
     'answer': string;
     'ignore_case': boolean;
 }
@@ -39,7 +39,7 @@ export const QuestionConfigInputTypeEnum = {
 export type QuestionConfigInputTypeEnum = typeof QuestionConfigInputTypeEnum[keyof typeof QuestionConfigInputTypeEnum];
 
 export interface QuestionConfigMultipleChoise {
-    'type'?: QuestionConfigMultipleChoiseTypeEnum;
+    'type': QuestionConfigMultipleChoiseTypeEnum;
     'answer': Array<string>;
     'options': Array<QuestionConfigOption>;
 }
@@ -55,7 +55,7 @@ export interface QuestionConfigOption {
     'value': string;
 }
 export interface QuestionConfigOrder {
-    'type'?: QuestionConfigOrderTypeEnum;
+    'type': QuestionConfigOrderTypeEnum;
     'answer': Array<QuestionConfigOrderAnswerOption>;
     'options': Array<QuestionConfigOption>;
 }
@@ -71,7 +71,7 @@ export interface QuestionConfigOrderAnswerOption {
     'order': number;
 }
 export interface QuestionConfigSingleChoise {
-    'type'?: QuestionConfigSingleChoiseTypeEnum;
+    'type': QuestionConfigSingleChoiseTypeEnum;
     'answer': string;
     'options': Array<QuestionConfigOption>;
 }

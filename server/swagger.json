@@ -419,7 +419,7 @@
             },
             "QuestionConfigInput": {
                 "type": "object",
-                "required": ["answer", "ignore_case"],
+                "required": ["answer", "ignore_case", "type"],
                 "properties": {
                     "type": {
                         "type": "string",
@@ -453,7 +453,7 @@
             },
             "QuestionConfigSingleChoise": {
                 "type": "object",
-                "required": ["answer", "options"],
+                "required": ["answer", "options", "type"],
                 "properties": {
                     "type": {
                         "type": "string",
@@ -469,7 +469,7 @@
             },
             "QuestionConfigMultipleChoise": {
                 "type": "object",
-                "required": ["answer", "options"],
+                "required": ["answer", "options", "type"],
                 "properties": {
                     "type": {
                         "type": "string",
@@ -500,7 +500,7 @@
             },
             "QuestionConfigOrder": {
                 "type": "object",
-                "required": ["answer", "options"],
+                "required": ["answer", "options", "type"],
                 "properties": {
                     "type": {
                         "type": "string",
@@ -515,6 +515,25 @@
                     "options": {
                         "$ref": "#/components/schemas/QuestionConfigOptionArray"
                     }
+                }
+            },
+            "QuestionRequestConfig": {
+                "oneOf": [
+                        {
+                            "$ref": "#/components/schemas/QuestionConfigInput"
+                        },
+                        {
+                            "$ref": "#/components/schemas/QuestionConfigSingleChoise"
+                        },
+                        {
+                            "$ref": "#/components/schemas/QuestionConfigMultipleChoise"
+                        },
+                        {
+                            "$ref": "#/components/schemas/QuestionConfigOrder"
+                        }
+                    ],
+                "discriminator": {
+                    "propertyName": "type"
                 }
             },
             "QuestionRequest": {
@@ -534,20 +553,7 @@
                         "type": "string"
                     },
                     "config": {
-                        "oneOf": [
-                            {
-                                "$ref": "#/components/schemas/QuestionConfigInput"
-                            },
-                            {
-                                "$ref": "#/components/schemas/QuestionConfigSingleChoise"
-                            },
-                            {
-                                "$ref": "#/components/schemas/QuestionConfigMultipleChoise"
-                            },
-                            {
-                                "$ref": "#/components/schemas/QuestionConfigOrder"
-                            }
-                        ]
+                        "$ref": "#/components/schemas/QuestionRequestConfig"
                     }
                 }
             },

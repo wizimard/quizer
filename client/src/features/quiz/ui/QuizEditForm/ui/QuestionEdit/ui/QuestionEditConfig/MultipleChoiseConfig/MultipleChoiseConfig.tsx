@@ -13,6 +13,8 @@ export const MultipleChoiseConfig = ({ answer, options, control, name }: IEditCo
 		const newAnswer: string[] = answerValue.includes(id) ? answerValue.filter((item: string) => item !== id) : [...answerValue, id];
 
 		answerField.onChange(newAnswer);
+
+		console.log(newAnswer);
 	};
 
 	return (
@@ -34,14 +36,7 @@ export const MultipleChoiseConfig = ({ answer, options, control, name }: IEditCo
 								borderRadius: "5px",
 							}}
 						>
-							<FormCheckboxField
-								onChange={handleChangeAnswer.bind(this, option.id)}
-								control={control}
-								name={`${name}.answer`}
-								sx={{ marginTop: "12px" }}
-								checked={answerValue.includes(option.id)}
-								color="success"
-							/>
+							<FormCheckboxField onChange={handleChangeAnswer.bind(this, option.id)} sx={{ marginTop: "12px" }} checked={answerValue.includes(option.id)} color="success" />
 							<FormTextField control={control} name={`${name}.options.${index}.value`} label="Вариант ответа" placeholder="Введите вариант ответа" />
 						</Box>
 					))}

@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **string** |  | [optional] [default to undefined]
+**type** | **string** |  | [default to undefined]
 **answer** | [**Array&lt;QuestionConfigOrderAnswerOption&gt;**](QuestionConfigOrderAnswerOption.md) |  | [default to undefined]
 **_options** | [**Array&lt;QuestionConfigOption&gt;**](QuestionConfigOption.md) |  | [default to undefined]
 

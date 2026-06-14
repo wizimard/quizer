@@ -1,6 +1,6 @@
 import type { QuestionRequestConfig } from "@shared/api/generated";
-import { QUESTION_TYPES } from "./question.class";
 import { v4 as uuidV4 } from "uuid";
+import { QUESTION_TYPES } from "./question-types.enum";
 
 function generateOptions(count: number = 4) {
 	return Array(count)

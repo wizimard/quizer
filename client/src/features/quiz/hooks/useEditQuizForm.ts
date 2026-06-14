@@ -58,7 +58,8 @@ export function useEditQuizForm(quiz: QuizResponse, mode: useEditQuizFormModes) 
 		setValue,
 		handleSubmit,
 		reset,
-		formState: { isSubmitting, isDirty },
+		formState: { isSubmitting, isDirty, errors },
+		getValues,
 	} = useForm<IEditQuiz>({
 		defaultValues: {
 			title: "",
@@ -68,6 +69,7 @@ export function useEditQuizForm(quiz: QuizResponse, mode: useEditQuizFormModes) 
 	});
 
 	useEffect(() => {
+		console.log("useEffect", quiz);
 		reset({
 			title: quiz.title,
 			questions: quiz.questions.toSorted((question1, question2) => question1.order - question2.order).map((question) => ({ ...question, questionId: question.id })),
@@ -77,6 +79,8 @@ export function useEditQuizForm(quiz: QuizResponse, mode: useEditQuizFormModes) 
 	useEffect(() => {
 		control._disableForm(isSubmitting);
 	}, [control, isSubmitting]);
+
+	console.log(errors, getValues("questions"));
 
 	const { fields: fieldsQuestions, append: appendQuestion, remove, move: moveQuestionOrder } = useFieldArray({ control, name: "questions" });
 

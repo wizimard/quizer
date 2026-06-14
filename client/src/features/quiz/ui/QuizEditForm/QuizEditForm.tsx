@@ -25,7 +25,7 @@ export const QuizEditForm = ({ quiz, mode }: IQuizEditFormProps) => {
 					<Button>Отменить</Button>
 				</ButtonGroup>
 			</Box>
-			<Box component="fieldset" disabled={isSubmitting} sx={{ width: "600px" }}>
+			<Box component="fieldset" disabled={isSubmitting} sx={{ width: "600px", border: "none", padding: 0, margin: 0 }}>
 				<FormTextField control={control} name="title" placeholder="Введите название викторины" label="Название викторины" />
 				<Text variant="h5" sx={{ padding: "10px 0" }}>
 					Вопросы

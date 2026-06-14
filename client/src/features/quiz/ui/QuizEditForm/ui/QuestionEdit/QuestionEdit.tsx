@@ -6,6 +6,7 @@ import type { IEditQuiz } from "@features/quiz/model/editQuizForm";
 import { QuestionEditConfig } from "./ui/QuestionEditConfig";
 import { QuestionEditHeader } from "./ui/QuestionEditHeader";
 import { QUESTION_TYPES_OPTIONS } from "./question-type-options";
+import { QuestionListItemContainer } from "@features/question";
 
 export interface IQuestionEditProps {
 	control: Control<IEditQuiz, unknown, IEditQuiz>;
@@ -38,12 +39,12 @@ export const QuestionEdit = ({ control, index, isLast, removeQuestion, changeQue
 			<Text component="span" sx={{ paddingTop: "3px" }}>
 				{index + 1}
 			</Text>
-			<Box sx={{ padding: "10px", width: "100%", backgroundColor: "#E8E8E8", borderRadius: "5px" }}>
+			<QuestionListItemContainer>
 				<QuestionEditHeader index={index} isLast={isLast} removeQuestion={removeQuestion} changeQuestionOrder={changeQuestionOrder} />
 				<FormTextField control={control} name={`questions.${index}.description`} placeholder="Введите описание задачи" label="Описание задачи" sx={{ marginBottom: "20px" }} />
 				<FormSelectField onChange={handleChange} control={control} name={`questions.${index}.config.type`} id={`questions.${index}.type`} options={QUESTION_TYPES_OPTIONS} label="Тип ответа" />
 				{config && <QuestionEditConfig type={config.type} config={config} control={control} name={`questions.${index}.config`} />}
-			</Box>
+			</QuestionListItemContainer>
 		</Box>
 	);
 };
