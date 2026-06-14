@@ -1,0 +1,1 @@
+export { QuizDeleteDialog } from "./QuizDeleteDialog";
