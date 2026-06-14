@@ -14,9 +14,6 @@ export const QuizEditor = () => {
 
 	return (
 		<Box component="section" sx={{ paddingBottom: "10px" }}>
-			<Box component="header" sx={{ height: "60px", borderBottom: "1px solid green" }}>
-				Header
-			</Box>
 			{isLoading ? <>Loading...</> : <>{quiz && <QuizEditForm quiz={quiz} mode={mode} />}</>}
 			{error && <span>{error.message}</span>}
 		</Box>
