@@ -1,0 +1,1 @@
+export { InputConfig } from "./InputConfig";

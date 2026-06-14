@@ -26,6 +26,93 @@ import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerM
 export interface GetUserResponse {
     'email': string;
 }
+export interface QuestionConfigInput {
+    'type': QuestionConfigInputTypeEnum;
+    'answer': string;
+    'ignore_case': boolean;
+}
+
+export const QuestionConfigInputTypeEnum = {
+    Input: 'input',
+} as const;
+
+export type QuestionConfigInputTypeEnum = typeof QuestionConfigInputTypeEnum[keyof typeof QuestionConfigInputTypeEnum];
+
+export interface QuestionConfigMultipleChoise {
+    'type': QuestionConfigMultipleChoiseTypeEnum;
+    'answer': Array<string>;
+    'options': Array<QuestionConfigOption>;
+}
+
+export const QuestionConfigMultipleChoiseTypeEnum = {
+    MultipleChoise: 'multiple_choise',
+} as const;
+
+export type QuestionConfigMultipleChoiseTypeEnum = typeof QuestionConfigMultipleChoiseTypeEnum[keyof typeof QuestionConfigMultipleChoiseTypeEnum];
+
+export interface QuestionConfigOption {
+    'id': string;
+    'value': string;
+}
+export interface QuestionConfigOrder {
+    'type': QuestionConfigOrderTypeEnum;
+    'answer': Array<QuestionConfigOrderAnswerOption>;
+    'options': Array<QuestionConfigOption>;
+}
+
+export const QuestionConfigOrderTypeEnum = {
+    Order: 'order',
+} as const;
+
+export type QuestionConfigOrderTypeEnum = typeof QuestionConfigOrderTypeEnum[keyof typeof QuestionConfigOrderTypeEnum];
+
+export interface QuestionConfigOrderAnswerOption {
+    'optionId': string;
+    'order': number;
+}
+export interface QuestionConfigSingleChoise {
+    'type': QuestionConfigSingleChoiseTypeEnum;
+    'answer': string;
+    'options': Array<QuestionConfigOption>;
+}
+
+export const QuestionConfigSingleChoiseTypeEnum = {
+    SingleChoise: 'single_choise',
+} as const;
+
+export type QuestionConfigSingleChoiseTypeEnum = typeof QuestionConfigSingleChoiseTypeEnum[keyof typeof QuestionConfigSingleChoiseTypeEnum];
+
+export interface QuestionRequest {
+    'id': string;
+    'quizId': string;
+    'order': number;
+    'description': string;
+    'config': QuestionRequestConfig;
+}
+/**
+ * @type QuestionRequestConfig
+ */
+export type QuestionRequestConfig = QuestionConfigInput | QuestionConfigMultipleChoise | QuestionConfigOrder | QuestionConfigSingleChoise;
+
+export interface QuizCreateRequestBody {
+    'title'?: string;
+    'questions'?: Array<QuestionRequest>;
+}
+export interface QuizResponse {
+    'id': string;
+    'authorId': string;
+    'title': string;
+    'questions': Array<QuestionRequest>;
+    'updatedAt': string;
+    'createdAt': string;
+}
+export interface QuizUpdateRequestBody {
+    'id': string;
+    'title'?: string;
+    'add'?: Array<QuestionRequest>;
+    'update'?: Array<QuestionRequest>;
+    'delete'?: Array<string>;
+}
 export interface RefreshTokenResponse {
     'accessToken': string;
 }
@@ -184,6 +271,193 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * Get user\'s quizes
+         * @summary Get user\'s quizes
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/quiz`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Delete quiz by id
+         * @summary Delete quiz by id
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizIdDelete: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('quizIdDelete', 'id', id)
+            const localVarPath = `/quiz/{id}`
+                .replace('{id}', encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Get quiz by id
+         * @summary Get quiz by id
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizIdGet: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('quizIdGet', 'id', id)
+            const localVarPath = `/quiz/{id}`
+                .replace('{id}', encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Update quiz
+         * @summary Update quiz
+         * @param {QuizUpdateRequestBody} quizUpdateRequestBody Updating quiz request body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizPatch: async (quizUpdateRequestBody: QuizUpdateRequestBody, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'quizUpdateRequestBody' is not null or undefined
+            assertParamExists('quizPatch', 'quizUpdateRequestBody', quizUpdateRequestBody)
+            const localVarPath = `/quiz`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(quizUpdateRequestBody, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Create quiz
+         * @summary Create quiz
+         * @param {QuizCreateRequestBody} quizCreateRequestBody Create quiz request body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizPost: async (quizCreateRequestBody: QuizCreateRequestBody, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'quizCreateRequestBody' is not null or undefined
+            assertParamExists('quizPost', 'quizCreateRequestBody', quizCreateRequestBody)
+            const localVarPath = `/quiz`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(quizCreateRequestBody, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Get authorized user
          * @summary Get authorized user
          * @param {*} [options] Override http request option.
@@ -277,6 +551,70 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Get user\'s quizes
+         * @summary Get user\'s quizes
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async quizGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<QuizResponse>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.quizGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.quizGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Delete quiz by id
+         * @summary Delete quiz by id
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async quizIdDelete(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.quizIdDelete(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.quizIdDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Get quiz by id
+         * @summary Get quiz by id
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async quizIdGet(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.quizIdGet(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.quizIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Update quiz
+         * @summary Update quiz
+         * @param {QuizUpdateRequestBody} quizUpdateRequestBody Updating quiz request body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async quizPatch(quizUpdateRequestBody: QuizUpdateRequestBody, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.quizPatch(quizUpdateRequestBody, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.quizPatch']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Create quiz
+         * @summary Create quiz
+         * @param {QuizCreateRequestBody} quizCreateRequestBody Create quiz request body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async quizPost(quizCreateRequestBody: QuizCreateRequestBody, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.quizPost(quizCreateRequestBody, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.quizPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Get authorized user
          * @summary Get authorized user
          * @param {*} [options] Override http request option.
@@ -336,6 +674,55 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.authRegisterPost(userLoginRequestBody, options).then((request) => request(axios, basePath));
         },
         /**
+         * Get user\'s quizes
+         * @summary Get user\'s quizes
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizGet(options?: RawAxiosRequestConfig): AxiosPromise<Array<QuizResponse>> {
+            return localVarFp.quizGet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Delete quiz by id
+         * @summary Delete quiz by id
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizIdDelete(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.quizIdDelete(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Get quiz by id
+         * @summary Get quiz by id
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizIdGet(id: string, options?: RawAxiosRequestConfig): AxiosPromise<QuizResponse> {
+            return localVarFp.quizIdGet(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Update quiz
+         * @summary Update quiz
+         * @param {QuizUpdateRequestBody} quizUpdateRequestBody Updating quiz request body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizPatch(quizUpdateRequestBody: QuizUpdateRequestBody, options?: RawAxiosRequestConfig): AxiosPromise<QuizResponse> {
+            return localVarFp.quizPatch(quizUpdateRequestBody, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Create quiz
+         * @summary Create quiz
+         * @param {QuizCreateRequestBody} quizCreateRequestBody Create quiz request body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizPost(quizCreateRequestBody: QuizCreateRequestBody, options?: RawAxiosRequestConfig): AxiosPromise<QuizResponse> {
+            return localVarFp.quizPost(quizCreateRequestBody, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Get authorized user
          * @summary Get authorized user
          * @param {*} [options] Override http request option.
@@ -391,6 +778,60 @@ export class DefaultApi extends BaseAPI {
      */
     public authRegisterPost(userLoginRequestBody: UserLoginRequestBody, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).authRegisterPost(userLoginRequestBody, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Get user\'s quizes
+     * @summary Get user\'s quizes
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public quizGet(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).quizGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Delete quiz by id
+     * @summary Delete quiz by id
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public quizIdDelete(id: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).quizIdDelete(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Get quiz by id
+     * @summary Get quiz by id
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public quizIdGet(id: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).quizIdGet(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Update quiz
+     * @summary Update quiz
+     * @param {QuizUpdateRequestBody} quizUpdateRequestBody Updating quiz request body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public quizPatch(quizUpdateRequestBody: QuizUpdateRequestBody, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).quizPatch(quizUpdateRequestBody, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Create quiz
+     * @summary Create quiz
+     * @param {QuizCreateRequestBody} quizCreateRequestBody Create quiz request body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public quizPost(quizCreateRequestBody: QuizCreateRequestBody, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).quizPost(quizCreateRequestBody, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

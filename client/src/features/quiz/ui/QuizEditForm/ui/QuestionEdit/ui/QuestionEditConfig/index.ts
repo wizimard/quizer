@@ -1,0 +1,1 @@
+export { QuestionEditConfig } from "./QuestionEditConfig";

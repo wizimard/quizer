@@ -39,4 +39,12 @@ export abstract class BaseController implements IController {
 	protected created(res: Response, data: unknown = null): void {
 		this.send(res, 201, data);
 	}
+
+	protected noContent(res: Response): void {
+		this.send(res, 204);
+	}
+
+	protected accepted(res: Response, data: unknown = null): void {
+		this.send(res, 202, data);
+	}
 }

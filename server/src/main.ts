@@ -9,6 +9,7 @@ import { userContainer } from './user';
 import { RequestLoggerMiddleware } from './common/request-logger.middleware';
 import { ExceptionFilter } from './error';
 import { SwaggerController } from '@common/swagger.controller';
+import { quizContainer } from './quiz';
 
 async function bootstrap(): Promise<{ app: App; container: Container }> {
 	const container: Container = new Container();
@@ -23,6 +24,7 @@ async function bootstrap(): Promise<{ app: App; container: Container }> {
 
 	container.load(authModule);
 	container.load(userContainer);
+	container.load(quizContainer);
 
 	const app: App = container.get(APP_TYPES.APP);
 

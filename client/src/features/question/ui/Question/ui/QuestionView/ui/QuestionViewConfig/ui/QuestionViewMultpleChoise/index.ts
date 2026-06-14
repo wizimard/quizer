@@ -1,0 +1,1 @@
+export { QuestionViewMultpleChoise } from "./QuestionViewMultpleChoise";
