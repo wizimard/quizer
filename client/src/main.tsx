@@ -9,6 +9,8 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
+import "./app/locale/i18n";
+
 createRoot(document.getElementById("root")!).render(
 	<StrictMode>
 		<BrowserRouter>

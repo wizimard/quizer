@@ -13,36 +13,36 @@ export interface IEditQuiz {
 
 const optionSchema = zod.object({
 	id: zod.string(),
-	value: zod.string().min(1, "Введите вариант ответа"),
+	value: zod.string().min(1, "quiz_create.form.validation_errors.option_value"),
 });
 
 const questionSchema = zod.object({
 	id: zod.string(),
 	questionId: zod.string(),
-	description: zod.string().min(1, "Введите описание задачи"),
+	description: zod.string().min(1, "quiz_create.form.validation_errors.question_description"),
 	config: zod.discriminatedUnion(
 		"type",
 		[
 			zod.object({
 				type: zod.literal("input"),
-				answer: zod.string().min(1, "Введите ответ"),
+				answer: zod.string().min(1, "quiz_create.form.validation_errors.answer_input"),
 				ignore_case: zod.boolean(),
 			}),
 			zod.object({
 				type: zod.literal("single_choise"),
-				answer: zod.string().min(1, "Выберите правильный ответ"),
+				answer: zod.string().min(1, "quiz_create.form.validation_errors.answer_single_choise"),
 				options: zod.array(optionSchema),
 			}),
 			zod.object({
 				type: zod.literal("multiple_choise"),
-				answer: zod.array(zod.string()).min(1, "Выберите правильные ответы"),
+				answer: zod.array(zod.string()).min(1, "quiz_create.form.validation_errors.answer_multiple_choise"),
 				options: zod.array(optionSchema),
 			}),
 		],
 		{
 			error: (issue) => {
 				if (issue.code === "invalid_union") {
-					return "Выберите тип вопроса";
+					return "quiz_create.form.validation_errors.question_type";
 				}
 				return issue.message;
 			},
@@ -53,8 +53,8 @@ const questionSchema = zod.object({
 export type TEditQuizQuestion = zod.infer<typeof questionSchema>;
 
 export const editQuizValidationSchema = zod.object({
-	title: zod.string().min(1, "Введите название викторины"),
-	questions: zod.array(questionSchema).min(1, "Добавьте вопросы"),
+	title: zod.string().min(1, "quiz_create.form.validation_errors.quiz_title"),
+	questions: zod.array(questionSchema).min(1, "quiz_create.form.validation_errors.questions_count_zero"),
 });
 
 export type TEditQuiz = zod.infer<typeof editQuizValidationSchema>;

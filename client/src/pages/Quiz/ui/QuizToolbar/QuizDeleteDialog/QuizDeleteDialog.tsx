@@ -1,6 +1,7 @@
 import { Dialog, DialogTitle, DialogActions, Button } from "@mui/material";
 import { api } from "@shared/api";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 export interface IQuizDeleteDialogProps {
@@ -10,6 +11,8 @@ export interface IQuizDeleteDialogProps {
 }
 
 export const QuizDeleteDialog = ({ quizId, isOpen, handleClose }: IQuizDeleteDialogProps) => {
+	const { t } = useTranslation();
+
 	const navigate = useNavigate();
 
 	const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -30,13 +33,13 @@ export const QuizDeleteDialog = ({ quizId, isOpen, handleClose }: IQuizDeleteDia
 
 	return (
 		<Dialog open={isOpen} onClose={handleClose}>
-			<DialogTitle>Вы уверены, что хотите удалить викторину?</DialogTitle>
+			<DialogTitle>{t("quiz.delete_modal.title")}</DialogTitle>
 			<DialogActions>
 				<Button autoFocus onClick={handleClose}>
-					Отменить
+					{t("common.button_cancel")}
 				</Button>
 				<Button color="error" onClick={handleRemove} loading={isLoading}>
-					Удалить
+					{t("common.button_delete")}
 				</Button>
 			</DialogActions>
 		</Dialog>

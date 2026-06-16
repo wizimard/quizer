@@ -1,0 +1,109 @@
+{
+    "common": {
+        "button_cancel": "Отменить",
+        "button_delete": "Удалить",
+        "button_edit": "Изменить",
+        "button_save": "Сохранить"
+    },
+    "auth": {
+        "login": {
+            "title": "Ввойдите в ваш аккаунт",
+            "bottom": {
+                "text": "У вас нет аккаунта?",
+                "button": "создайте"
+            },
+            "button": "Войти"
+        },
+        "register": {
+            "title": "Создайте новый аккаунт",
+            "bottom": {
+                "text": "Уже имеете аккаунт?",
+                "button": "войдите"
+            },
+            "button": "Зарегистрироваться"
+        },
+        "form": {
+            "fields": {
+                "email": "Email",
+                "password": "Пароль",
+                "repeat_password": "Повторить пароль"
+            },
+            "validation_errors": {
+                "email": "Значение в поле не email",
+                "password_min_length": "Минимальная длина пароля 8 символов",
+                "password_max_length": "Максимальная длина пароля 255 символов",
+                "confirm_password": "Пароли должны совпадать"
+            },
+            "server_errors": {
+                "something_wrong": "Что-то пошло не так",
+                "login_credentials_invalid": "Email или пароль не правильные",
+                "email_busy": "Email уже занят"
+            }
+        }
+    },
+    "quiz_list": {
+        "title": "Ваши тесты",
+        "add_button": "Добавить тест"
+    },
+    "quiz": {
+        "title": "Тест:",
+        "questions": "Вопросы",
+        "delete_modal": {
+            "title": "Вы уверены, что хотите удалить тест?"
+        }
+    },
+    "quiz_create": {
+        "form": {
+            "fields": {
+                "title": {
+                    "label": "Название теста",
+                    "placeholder": "Введите название теста"
+                }
+            },
+            "add_question": "Добавить вопрос",
+            "validation_errors": {
+                "quiz_title": "Введите название теста",
+                "questions_count_zero": "Добавьте вопросы",
+                "option_value": "Введите вариант ответа",
+                "question_description": "Введите описание задачи",
+                "question_type": "Выберите тип вопроса",
+                "answer_input": "Введите ответ",
+                "answer_single_choise": "Выберите правильный ответ",
+                "answer_multiple_choise": "Выберите правильные ответы"
+            }
+        }
+    },
+    "question_create_form": {
+        "description": {
+            "label": "Описание задачи",
+            "placeholder": "Введите описание задачи"
+        },
+        "type": {
+            "label": "Тип ответа"
+        },
+        "input": {
+            "answer": {
+                "label": "Ответ",
+                "placeholder": "Введите ответ на вопрос"
+            },
+            "ignore_case": {
+                "label": "игнорировать регистр"
+            }
+        },
+        "answer_option": {
+            "label": "Вариант ответа",
+            "placeholder": "Введите вариант ответа",
+            "add": "Добавить вариант ответа"
+        }
+    },
+    "header": {
+        "user_menu": {
+            "logout": "Выйти"
+        }
+    },
+    "question_types": {
+        "input": "Ввод значения",
+        "single_choise": "Выбор единственного значения",
+        "multiple_choise": "Выбор множества значений"
+    }
+}
