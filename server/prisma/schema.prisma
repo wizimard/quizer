@@ -26,6 +26,10 @@ model QuizModel {
 
   questions QuizQuestionModel[]
 
+  isOpen Boolean @default(false)
+
+  availablePeriods QuizAvailablePeriodModel[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -39,4 +43,14 @@ model QuizQuestionModel {
   order Int
   description String
   config Json
+}
+
+model QuizAvailablePeriodModel {
+  id BigInt @id  @default(autoincrement())
+
+  quiz QuizModel @relation(fields: [quizId], references: [id])
+  quizId String
+
+  available_from DateTime
+  available_to DateTime?
 }
