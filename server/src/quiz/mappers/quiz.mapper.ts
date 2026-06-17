@@ -7,6 +7,7 @@ import type { TQuizModelWithQuestions } from '../repositories/quiz.repository.in
 import type { QuizModel } from '@prisma/client';
 import type { IQuestionEntity } from '../entities/question.entity.interface';
 import { QuestionMapper } from './question.mapper';
+import type { IQuizExecuteResponse } from '../dto/quiz-execute-response.dto';
 
 export class QuizMapper {
 	private readonly questionMapper: QuestionMapper = new QuestionMapper();
@@ -46,5 +47,15 @@ export class QuizMapper {
 		const quiz: IQuizEntity = this.toEntityFromRepositry(quizModel);
 
 		return this.toResponseFromEntity(quiz);
+	}
+
+	public toResponseExecuteFromRepository(quizModel: TQuizModelWithQuestions | QuizModel): IQuizExecuteResponse {
+		const quiz: IQuizEntity = this.toEntityFromRepositry(quizModel);
+
+		return {
+			id: quiz.id,
+			title: quiz.title,
+			authorId: quiz.authorId,
+		};
 	}
 }

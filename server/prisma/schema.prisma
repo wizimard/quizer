@@ -24,6 +24,8 @@ model QuizModel {
   author UserModel @relation(fields: [authorId], references: [id])
   authorId String
 
+  type String @default("private")
+
   questions QuizQuestionModel[]
 
   createdAt DateTime @default(now())
