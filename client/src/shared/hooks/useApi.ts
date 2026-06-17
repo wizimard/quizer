@@ -9,6 +9,7 @@ export const useApi = <T extends object>(callback: () => Promise<AxiosResponse<T
 	useEffect(() => {
 		(async () => {
 			setIsLoading(true);
+			setError(null);
 
 			try {
 				const response = await callback();

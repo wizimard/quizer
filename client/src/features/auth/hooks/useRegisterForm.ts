@@ -37,9 +37,9 @@ export const useRegisterForm = () => {
 			navigate("/");
 		} catch (err: unknown) {
 			if (err instanceof AxiosError && err.status < 500) {
-				setError("form", { message: "Email is busy" });
+				setError("form", { message: "auth.form.server_errors.email_busy" });
 			} else {
-				setError("form", { message: "Something went wrong" });
+				setError("form", { message: "auth.form.server_errors.something_wrong" });
 			}
 		}
 	});

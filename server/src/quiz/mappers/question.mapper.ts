@@ -5,6 +5,8 @@ import { type IQuestionConfigFactory, QuestionConfigFactory } from '../entities/
 import { QuestionEntity } from '../entities/question.entity';
 import type { IQuestionEntity } from '../entities/question.entity.interface';
 import type { TQuestionCreateOrUpdateData } from '../repositories/question.repository.interface';
+import type { IQuestionResponse } from '../dto/questions-response.interface';
+import { HttpError } from '../../error/http.error';
 
 export class QuestionMapper {
 	private readonly configFactory: IQuestionConfigFactory = new QuestionConfigFactory();
@@ -35,5 +37,39 @@ export class QuestionMapper {
 		const config: QuestionConfigBase = this.configFactory.getConfig(dto.config as any);
 
 		return new QuestionEntity(dto.id, quizId, dto.description, dto.order, config);
+	}
+
+	public toResponseExecuteFromEntity(question: IQuestionEntity): IQuestionResponse {
+		const config: object = question.config.toObject();
+
+		if ('answer' in config) {
+			delete config.answer;
+		}
+
+		return {
+			id: question.id,
+			quizId: question.quizId,
+			order: question.order,
+			description: question.description,
+			config,
+		};
+	}
+
+	public toResponseExecuteFromRepository(questionModel: QuizQuestionModel): IQuestionResponse {
+		const config = questionModel.config;
+
+		if (!config || typeof config !== 'object' || Array.isArray(config) || 'answer' in config) {
+			throw new HttpError(500, 'question config has invalid structure');
+		}
+
+		delete config.answer;
+
+		return {
+			id: questionModel.id,
+			quizId: questionModel.quizId,
+			order: questionModel.order,
+			description: questionModel.description,
+			config,
+		};
 	}
 }

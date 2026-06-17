@@ -1,10 +1,13 @@
 import { Avatar, Box, IconButton, Menu, MenuItem, Tooltip } from "@mui/material";
 import { Text } from "@shared/ui/text";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
-const menuItems = [{ id: "logout", title: "Logout" }];
+const menuItems = [{ id: "logout", title: "header.user_menu.logout" }];
 
 export const HeaderUserMenu = () => {
+	const { t } = useTranslation();
+
 	const [el, setEl] = useState<HTMLElement | null>(null);
 
 	const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -38,7 +41,7 @@ export const HeaderUserMenu = () => {
 			>
 				{menuItems.map((menuItem) => (
 					<MenuItem key={menuItem.id} onClick={handleClickMenuItem}>
-						<Text>{menuItem.title}</Text>
+						<Text>{t(menuItem.title)}</Text>
 					</MenuItem>
 				))}
 			</Menu>

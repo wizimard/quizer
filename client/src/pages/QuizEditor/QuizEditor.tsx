@@ -1,6 +1,7 @@
 import { useGetQuiz, useQuiz } from "@entities/quiz";
 import { useEditQuizFormModes, QuizEditForm } from "@features/quiz";
 import { Box } from "@mui/material";
+import { LoadingLayout } from "@shared/ui/layout";
 import { useParams } from "react-router-dom";
 
 export const QuizEditor = () => {
@@ -14,8 +15,9 @@ export const QuizEditor = () => {
 
 	return (
 		<Box component="section" sx={{ paddingBottom: "10px" }}>
-			{isLoading ? <>Loading...</> : <>{quiz && <QuizEditForm quiz={quiz} mode={mode} />}</>}
-			{error && <span>{error.message}</span>}
+			<LoadingLayout isLoading={isLoading} error={error}>
+				<>{!!quiz && <QuizEditForm quiz={quiz} mode={mode} />}</>
+			</LoadingLayout>
 		</Box>
 	);
 };

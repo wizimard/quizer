@@ -6,6 +6,7 @@ import { useEditQuizForm } from "@features/quiz/hooks/useEditQuizForm";
 import { QuestionEdit } from "./ui/QuestionEdit/QuestionEdit";
 import type { useEditQuizFormModes } from "@features/quiz/hooks/useEditQuizForm.types";
 import type { QuizResponse } from "@shared/api/generated";
+import { useTranslation } from "react-i18next";
 
 export interface IQuizEditFormProps {
 	quiz: QuizResponse;
@@ -13,6 +14,8 @@ export interface IQuizEditFormProps {
 }
 
 export const QuizEditForm = ({ quiz, mode }: IQuizEditFormProps) => {
+	const { t } = useTranslation();
+
 	const { control, fieldsQuestions, appendQuestion, removeQuestion, changeQuestionType, changeQuestionOrder, submitHandler, isSubmitting, isDirty } = useEditQuizForm(quiz, mode);
 
 	return (
@@ -20,15 +23,15 @@ export const QuizEditForm = ({ quiz, mode }: IQuizEditFormProps) => {
 			<Box sx={{ width: "100%", padding: "10px 20px", display: "flex", justifyContent: "flex-end" }}>
 				<ButtonGroup variant="outlined" aria-label="Loading button group">
 					<Button type="submit" loading={isSubmitting} disabled={!isDirty}>
-						Сохранить
+						{t("common.button_save")}
 					</Button>
-					<Button>Отменить</Button>
+					<Button>{t("common.button_cancel")}</Button>
 				</ButtonGroup>
 			</Box>
 			<Box component="fieldset" disabled={isSubmitting} sx={{ width: "600px", border: "none", padding: 0, margin: 0 }}>
-				<FormTextField control={control} name="title" placeholder="Введите название викторины" label="Название викторины" />
+				<FormTextField control={control} name="title" placeholder="quiz_create.form.fields.title.placeholder" label="quiz_create.form.fields.title.label" />
 				<Text variant="h5" sx={{ padding: "10px 0" }}>
-					Вопросы
+					{t("quiz.questions")}
 				</Text>
 				{!!fieldsQuestions.length && (
 					<Box component="ul" sx={{ listStyle: "none", margin: 0, padding: "0 0 20px 0", display: "flex", flexDirection: "column", gap: "20px" }}>

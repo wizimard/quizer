@@ -8,11 +8,11 @@ export interface IRegisterFormValues {
 
 export const registerFormValidationSchema = zod
 	.object({
-		email: zod.email(),
-		password: zod.string().min(8).max(255),
-		repeatPassword: zod.string().min(8).max(255),
+		email: zod.email("auth.form.validation_errors.email"),
+		password: zod.string().min(8, "auth.form.validation_errors.password_min_length").max(255, "auth.form.validation_errors.password_max_length"),
+		repeatPassword: zod.string().min(8, "auth.form.validation_errors.password_min_length").max(255, "auth.form.validation_errors.password_max_length"),
 	})
 	.refine((data) => data.password === data.repeatPassword, {
-		message: "Пароли должны совпадать",
+		message: "auth.form.validation_errors.confirm_password",
 		path: ["repeatPassword"],
 	});
