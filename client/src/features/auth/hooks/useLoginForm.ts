@@ -36,9 +36,9 @@ export const useLoginForm = () => {
 			navigate("/");
 		} catch (err: unknown) {
 			if (err instanceof AxiosError && err.status < 500) {
-				setError("form", { message: "Login or password is wrong" });
+				setError("form", { message: "auth.form.server_errors.login_credentials_invalid" });
 			} else {
-				setError("form", { message: "Something went wrong" });
+				setError("form", { message: "auth.form.server_errors.something_wrong" });
 			}
 		}
 	});

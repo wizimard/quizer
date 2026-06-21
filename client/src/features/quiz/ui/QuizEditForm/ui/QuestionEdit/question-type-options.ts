@@ -1,15 +1,15 @@
 export const QUESTION_TYPES_OPTIONS = [
 	{
 		value: "input",
-		text: "Ввод значения",
+		text: "question_types.input",
 	},
 	{
 		value: "single_choise",
-		text: "Выбор единственного значения",
+		text: "question_types.single_choise",
 	},
 	{
 		value: "multiple_choise",
-		text: "Выбор множества значений",
+		text: "question_types.multiple_choise",
 	},
 	// {
 	// 	value: "order",

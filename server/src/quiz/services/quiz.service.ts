@@ -14,6 +14,7 @@ import type { IQuizValidationError } from '../errors/quiz-validation.errror';
 import type { IQuestionEntity } from '../entities/question.entity.interface';
 import type { BatchPayload } from '@prisma/internal/prismaNamespace';
 import type { QuizModel } from '@prisma/client';
+import type { IQuizExecuteResponse } from '../dto/quiz-execute-response.dto';
 
 @injectable()
 export class QuizService implements IQuizService {
@@ -130,5 +131,11 @@ export class QuizService implements IQuizService {
 		}
 
 		return quizModel;
+	}
+
+	public async getByIdForExecute(quizId: string): Promise<IQuizExecuteResponse> {
+		const quizModel = await this.getQuizById(quizId);
+
+		return this.quizMapper.toResponseExecuteFromRepository(quizModel);
 	}
 }

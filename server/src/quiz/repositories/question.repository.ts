@@ -8,11 +8,24 @@ import type { QuizQuestionModel } from '@prisma/client';
 export class QuestionRepository implements IQuestionRepository {
 	constructor(@inject(APP_TYPES.PRISMA) private readonly prismaService: IPrismaService) {}
 
-	async getByQuizId(quizId: string): Promise<QuizQuestionModel[] | null> {
+	async getQuizQuestions(quizId: string): Promise<QuizQuestionModel[] | null> {
 		try {
 			return await this.prismaService.client.quizQuestionModel.findMany({
 				where: {
 					quizId,
+				},
+			});
+		} catch {
+			return null;
+		}
+	}
+
+	async getQuestion(quizId: string, questionId: string): Promise<QuizQuestionModel | null> {
+		try {
+			return await this.prismaService.client.quizQuestionModel.findUnique({
+				where: {
+					quizId,
+					id: questionId,
 				},
 			});
 		} catch {

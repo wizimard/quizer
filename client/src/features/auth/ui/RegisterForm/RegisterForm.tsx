@@ -4,24 +4,27 @@ import { FormTextField } from "@shared/ui/form";
 import { DefaultButton } from "@shared/ui/button";
 import { Text } from "@shared/ui/text";
 import { useRegisterForm } from "@features/auth/hooks/useRegisterForm";
+import { useTranslation } from "react-i18next";
 
 export const RegisterForm = () => {
+	const { t } = useTranslation();
+
 	const { isSubmitting, submitHandler, errors, control } = useRegisterForm();
 
 	return (
 		<Box className={styles.container}>
-			<Text variant="h4">Создайте новый аккаунт</Text>
+			<Text variant="h4">{t("auth.register.title")}</Text>
 			<form className={styles.form} onSubmit={submitHandler}>
-				<FormTextField control={control} name="email" id="email" label="Email" required></FormTextField>
-				<FormTextField control={control} name="password" id="password" label="Пароль" type="password" required autoComplete="none"></FormTextField>
-				<FormTextField control={control} name="repeatPassword" id="repeatPassword" label="Repeat password" type="password" required autoComplete="none"></FormTextField>
+				<FormTextField control={control} name="email" id="email" label="auth.form.fields.email" required></FormTextField>
+				<FormTextField control={control} name="password" id="password" label="auth.form.fields.password" type="password" required autoComplete="none"></FormTextField>
+				<FormTextField control={control} name="repeatPassword" id="repeatPassword" label="auth.form.fields.repeat_password" type="password" required autoComplete="none"></FormTextField>
 				{errors.root && (
 					<Text variant="body1" color="error">
-						{errors.root.message}
+						{t(errors.root.message)}
 					</Text>
 				)}
 				<DefaultButton type="submit" variant="outlined" isLoading={isSubmitting}>
-					Зарегистрироваться
+					{t("auth.register.button")}
 				</DefaultButton>
 			</form>
 		</Box>

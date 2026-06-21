@@ -45,8 +45,21 @@ export const QuestionEdit = ({ control, index, isLast, removeQuestion, changeQue
 			</Text>
 			<QuestionListItemContainer isError={!!error}>
 				<QuestionEditHeader index={index} isLast={isLast} removeQuestion={removeQuestion} changeQuestionOrder={changeQuestionOrder} />
-				<FormTextField control={control} name={`questions.${index}.description`} placeholder="Введите описание задачи" label="Описание задачи" sx={{ marginBottom: "20px" }} />
-				<FormSelectField onChange={handleChange} control={control} name={`questions.${index}.config.type`} id={`questions.${index}.type`} options={QUESTION_TYPES_OPTIONS} label="Тип ответа" />
+				<FormTextField
+					control={control}
+					name={`questions.${index}.description`}
+					placeholder="question_create_form.description.placeholder"
+					label="question_create_form.description.label"
+					sx={{ marginBottom: "20px" }}
+				/>
+				<FormSelectField
+					onChange={handleChange}
+					control={control}
+					name={`questions.${index}.config.type`}
+					id={`questions.${index}.type`}
+					options={QUESTION_TYPES_OPTIONS}
+					label="question_create_form.type.label"
+				/>
 				{config && <QuestionEditConfig type={config.type} config={config} control={control} name={`questions.${index}.config`} />}
 			</QuestionListItemContainer>
 		</Box>

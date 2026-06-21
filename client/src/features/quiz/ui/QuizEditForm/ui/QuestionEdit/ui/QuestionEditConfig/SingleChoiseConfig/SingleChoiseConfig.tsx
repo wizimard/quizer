@@ -39,7 +39,12 @@ export const SingleChoiseConfig = ({ options, control, name }: IEditConfigCompon
 							checked={answer === option.id}
 							color="success"
 						/>
-						<FormTextField control={control} name={`${name}.options.${index}.value`} label="Вариант ответа" placeholder="Введите вариант ответа" />
+						<FormTextField
+							control={control}
+							name={`${name}.options.${index}.value`}
+							label="question_create_form.answer_option.label"
+							placeholder="question_create_form.answer_option.placeholder"
+						/>
 					</Box>
 				))}
 		</Box>

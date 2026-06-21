@@ -48,5 +48,9 @@ export const appRoutes: IAppRoutes = {
 			path: "*",
 			element: NotFoundPage,
 		},
+		{
+			path: "404",
+			element: NotFoundPage,
+		},
 	],
 };
