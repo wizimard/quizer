@@ -6,12 +6,12 @@ type TDefaultTextProps = TypographyProps & {
 
 const Text = ({ children, variant = "body1", sx, ...props }: TDefaultTextProps) => {
 	const styles: SxProps<Theme> = {
-		...sx,
 		color: "#525252",
+		...sx,
 	};
 
 	return (
-		<Typography variant={variant} {...props} sx={styles}>
+		<Typography variant={variant} sx={styles} {...props}>
 			{children}
 		</Typography>
 	);
