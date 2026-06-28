@@ -1,9 +1,9 @@
 import type { IEditConfigComponentProps } from "@features/quiz/model/editQuizForm";
-import { FormControlLabel } from "@mui/material";
 import type { QuestionConfigInput } from "@shared/api/generated";
 import { FormCheckboxField, FormTextField } from "@shared/ui/form";
 import { useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { Field, FieldLabel } from "@shared/ui/kit/field";
 
 export const InputConfig = ({ control, name }: IEditConfigComponentProps<QuestionConfigInput>) => {
 	const { t } = useTranslation();
@@ -13,11 +13,10 @@ export const InputConfig = ({ control, name }: IEditConfigComponentProps<Questio
 	return (
 		<>
 			<FormTextField control={control} name={`${name}.answer`} placeholder="question_create_form.input.answer.placeholder" label="question_create_form.input.answer.label" />
-			<FormControlLabel
-				control={<FormCheckboxField control={control} name={`${name}.ignore_case`} checked={ignoreCase} />}
-				label={t("question_create_form.input.ignore_case.label")}
-				sx={{ marginTop: "5px" }}
-			/>
+			<Field orientation="horizontal" className="mt-1.5">
+				<FormCheckboxField control={control} name={`${name}.ignore_case`} checked={ignoreCase} />
+				<FieldLabel>{t("question_create_form.input.ignore_case.label")}</FieldLabel>
+			</Field>
 		</>
 	);
 };

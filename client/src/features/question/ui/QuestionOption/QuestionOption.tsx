@@ -1,5 +1,5 @@
-import { Box } from "@mui/material";
 import type { QuestionConfigOption } from "@shared/api/generated";
+import { cn } from "@shared/lib/utils";
 import { Text } from "@shared/ui/text";
 
 export interface IQuestionOptionProps extends QuestionConfigOption {
@@ -17,23 +17,16 @@ export const QuestionOption = ({ id, value, checked, disabled, onClick }: IQuest
 	};
 
 	return (
-		<Box
-			component="button"
+		<button
+			type="button"
 			disabled={disabled}
 			onClick={handleClick}
-			sx={{
-				width: "100%",
-				padding: "5px 10px",
-				textAlign: "start",
-				outline: "none",
-				borderWidth: "1px",
-				borderStyle: "solid",
-				borderColor: checked ? "#177D00" : "#B8B8B8",
-				borderRadius: "10px",
-				backgroundColor: checked ? "#C7FFCC" : "",
-			}}
+			className={cn(
+				"w-full rounded-[10px] border px-2.5 py-1.5 text-start outline-none",
+				checked ? "border-[#177D00] bg-[#C7FFCC]" : "border-[#B8B8B8] bg-transparent",
+			)}
 		>
 			<Text>{value}</Text>
-		</Box>
+		</button>
 	);
 };

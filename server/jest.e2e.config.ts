@@ -1,5 +1,32 @@
 import type { Config } from 'jest';
 
+const tsJestOptions = {
+	useESM: true,
+	diagnostics: {
+		ignoreCodes: [1343],
+	},
+	astTransformers: {
+		before: [
+			{
+				path: 'ts-jest-mock-import-meta',
+				options: {
+					metaObjectReplacement: {
+						url: ({ fileName }: { fileName: string }) => `file://${fileName}`,
+					},
+				},
+			},
+		],
+	},
+	tsconfig: {
+		target: 'ESNext',
+		module: 'ESNext',
+		moduleResolution: 'bundler',
+		esModuleInterop: true,
+		allowSyntheticDefaultImports: true,
+		ignoreDeprecations: '6.0',
+	},
+};
+
 const config: Config = {
 	verbose: true,
 	preset: 'ts-jest/presets/default-esm',
@@ -16,21 +43,21 @@ const config: Config = {
 		'^@user$': '<rootDir>/src/user',
 		'^@auth$': '<rootDir>/src/auth',
 		'^@error$': '<rootDir>/src/error',
-		'^@prisma/client$': '<rootDir>/node_modules/@prisma/client',
-		'^@prisma$': '<rootDir>/generated/prisma',
+		'^@quiz$': '<rootDir>/src/quiz',
+		'^@prisma/client/runtime/(.*)$': '<rootDir>/node_modules/@prisma/client/runtime/$1',
+		'^@prisma/client$': '<rootDir>/generated/prisma/client',
+		'^@prisma/models$': '<rootDir>/generated/prisma/models',
 	},
+	transformIgnorePatterns: ['node_modules/(?!(@inversifyjs|inversify|chalk|@prisma)/)'],
 	transform: {
-		'^.+\\.tsx?$': [
+		'^.+\\.tsx?$': ['ts-jest', tsJestOptions],
+		'^.+\\.m?jsx?$': [
 			'ts-jest',
 			{
-				useESM: true,
+				...tsJestOptions,
 				tsconfig: {
-					target: 'ESNext',
-					module: 'ESNext',
-					moduleResolution: 'bundler',
-					esModuleInterop: true,
-					allowSyntheticDefaultImports: true,
-					ignoreDeprecations: '6.0',
+					...tsJestOptions.tsconfig,
+					allowJs: true,
 				},
 			},
 		],

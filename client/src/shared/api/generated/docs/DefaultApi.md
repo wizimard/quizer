@@ -11,6 +11,7 @@ All URIs are relative to *http://localhost:8031/api*
 |[**quizGet**](#quizget) | **GET** /quiz | Get user\&#39;s quizes|
 |[**quizIdDelete**](#quiziddelete) | **DELETE** /quiz/{id} | Delete quiz by id|
 |[**quizIdGet**](#quizidget) | **GET** /quiz/{id} | Get quiz by id|
+|[**quizIdSettingsPatch**](#quizidsettingspatch) | **PATCH** /quiz/{id}/settings | Update quiz settings|
 |[**quizPatch**](#quizpatch) | **PATCH** /quiz | Update quiz|
 |[**quizPost**](#quizpost) | **POST** /quiz | Create quiz|
 |[**userMeGet**](#usermeget) | **GET** /user/me | Get authorized user|
@@ -362,6 +363,65 @@ const { status, data } = await apiInstance.quizIdGet(
 |**401** | Unauthorized |  -  |
 |**403** | Don\&#39;t have rights |  -  |
 |**404** | Not Found |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **quizIdSettingsPatch**
+> QuizResponse quizIdSettingsPatch(quizSettingsUpdateRequestBody)
+
+Update quiz settings
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    QuizSettingsUpdateRequestBody
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let id: string; // (default to undefined)
+let quizSettingsUpdateRequestBody: QuizSettingsUpdateRequestBody; //Updating quiz settings request body
+
+const { status, data } = await apiInstance.quizIdSettingsPatch(
+    id,
+    quizSettingsUpdateRequestBody
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **quizSettingsUpdateRequestBody** | **QuizSettingsUpdateRequestBody**| Updating quiz settings request body | |
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**QuizResponse**
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Quiz settings updated success |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Don\&#39;t have rights |  -  |
+|**422** | Validation failed |  -  |
+|**500** | Updating settings failed |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

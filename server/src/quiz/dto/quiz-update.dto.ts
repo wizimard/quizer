@@ -17,15 +17,15 @@ export class QuizUpdateDto {
 	@IsArray()
 	@ValidateNested({ each: true })
 	@Type(() => QuestionCreateDto)
-	add?: QuestionCreateDto[];
+	add?: Array<QuestionCreateDto>;
 
 	@IsOptional()
 	@IsArray()
 	@ValidateNested({ each: true })
 	@Type(() => QuestionCreateDto)
-	update?: QuestionCreateDto[];
+	update?: Array<QuestionCreateDto>;
 
 	@IsOptional()
 	@Type(() => Array<string>)
-	delete?: string[];
+	delete?: Array<string>;
 }

@@ -1,4 +1,3 @@
-import { Box } from "@mui/material";
 import { InputConfig } from "./InputConfig";
 import { SingleChoiseConfig } from "./SingleChoiseConfig";
 import { MultipleChoiseConfig } from "./MultipleChoiseConfig";
@@ -25,9 +24,9 @@ export const QuestionEditConfig = ({ type, config, control, name }: IEditConfigC
 	return (
 		<>
 			{!!QuestionConfigMapper[type] && (
-				<Box sx={{ padding: "10px 0" }}>
+				<div className="py-2.5">
 					<Component {...config} control={control} name={name} />
-				</Box>
+				</div>
 			)}
 		</>
 	);

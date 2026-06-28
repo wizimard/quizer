@@ -1,8 +1,6 @@
-import { Box, IconButton } from "@mui/material";
 import type { UseFieldArrayRemove } from "react-hook-form";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { Button } from "@shared/ui/kit/button";
 
 export interface IQuestionEditHeaderProps {
 	index: number;
@@ -25,20 +23,20 @@ export const QuestionEditHeader = ({ index, isLast, removeQuestion, changeQuesti
 	};
 
 	return (
-		<Box sx={{ width: "100%" }}>
+		<div className="w-full">
 			{index > 0 && (
-				<IconButton aria-label="move question up" onClick={handleOrderUp}>
-					<KeyboardArrowUpIcon />
-				</IconButton>
+				<Button type="button" variant="ghost" size="icon-sm" aria-label="move question up" onClick={handleOrderUp}>
+					<ChevronUp />
+				</Button>
 			)}
 			{!isLast && (
-				<IconButton aria-label="move question down" onClick={handleOrderDown}>
-					<KeyboardArrowDownIcon />
-				</IconButton>
+				<Button type="button" variant="ghost" size="icon-sm" aria-label="move question down" onClick={handleOrderDown}>
+					<ChevronDown />
+				</Button>
 			)}
-			<IconButton aria-label="delete" sx={{ float: "right" }} onClick={handleDeleteQuestion}>
-				<DeleteForeverIcon />
-			</IconButton>
-		</Box>
+			<Button type="button" variant="ghost" size="icon-sm" aria-label="delete" className="float-right" onClick={handleDeleteQuestion}>
+				<Trash2 />
+			</Button>
+		</div>
 	);
 };

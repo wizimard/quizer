@@ -1,7 +1,8 @@
 import type { QuizCreateDto } from '../dto/quiz-create.dto';
-import type { IQuizExecuteResponse } from '../dto/quiz-execute-response.dto';
-import type { IQuizResponse } from '../dto/quiz-response.dto';
+import type { IQuizExecuteResponse } from '../types/quiz-execute-response.interface';
+import type { IQuizResponse } from '../types/quiz-response.interface';
 import type { QuizUpdateDto } from '../dto/quiz-update.dto';
+import type { QuizSettingsUpdateDto } from '../dto/quiz-settings-update.dto';
 
 export interface IQuizService {
 	getById(quizId: string, userId: string): Promise<IQuizResponse>;
@@ -11,4 +12,6 @@ export interface IQuizService {
 	delete(quizId: string, userId: string): Promise<void>;
 
 	getByIdForExecute(quizId: string): Promise<IQuizExecuteResponse>;
+
+	updateSettings(quizId: string, settingsDto: QuizSettingsUpdateDto, userId: string): Promise<IQuizResponse>;
 }

@@ -1,9 +1,11 @@
 import { useUser } from "@entities/user";
 import { api } from "@shared/api";
 import { ACCESS_TOKEN_KEY } from "@shared/constant";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const useLogout = () => {
-	const setUser = useUser((state) => state.setUser);
+	const clearUser = useUser((state) => state.clearUser);
+	const queryClient = useQueryClient();
 
 	const logout = async () => {
 		try {
@@ -11,7 +13,8 @@ export const useLogout = () => {
 
 			localStorage.removeItem(ACCESS_TOKEN_KEY);
 
-			setUser(null);
+			queryClient.removeQueries({ queryKey: ["user"] });
+			clearUser();
 		} catch {
 			// empty
 		}

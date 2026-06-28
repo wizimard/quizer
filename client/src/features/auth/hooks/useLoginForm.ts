@@ -36,9 +36,9 @@ export const useLoginForm = () => {
 			navigate("/");
 		} catch (err: unknown) {
 			if (err instanceof AxiosError && err.status < 500) {
-				setError("form", { message: "auth.form.server_errors.login_credentials_invalid" });
+				setError("root", { message: "auth.form.server_errors.login_credentials_invalid" });
 			} else {
-				setError("form", { message: "auth.form.server_errors.something_wrong" });
+				setError("root", { message: "auth.form.server_errors.something_wrong" });
 			}
 		}
 	});

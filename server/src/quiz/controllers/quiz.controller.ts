@@ -5,11 +5,12 @@ import type { IQuizService } from '../services/quiz.service.interface';
 import type { Request, Response, NextFunction } from 'express';
 import { QuizCreateDto } from '../dto/quiz-create.dto';
 import { QuizUpdateDto } from '../dto/quiz-update.dto';
-import type { IQuizResponse } from '../dto/quiz-response.dto';
+import type { IQuizResponse } from '../types/quiz-response.interface';
 import { HttpError } from '../../error/http.error';
 import type { IRoute } from '@common/route.interface';
 import { AuthGuard } from '../../auth/guards/auth.guard';
 import { ValidateMiddleware } from '@common/validate.middleware';
+import { QuizSettingsUpdateDto } from '../dto/quiz-settings-update.dto';
 
 @injectable()
 export class QuizController extends BaseController {
@@ -45,6 +46,12 @@ export class QuizController extends BaseController {
 				url: '/:id',
 				method: 'delete',
 				handler: this.deleteQuiz,
+				middlewares: [new AuthGuard()],
+			},
+			{
+				url: '/:id/settings',
+				method: 'patch',
+				handler: this.updateQuizSettings,
 				middlewares: [new AuthGuard()],
 			},
 		];
@@ -85,5 +92,15 @@ export class QuizController extends BaseController {
 		await this.quizService.delete(req.params.id, req.user!.id);
 
 		this.noContent(res);
+	}
+
+	async updateQuizSettings(req: Request<any, object, QuizSettingsUpdateDto>, res: Response, next: NextFunction): Promise<void> {
+		if (!req.params.id || typeof req.params.id !== 'string') {
+			throw new HttpError(400, 'id_wrong_format');
+		}
+
+		const updatedQuiz: IQuizResponse = await this.quizService.updateSettings(req.params.id, req.body, req.user!.id);
+
+		this.ok(res, updatedQuiz);
 	}
 }

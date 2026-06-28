@@ -1,25 +1,35 @@
 import { api } from "@shared/api";
 import { type QuizResponse } from "@shared/api/generated";
-import { useApi } from "@shared/hooks";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { useQuiz } from "../model/store";
+import { useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
 export const useGetQuiz = (id: string) => {
-	const callback = useCallback(() => {
-		if (id === "new") {
-			return {
-				id: "new_quiz",
-				authorId: "",
-				title: "",
-				questions: [],
-				updatedAt: "",
-				createdAt: "",
-			};
-		}
-		return api.quizIdGet(id);
-	}, [id]);
+	const { data, isLoading, error } = useQuery<QuizResponse>({
+		queryKey: ["quiz", id],
+		queryFn: async () => {
+			if (id === "new") {
+				return {
+					id: "new_quiz",
+					authorId: "",
+					title: "",
+					questions: [],
+					settings: {
+						availablePeriods: [],
+					},
+					updatedAt: "",
+					createdAt: "",
+				};
+			}
 
-	const { data, isLoading, error } = useApi<QuizResponse>(callback);
+			const response = await api.quizIdGet(id);
+
+			return response.data;
+		},
+	});
+
+	const isForbidden = error instanceof AxiosError && error.response?.status === 403;
 
 	const setSelectedQuiz = useQuiz((state) => state.setSelectedQuiz);
 
@@ -27,5 +37,5 @@ export const useGetQuiz = (id: string) => {
 		setSelectedQuiz(data);
 	}, [data, setSelectedQuiz]);
 
-	return { isLoading, error };
+	return { isLoading, error, isForbidden };
 };

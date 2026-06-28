@@ -1,4 +1,3 @@
-import { Box } from "@mui/material";
 import styles from "../../styles/AuthForm.module.scss";
 import { FormTextField } from "@shared/ui/form";
 import { DefaultButton } from "@shared/ui/button";
@@ -11,12 +10,23 @@ export const LoginForm = () => {
 
 	const { isSubmitting, submitHandler, control, errors } = useLoginForm();
 
+	console.log(errors);
+
 	return (
-		<Box className={styles.container}>
+		<div className={styles.container}>
 			<Text variant="h4">{t("auth.login.title")}</Text>
 			<form className={styles.form} onSubmit={submitHandler}>
-				<FormTextField control={control} name="email" id="email" label="auth.form.fields.email" required></FormTextField>
-				<FormTextField control={control} name="password" id="password" label="auth.form.fields.password" type="password" required autoComplete="none"></FormTextField>
+				<FormTextField control={control} name="email" id="email" label="auth.form.fields.email.label" placeholder="auth.form.fields.email.placeholder" required></FormTextField>
+				<FormTextField
+					control={control}
+					name="password"
+					id="password"
+					label="auth.form.fields.password.label"
+					placeholder="auth.form.fields.password.placeholder"
+					type="password"
+					required
+					autoComplete="none"
+				></FormTextField>
 				{errors.root && (
 					<Text variant="body1" color="error">
 						{t(errors.root.message)}
@@ -26,6 +36,6 @@ export const LoginForm = () => {
 					{t("auth.login.button")}
 				</DefaultButton>
 			</form>
-		</Box>
+		</div>
 	);
 };

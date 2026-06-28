@@ -5,7 +5,7 @@ import { type IQuestionConfigFactory, QuestionConfigFactory } from '../entities/
 import { QuestionEntity } from '../entities/question.entity';
 import type { IQuestionEntity } from '../entities/question.entity.interface';
 import type { TQuestionCreateOrUpdateData } from '../repositories/question.repository.interface';
-import type { IQuestionResponse } from '../dto/questions-response.interface';
+import type { IQuestionResponse } from '../types/questions-response.interface';
 import { HttpError } from '../../error/http.error';
 
 export class QuestionMapper {

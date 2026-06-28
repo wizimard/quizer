@@ -1,6 +1,8 @@
-import { Avatar, Box, IconButton, Menu, MenuItem, Tooltip } from "@mui/material";
+import { Avatar, AvatarFallback } from "@shared/ui/kit/avatar";
+import { Button } from "@shared/ui/kit/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@shared/ui/kit/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@shared/ui/kit/tooltip";
 import { Text } from "@shared/ui/text";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const menuItems = [{ id: "logout", title: "header.user_menu.logout" }];
@@ -8,43 +10,33 @@ const menuItems = [{ id: "logout", title: "header.user_menu.logout" }];
 export const HeaderUserMenu = () => {
 	const { t } = useTranslation();
 
-	const [el, setEl] = useState<HTMLElement | null>(null);
-
-	const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
-		setEl(event.currentTarget);
-	};
-
-	const handleClose = () => {
-		setEl(null);
-	};
-
-	const handleClickMenuItem = (ev) => {
+	const handleClickMenuItem = (ev: Event) => {
 		console.log(ev);
 	};
 
 	return (
-		<Box sx={{ marginLeft: "auto" }}>
-			<Tooltip title="open menu">
-				<IconButton onClick={handleOpen} sx={{ p: 0 }}>
-					<Avatar />
-				</IconButton>
-			</Tooltip>
-			<Menu
-				id="user-menu"
-				anchorEl={el}
-				anchorOrigin={{ vertical: "top", horizontal: "right" }}
-				keepMounted
-				transformOrigin={{ vertical: "top", horizontal: "right" }}
-				open={Boolean(el)}
-				onClose={handleClose}
-				sx={{ mt: "45px" }}
-			>
-				{menuItems.map((menuItem) => (
-					<MenuItem key={menuItem.id} onClick={handleClickMenuItem}>
-						<Text>{t(menuItem.title)}</Text>
-					</MenuItem>
-				))}
-			</Menu>
-		</Box>
+		<div className="ml-auto">
+			<DropdownMenu>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<DropdownMenuTrigger asChild>
+							<Button variant="ghost" size="icon" className="rounded-full p-0">
+								<Avatar>
+									<AvatarFallback />
+								</Avatar>
+							</Button>
+						</DropdownMenuTrigger>
+					</TooltipTrigger>
+					<TooltipContent>open menu</TooltipContent>
+				</Tooltip>
+				<DropdownMenuContent align="end">
+					{menuItems.map((menuItem) => (
+						<DropdownMenuItem key={menuItem.id} onSelect={handleClickMenuItem}>
+							<Text>{t(menuItem.title)}</Text>
+						</DropdownMenuItem>
+					))}
+				</DropdownMenuContent>
+			</DropdownMenu>
+		</div>
 	);
 };

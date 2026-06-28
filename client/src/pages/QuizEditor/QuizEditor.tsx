@@ -1,6 +1,5 @@
 import { useGetQuiz, useQuiz } from "@entities/quiz";
 import { useEditQuizFormModes, QuizEditForm } from "@features/quiz";
-import { Box } from "@mui/material";
 import { LoadingLayout } from "@shared/ui/layout";
 import { useParams } from "react-router-dom";
 
@@ -14,10 +13,10 @@ export const QuizEditor = () => {
 	const quiz = useQuiz((state) => state.selectedQuiz);
 
 	return (
-		<Box component="section" sx={{ paddingBottom: "10px" }}>
+		<section className="pb-2.5">
 			<LoadingLayout isLoading={isLoading} error={error}>
 				<>{!!quiz && <QuizEditForm quiz={quiz} mode={mode} />}</>
 			</LoadingLayout>
-		</Box>
+		</section>
 	);
 };

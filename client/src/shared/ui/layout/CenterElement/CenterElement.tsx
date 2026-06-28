@@ -1,12 +1,26 @@
-import { Box } from "@mui/material";
+import { cn } from "@shared/lib/utils";
 
 type TCenterElementProps = {
 	children: React.ReactNode;
 	directory?: "column" | "column-reverse" | "row" | "row-reverse";
+	className?: string;
 };
 
-const CenterElement = ({ children, directory = "column" }: TCenterElementProps) => {
-	return <Box sx={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: directory }}>{children}</Box>;
+const CenterElement = ({ children, directory = "column", className }: TCenterElementProps) => {
+	return (
+		<div
+			className={cn(
+				"flex h-full w-full items-center justify-center",
+				directory === "column" && "flex-col",
+				directory === "column-reverse" && "flex-col-reverse",
+				directory === "row" && "flex-row",
+				directory === "row-reverse" && "flex-row-reverse",
+				className,
+			)}
+		>
+			{children}
+		</div>
+	);
 };
 
 export default CenterElement;

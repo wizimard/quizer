@@ -1,6 +1,7 @@
 import type { IQuestionValidationError } from '../errors/question-validation.error';
 import type { IQuizValidationError } from '../errors/quiz-validation.errror';
 import type { IQuestionEntity } from './question.entity.interface';
+import type { IQuizSettings } from './quiz-settings.interface';
 import type { IQuizEntity } from './quiz.entity.interface';
 
 export class QuizEntity implements IQuizEntity {
@@ -8,7 +9,8 @@ export class QuizEntity implements IQuizEntity {
 		public readonly id: string,
 		public title: string,
 		public readonly authorId: string,
-		public questions: IQuestionEntity[],
+		public questions: Array<IQuestionEntity>,
+		public readonly settings: IQuizSettings | null,
 		public readonly updatedAt: Date,
 		public readonly createdAt: Date,
 	) {}
@@ -31,5 +33,14 @@ export class QuizEntity implements IQuizEntity {
 		});
 
 		return validationData;
+	}
+
+	isOpen(): boolean {
+		return (
+			this.settings?.availablePeriods.some((period) => {
+				const now = new Date();
+				return now >= period.available_from && (!period.available_to || now <= period.available_to);
+			}) || false
+		);
 	}
 }

@@ -1,9 +1,9 @@
 import { inject, injectable } from 'inversify';
 import type { IQuizService } from './quiz.service.interface';
 import { QUIZ_TYPES } from '../quiz.types';
-import type { IQuizRepository, TQuizModelWithQuestions } from '../repositories/quiz.repository.interface';
+import type { IQuizRepository, IQuizUpdateSettingsData, TQuizModelAll } from '../repositories/quiz.repository.interface';
 import type { QuizCreateDto } from '../dto/quiz-create.dto';
-import type { IQuizResponse } from '../dto/quiz-response.dto';
+import type { IQuizResponse } from '../types/quiz-response.interface';
 import { QuizMapper } from '../mappers/quiz.mapper';
 import { HttpValidationError } from '../../error/http-validation.error';
 import type { IQuizEntity } from '../entities/quiz.entity.interface';
@@ -12,9 +12,10 @@ import type { QuizUpdateDto } from '../dto/quiz-update.dto';
 import { QuestionMapper } from '../mappers/question.mapper';
 import type { IQuizValidationError } from '../errors/quiz-validation.errror';
 import type { IQuestionEntity } from '../entities/question.entity.interface';
-import type { BatchPayload } from '@prisma/internal/prismaNamespace';
 import type { QuizModel } from '@prisma/client';
-import type { IQuizExecuteResponse } from '../dto/quiz-execute-response.dto';
+import type { IQuizExecuteResponse } from '../types/quiz-execute-response.interface';
+import type { QuizSettingsUpdateDto } from '../dto/quiz-settings-update.dto';
+import { QuizAvailablePeriod } from '../entities/quiz-available-period';
 
 @injectable()
 export class QuizService implements IQuizService {
@@ -24,7 +25,7 @@ export class QuizService implements IQuizService {
 	constructor(@inject(QUIZ_TYPES.QUIZ_REPOSITORY) private readonly quizRepository: IQuizRepository) {}
 
 	async getById(quizId: string, userId: string): Promise<IQuizResponse> {
-		const quizModel: TQuizModelWithQuestions = await this.getQuizById(quizId);
+		const quizModel: TQuizModelAll = await this.getFullQuizById(quizId);
 
 		if (quizModel.authorId !== userId) {
 			throw new HttpError(403, 'quiz_not_author', 'QuizService getById');
@@ -52,7 +53,7 @@ export class QuizService implements IQuizService {
 			throw new HttpValidationError('quiz_invalid_data', 'QuizService create', errors);
 		}
 
-		const newQuiz: TQuizModelWithQuestions | null = await this.quizRepository.create(quizEntity);
+		const newQuiz: TQuizModelAll | null = await this.quizRepository.create(quizEntity);
 
 		if (!newQuiz) {
 			throw new HttpError(500, 'quiz_create_error', 'QuizService create');
@@ -62,7 +63,7 @@ export class QuizService implements IQuizService {
 	}
 
 	async update(quizUpdateDto: QuizUpdateDto, userId: string): Promise<IQuizResponse> {
-		const quizModel: TQuizModelWithQuestions = await this.getQuizById(quizUpdateDto.id);
+		const quizModel: TQuizModelAll = await this.getFullQuizById(quizUpdateDto.id);
 
 		if (quizModel.authorId !== userId) {
 			throw new HttpError(403, 'quiz_not_author', 'QuizService update');
@@ -98,7 +99,7 @@ export class QuizService implements IQuizService {
 			throw new HttpValidationError('quiz_validation_fail', 'QuizService update', validationData);
 		}
 
-		const updatedQuiz: TQuizModelWithQuestions | null = await this.quizRepository.update(quiz, addQuestions, updateQuestions, quizUpdateDto.delete ?? []);
+		const updatedQuiz: TQuizModelAll | null = await this.quizRepository.update(quiz, addQuestions, updateQuestions, quizUpdateDto.delete ?? []);
 
 		if (!updatedQuiz) {
 			throw new HttpError(500, 'quiz_update_error', 'QuizService update');
@@ -108,13 +109,13 @@ export class QuizService implements IQuizService {
 	}
 
 	async delete(quizId: string, userId: string): Promise<void> {
-		const quizModel: TQuizModelWithQuestions = await this.getQuizById(quizId);
+		const quizModel: QuizModel = await this.getQuizById(quizId);
 
 		if (quizModel.authorId !== userId) {
 			throw new HttpError(403, 'quiz_not_author', 'QuizService delete');
 		}
 
-		const quizDeleteResult: [BatchPayload, TQuizModelWithQuestions] | null = await this.quizRepository.delete(quizId);
+		const quizDeleteResult: QuizModel | null = await this.quizRepository.delete(quizId);
 
 		if (!quizDeleteResult) {
 			throw new HttpError(500, 'quiz_not_delete', 'QuizService delete');
@@ -123,8 +124,18 @@ export class QuizService implements IQuizService {
 		return;
 	}
 
-	private async getQuizById(id: string): Promise<TQuizModelWithQuestions> | never {
-		const quizModel: TQuizModelWithQuestions | null = await this.quizRepository.getById(id);
+	private async getQuizById(id: string): Promise<QuizModel> | never {
+		const quizModel: QuizModel | null = await this.quizRepository.getById(id);
+
+		if (!quizModel) {
+			throw new HttpError(404, 'quiz_not_found', 'QuizService');
+		}
+
+		return quizModel;
+	}
+
+	private async getFullQuizById(id: string): Promise<TQuizModelAll> | never {
+		const quizModel: TQuizModelAll | null = await this.quizRepository.getFullById(id);
 
 		if (!quizModel) {
 			throw new HttpError(404, 'quiz_not_found', 'QuizService');
@@ -137,5 +148,46 @@ export class QuizService implements IQuizService {
 		const quizModel = await this.getQuizById(quizId);
 
 		return this.quizMapper.toResponseExecuteFromRepository(quizModel);
+	}
+
+	public async updateSettings(quizId: string, settingsDto: QuizSettingsUpdateDto, userId: string): Promise<IQuizResponse> {
+		const quizModel: TQuizModelAll = await this.getFullQuizById(quizId);
+
+		if (quizModel.authorId !== userId) {
+			throw new HttpError(403, 'quiz_not_author', 'QuizService updateSettings');
+		}
+
+		const updateSettingsData: IQuizUpdateSettingsData = {
+			isRequiredEmail: settingsDto.isRequiredEmail,
+			isRequiredFirstName: settingsDto.isRequiredFirstName,
+			isRequiredLastName: settingsDto.isRequiredLastName,
+			isShowAnswersAfterCompletion: settingsDto.isShowAnswersAfterCompletion,
+		};
+
+		if (settingsDto.available_periods) {
+			updateSettingsData.availablePeriods = {};
+
+			if (settingsDto.available_periods.add) {
+				updateSettingsData.availablePeriods.add = settingsDto.available_periods.add.map((period) => new QuizAvailablePeriod(0, quizModel.id, period.available_from, period.available_to));
+			}
+
+			if (settingsDto.available_periods.update) {
+				updateSettingsData.availablePeriods.update = settingsDto.available_periods.update.map(
+					(period) => new QuizAvailablePeriod(Number(period.id), quizModel.id, period.available_from, period.available_to),
+				);
+			}
+
+			if (settingsDto.available_periods.remove) {
+				updateSettingsData.availablePeriods.remove = settingsDto.available_periods.remove;
+			}
+		}
+
+		const updatedQuiz: TQuizModelAll | null = await this.quizRepository.updateSettings(quizId, updateSettingsData);
+
+		if (!updatedQuiz) {
+			throw new HttpError(500, 'quiz_update_settings_error', 'QuizService updateSettings');
+		}
+
+		return this.quizMapper.toResponseFromRepository(updatedQuiz);
 	}
 }

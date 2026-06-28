@@ -5,6 +5,7 @@ import { HttpError } from '@error';
 import { QUIZ_TYPES } from '../quiz.types';
 import type { IQuizService } from '../services/quiz.service.interface';
 import type { IQuestionService } from '../services/question.service.interface';
+import type { IQuizExecuteResponse } from '../types/quiz-execute-response.interface';
 
 @injectable()
 export class QuizExecuteController extends BaseController {
@@ -45,7 +46,7 @@ export class QuizExecuteController extends BaseController {
 			throw new HttpError(400, 'quiz id not defined');
 		}
 
-		const quiz = await this.quizService.getByIdForExecute(quizId);
+		const quiz: IQuizExecuteResponse = await this.quizService.getByIdForExecute(quizId);
 
 		this.ok(res, quiz);
 	}

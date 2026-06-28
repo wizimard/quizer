@@ -58,13 +58,15 @@ export function useEditQuizForm(quiz: QuizResponse, mode: useEditQuizFormModes) 
 		setValue,
 		handleSubmit,
 		reset,
-		formState: { isSubmitting, isDirty },
+		clearErrors,
+		formState: { isSubmitting, isDirty, errors },
 	} = useForm<IEditQuiz>({
 		defaultValues: {
 			title: "",
 			questions: [],
 		},
 		resolver: zodResolver(editQuizValidationSchema) as Resolver<IEditQuiz>,
+		reValidateMode: "onSubmit",
 	});
 
 	useEffect(() => {
@@ -78,7 +80,12 @@ export function useEditQuizForm(quiz: QuizResponse, mode: useEditQuizFormModes) 
 		control._disableForm(isSubmitting);
 	}, [control, isSubmitting]);
 
-	const { fields: fieldsQuestions, append: appendQuestion, remove, move: moveQuestionOrder } = useFieldArray({ control, name: "questions" });
+	const { fields: fieldsQuestions, append: appendQuestionField, remove, move: moveQuestionOrder } = useFieldArray({ control, name: "questions" });
+
+	const appendQuestion = (question: TQuestionForm) => {
+		clearErrors("questions");
+		appendQuestionField(question, { shouldFocus: false });
+	};
 
 	const [deletedQuestion, setDeletedQuestion] = useState<string[]>([]);
 
@@ -116,5 +123,5 @@ export function useEditQuizForm(quiz: QuizResponse, mode: useEditQuizFormModes) 
 		setDeletedQuestion([]);
 	});
 
-	return { control, fieldsQuestions, appendQuestion, removeQuestion, changeQuestionType, changeQuestionOrder, submitHandler, isSubmitting, isDirty };
+	return { control, fieldsQuestions, appendQuestion, removeQuestion, changeQuestionType, changeQuestionOrder, submitHandler, isSubmitting, isDirty, errors };
 }

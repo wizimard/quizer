@@ -1,15 +1,14 @@
 import { QuestionOption } from "@features/question/ui/QuestionOption";
-import { Box } from "@mui/material";
 import type { QuestionConfigMultipleChoise } from "@shared/api/generated";
 
 export const QuestionViewMultpleChoise = ({ options, answer }: QuestionConfigMultipleChoise) => {
 	return (
-		<Box component="ul" sx={{ width: "100%", listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
+		<ul className="m-0 flex w-full list-none flex-col gap-2.5 p-0">
 			{options.map((option, index) => (
-				<Box component="li" key={option.id} sx={{ width: "100%", listStyle: "none", padding: 0, margin: 0 }}>
+				<li key={option.id} className="m-0 w-full list-none p-0">
 					<QuestionOption {...option} value={`${index + 1}. ${option.value}`} disabled={true} checked={answer.includes(option.id)} />
-				</Box>
+				</li>
 			))}
-		</Box>
+		</ul>
 	);
 };

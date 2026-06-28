@@ -1,8 +1,9 @@
 import type { IEditConfigComponentProps } from "@features/quiz/model/editQuizForm";
-import { Box, IconButton } from "@mui/material";
 import type { QuestionConfigOption } from "@shared/api/generated";
 import { FormTextField } from "@shared/ui/form";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import { Trash2 } from "lucide-react";
+import { Button } from "@shared/ui/kit/button";
+import { cn } from "@shared/lib/utils";
 
 export interface IAnswerOptionProps {
 	children: React.ReactNode;
@@ -18,25 +19,12 @@ export const AnswerOption = ({ control, name, index, children, option, isChecked
 	};
 
 	return (
-		<Box
-			component="li"
-			key={option.id}
-			sx={{
-				listStyle: "none",
-				margin: 0,
-				padding: "5px",
-				display: "flex",
-				gap: "10px",
-				alignItems: "flex-start",
-				backgroundColor: isChecked ? "#C7FFCC" : "",
-				borderRadius: "5px",
-			}}
-		>
+		<li key={option.id} className={cn("m-0 flex list-none items-start gap-2.5 rounded-md p-1.5", isChecked && "bg-green-100 dark:bg-green-950/40")}>
 			{children}
 			<FormTextField control={control} name={`${name}.options.${index}.value`} label="question_create_form.answer_option.label" placeholder="question_create_form.answer_option.placeholder" />
-			<IconButton sx={{ marginTop: "10px", flexShrink: 0 }} onClick={handleClickDelete}>
-				<DeleteForeverIcon color={isChecked ? "error" : "inherit"} />
-			</IconButton>
-		</Box>
+			<Button type="button" variant="ghost" size="icon-sm" className="mt-7 shrink-0" onClick={handleClickDelete}>
+				<Trash2 className={cn(isChecked && "text-destructive")} />
+			</Button>
+		</li>
 	);
 };

@@ -1,13 +1,13 @@
 import type { IEditConfigComponentProps } from "@features/quiz/model/editQuizForm";
-import { Box, Button } from "@mui/material";
 import type { QuestionConfigMultipleChoise } from "@shared/api/generated";
 import { FormCheckboxField } from "@shared/ui/form";
 import { useController, useFieldArray, useWatch } from "react-hook-form";
-import AddIcon from "@mui/icons-material/Add";
+import { Plus } from "lucide-react";
 import { Text } from "@shared/ui/text";
 import { useTranslation } from "react-i18next";
 import { AnswerOption } from "../AnswerOption";
 import { generateOptions } from "@entities/question";
+import { Button } from "@shared/ui/kit/button";
 
 export const MultipleChoiseConfig = ({ answer, options, control, name }: IEditConfigComponentProps<QuestionConfigMultipleChoise>) => {
 	const { t } = useTranslation();
@@ -32,19 +32,16 @@ export const MultipleChoiseConfig = ({ answer, options, control, name }: IEditCo
 		<>
 			{!!answer && !!options && (
 				<>
-					<Box component="ul" sx={{ listStyle: "none", margin: 0, padding: 0 }}>
+					<ul className="m-0 list-none p-0">
 						{options.map((option, index) => (
 							<AnswerOption control={control} name={name} index={index} key={option.id} option={option} isChecked={answerValue.includes(option.id)} onRemove={remove}>
-								<FormCheckboxField onChange={handleChangeAnswer.bind(this, option.id)} sx={{ marginTop: "12px" }} checked={answerValue.includes(option.id)} color="success" />
+								<FormCheckboxField onChange={handleChangeAnswer.bind(this, option.id)} className="mt-1" checked={answerValue.includes(option.id)} />
 							</AnswerOption>
 						))}
-					</Box>
+					</ul>
 					{options.length < 8 && (
-						<Button
-							sx={{ width: "100%", paddingLeft: "14px", marginTop: "10px", display: "flex", alignItems: "center", gap: "25px", textAlign: "start", justifyContent: "flex-start" }}
-							onClick={handleAppend}
-						>
-							<AddIcon />
+						<Button type="button" variant="ghost" className="mt-2.5 flex w-full items-center justify-start gap-6 pl-3.5 text-left" onClick={handleAppend}>
+							<Plus />
 							<Text>{t("question_create_form.answer_option.add")}</Text>
 						</Button>
 					)}

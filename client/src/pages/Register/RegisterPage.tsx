@@ -10,8 +10,11 @@ function RegisterPage() {
 	return (
 		<CenterElement>
 			<RegisterForm />
-			<Text>
-				{t("auth.register.bottom.text")} <NavLink to="/login">{t("auth.register.bottom.button")}</NavLink>
+			<Text className="flex items-center gap-1">
+				{t("auth.register.bottom.text")}
+				<NavLink to="/login" className="text-blue-500 capitalize">
+					{t("auth.register.bottom.button")}
+				</NavLink>
 			</Text>
 		</CenterElement>
 	);

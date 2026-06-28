@@ -1,4 +1,3 @@
-import { Box } from "@mui/material";
 import { FormSelectField, FormTextField } from "@shared/ui/form";
 import { type Control, type UseFieldArrayRemove, useWatch, useController } from "react-hook-form";
 import { Text } from "@shared/ui/text";
@@ -39,8 +38,8 @@ export const QuestionEdit = ({ control, index, isLast, removeQuestion, changeQue
 		changeQuestionType(index, type);
 	};
 	return (
-		<Box component="li" sx={{ listStyle: "none", margin: 0, padding: 0, display: "flex", gap: "5px" }}>
-			<Text component="span" sx={{ paddingTop: "3px" }}>
+		<li className="m-0 flex list-none gap-1.5 p-0">
+			<Text component="span" className="pt-0.5">
 				{index + 1}
 			</Text>
 			<QuestionListItemContainer isError={!!error}>
@@ -50,7 +49,7 @@ export const QuestionEdit = ({ control, index, isLast, removeQuestion, changeQue
 					name={`questions.${index}.description`}
 					placeholder="question_create_form.description.placeholder"
 					label="question_create_form.description.label"
-					sx={{ marginBottom: "20px" }}
+					className="mb-5"
 				/>
 				<FormSelectField
 					onChange={handleChange}
@@ -62,6 +61,6 @@ export const QuestionEdit = ({ control, index, isLast, removeQuestion, changeQue
 				/>
 				{config && <QuestionEditConfig type={config.type} config={config} control={control} name={`questions.${index}.config`} />}
 			</QuestionListItemContainer>
-		</Box>
+		</li>
 	);
 };

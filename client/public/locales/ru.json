@@ -3,7 +3,12 @@
         "button_cancel": "Отменить",
         "button_delete": "Удалить",
         "button_edit": "Изменить",
-        "button_save": "Сохранить"
+        "button_save": "Сохранить",
+        "datetime": {
+            "at": "в",
+            "pick_date": "Выберите дату",
+            "clear_date": "Очистить дату"
+        }
     },
     "auth": {
         "login": {
@@ -24,9 +29,18 @@
         },
         "form": {
             "fields": {
-                "email": "Email",
-                "password": "Пароль",
-                "repeat_password": "Повторить пароль"
+                "email": {
+                    "label": "Email",
+                    "placeholder": "Введите email"
+                },
+                "password": {
+                    "label": "Пароль",
+                    "placeholder": "Введите пароль"
+                },
+                "repeat_password": {
+                    "label": "Повторить пароль",
+                    "placeholder": "Введите пароль повторно"
+                }
             },
             "validation_errors": {
                 "email": "Значение в поле не email",
@@ -50,6 +64,9 @@
         "questions": "Вопросы",
         "delete_modal": {
             "title": "Вы уверены, что хотите удалить тест?"
+        },
+        "errors": {
+            "forbidden": "Вы не имеете доступа к этому тесту"
         }
     },
     "quiz_create": {
@@ -97,6 +114,7 @@
         }
     },
     "header": {
+        "tests_link": "тесты",
         "user_menu": {
             "logout": "Выйти"
         }
@@ -105,5 +123,43 @@
         "input": "Ввод значения",
         "single_choise": "Выбор единственного значения",
         "multiple_choise": "Выбор множества значений"
+    },
+    "quiz_settings": {
+        "available_periods": {
+            "title": "Периоды доступности теста",
+            "period": {
+                "title": "Период",
+                "available_from": {
+                    "label": "Начало периода"
+                },
+                "available_to": {
+                    "label": "Конец периода"
+                },
+                "validation_errors": {
+                    "available_to_after_from": "Конец периода должен быть позже начала",
+                    "overlap": "Периоды доступности не должны пересекаться"
+                }
+            },
+            "button_add": "Добавить период"
+        },
+        "login_data": {
+            "title": "Данные для заполнения перед выполнением",
+            "is_required_email": {
+                "label": "Требовать заполнение email"
+            },
+            "is_required_first_name": {
+                "label": "Требовать заполнение имени"
+            },
+            "is_required_last_name": {
+                "label": "Требовать заполнение фамилии"
+            }
+        },
+        "after_completion": {
+            "title": "Действия после выполнения",
+            "is_show_answers": {
+                "label": "Показывать ответы после выполнения"
+            }
+        },
+        "button_delete_quiz": "Удалить тест"
     }
 }

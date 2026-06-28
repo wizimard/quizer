@@ -1,8 +1,8 @@
 import type { IEditConfigComponentProps } from "@features/quiz/model/editQuizForm";
-import { Box } from "@mui/material";
 import type { QuestionConfigSingleChoise } from "@shared/api/generated";
 import { FormRadioField, FormTextField } from "@shared/ui/form";
 import { useController, useWatch } from "react-hook-form";
+import { cn } from "@shared/lib/utils";
 
 export const SingleChoiseConfig = ({ options, control, name }: IEditConfigComponentProps<QuestionConfigSingleChoise>) => {
 	const { field: answerField } = useController({ control, name: `${name}.answer` });
@@ -14,30 +14,17 @@ export const SingleChoiseConfig = ({ options, control, name }: IEditConfigCompon
 	};
 
 	return (
-		<Box component="ul" sx={{ listStyle: "none", margin: 0, padding: 0 }}>
+		<ul className="m-0 list-none p-0">
 			{!!options &&
 				options.map((option, index) => (
-					<Box
-						component="li"
-						key={option.id}
-						sx={{
-							listStyle: "none",
-							margin: 0,
-							padding: "5px",
-							display: "flex",
-							gap: "10px",
-							alignItems: "flex-start",
-							backgroundColor: answer === option.id ? "#C7FFCC" : "",
-							borderRadius: "5px",
-						}}
-					>
+					<li key={option.id} className={cn("m-0 flex list-none items-start gap-2.5 rounded-md p-1.5", answer === option.id && "bg-green-100 dark:bg-green-950/40")}>
 						<FormRadioField
 							onChange={handleChangeAnswer.bind(this, option.id)}
 							control={control}
 							name={`${name}.answer`}
-							sx={{ marginTop: "12px" }}
+							className="mt-1"
 							checked={answer === option.id}
-							color="success"
+							value={option.id}
 						/>
 						<FormTextField
 							control={control}
@@ -45,8 +32,8 @@ export const SingleChoiseConfig = ({ options, control, name }: IEditConfigCompon
 							label="question_create_form.answer_option.label"
 							placeholder="question_create_form.answer_option.placeholder"
 						/>
-					</Box>
+					</li>
 				))}
-		</Box>
+		</ul>
 	);
 };

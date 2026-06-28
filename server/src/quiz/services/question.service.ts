@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import type { IQuestionService } from './question.service.interface';
-import type { IQuestionResponse } from '../dto/questions-response.interface';
+import type { IQuestionResponse } from '../types/questions-response.interface';
 import { QUIZ_TYPES } from '../quiz.types';
 import type { IQuestionRepository } from '../repositories/question.repository.interface';
 import type { QuizQuestionModel } from '@prisma/client';
