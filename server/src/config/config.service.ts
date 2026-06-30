@@ -24,4 +24,14 @@ export class ConfigService implements IConfigService {
 
 		return this.parsedConfig[key] as T;
 	}
+
+	public getOptional<T extends string | number | boolean>(key: string): T | undefined {
+		const value = this.parsedConfig[key];
+
+		if (value === undefined || value === '') {
+			return undefined;
+		}
+
+		return value as T;
+	}
 }

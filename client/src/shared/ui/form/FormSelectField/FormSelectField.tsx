@@ -9,18 +9,26 @@ export interface ISelectOption {
 	text: string;
 }
 
+export type TFormSelectFieldChangeEvent = {
+	target: {
+		value: string;
+		name: string;
+	};
+};
+
 export type TFormSelectFieldProps<T> = {
 	name: Path<T>;
 	id: string;
 	label: string;
 	control: Control<T, unknown, T>;
 	options: ISelectOption[];
+	placeholder?: string;
 	required?: boolean;
 	className?: string;
-	onChange?: (event: { target: { value: string; name: string } }) => void;
+	onChange?: (event: TFormSelectFieldChangeEvent) => void;
 };
 
-export const FormSelectField = <T extends object>({ control, name, id, label, required, className, options, onChange }: TFormSelectFieldProps<T>) => {
+export const FormSelectField = <T extends object>({ control, name, id, label, placeholder, required, className, options, onChange }: TFormSelectFieldProps<T>) => {
 	const { t } = useTranslation();
 
 	return (
@@ -32,14 +40,14 @@ export const FormSelectField = <T extends object>({ control, name, id, label, re
 				<Field className={cn("w-full min-w-[150px]", className)} data-invalid={invalid}>
 					<FieldLabel htmlFor={id}>{t(label)}</FieldLabel>
 					<Select
-						value={field.value as string}
+						value={(field.value as string) || undefined}
 						onValueChange={(value) => {
 							field.onChange(value);
 							onChange?.({ target: { value, name: field.name } });
 						}}
 					>
 						<SelectTrigger id={id} className="w-full" aria-invalid={invalid}>
-							<SelectValue />
+							<SelectValue placeholder={placeholder ? t(placeholder) : undefined} />
 						</SelectTrigger>
 						<SelectContent>
 							{options.map((option) => (

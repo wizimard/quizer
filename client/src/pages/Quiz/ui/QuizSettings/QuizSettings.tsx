@@ -1,20 +1,21 @@
 import { useState } from "react";
 import { DefaultButton } from "@shared/ui/button";
-import { QuizDeleteDialog } from "../QuizDeleteDialog";
 import { useTranslation } from "react-i18next";
-import { useQuiz } from "@entities/quiz/model/store";
-import { useQuizSettings } from "@pages/Quiz/store/settings.store";
+import { type TQuiz } from "@entities/quiz";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@shared/ui/kit/sheet";
-import type { TQuiz } from "@entities/quiz/model/quiz.interface";
-import { QuizSettingsForm } from "@features/quiz";
+import { QuizDeleteDialog } from "@features/quiz/quiz-delete";
+import { QuizSettingsForm } from "@features/quiz/quiz-settings";
+import { useQuizSettingsDrawer } from "@pages/Quiz";
 
-export const QuizSettings = () => {
+export interface IQuizSettingsProps {
+	quiz: TQuiz;
+}
+
+export const QuizSettings = ({ quiz }: IQuizSettingsProps) => {
 	const { t } = useTranslation();
 
-	const quiz: TQuiz | null = useQuiz((state) => state.selectedQuiz);
-
-	const isOpen: boolean = useQuizSettings((state) => state.isOpen);
-	const setIsOpen: (isOpen: boolean) => void = useQuizSettings((state) => state.setIsOpen);
+	const isOpen: boolean = useQuizSettingsDrawer((state) => state.isOpen);
+	const setIsOpen: (isOpen: boolean) => void = useQuizSettingsDrawer((state) => state.setIsOpen);
 
 	const [isOpenDeleteDialog, setIsOpenDeleteDialog] = useState<boolean>(false);
 
@@ -38,14 +39,14 @@ export const QuizSettings = () => {
 						<SheetTitle className="text-xl font-semibold tracking-tight">Настройки</SheetTitle>
 					</SheetHeader>
 
-					<QuizSettingsForm />
+					<QuizSettingsForm quiz={quiz} />
 
 					<DefaultButton variant="destructive" onClick={handleClickRemove}>
 						{t("quiz_settings.button_delete_quiz")}
 					</DefaultButton>
 				</SheetContent>
 			</Sheet>
-			<QuizDeleteDialog quizId={quiz.id} handleClose={handleCloseDialog} isOpen={isOpenDeleteDialog} />
+			<QuizDeleteDialog quizId={quiz.id} isOpen={isOpenDeleteDialog} handleClose={handleCloseDialog} />
 		</>
 	);
 };

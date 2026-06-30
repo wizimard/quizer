@@ -1,1 +1,1 @@
-export { FormSelectField } from "./FormSelectField";
+export { FormSelectField, type TFormSelectFieldChangeEvent } from "./FormSelectField";

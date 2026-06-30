@@ -1,15 +1,14 @@
 import { api } from "@shared/api";
-import { type QuizResponse } from "@shared/api/generated";
-import { useEffect } from "react";
-import { useQuiz } from "../model/store";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { normalizeQuiz, type TQuiz } from "..";
+import { QUIZ_NEW_ID } from "@shared/constant";
 
 export const useGetQuiz = (id: string) => {
-	const { data, isLoading, error } = useQuery<QuizResponse>({
+	const { data, isLoading, error } = useQuery<TQuiz>({
 		queryKey: ["quiz", id],
 		queryFn: async () => {
-			if (id === "new") {
+			if (id === QUIZ_NEW_ID) {
 				return {
 					id: "new_quiz",
 					authorId: "",
@@ -17,6 +16,10 @@ export const useGetQuiz = (id: string) => {
 					questions: [],
 					settings: {
 						availablePeriods: [],
+						isRequiredEmail: false,
+						isRequiredFirstName: false,
+						isRequiredLastName: false,
+						isShowAnswersAfterCompletion: false,
 					},
 					updatedAt: "",
 					createdAt: "",
@@ -25,17 +28,11 @@ export const useGetQuiz = (id: string) => {
 
 			const response = await api.quizIdGet(id);
 
-			return response.data;
+			return normalizeQuiz(response.data);
 		},
 	});
 
 	const isForbidden = error instanceof AxiosError && error.response?.status === 403;
 
-	const setSelectedQuiz = useQuiz((state) => state.setSelectedQuiz);
-
-	useEffect(() => {
-		setSelectedQuiz(data);
-	}, [data, setSelectedQuiz]);
-
-	return { isLoading, error, isForbidden };
+	return { isLoading, error, isForbidden, quiz: data as TQuiz };
 };

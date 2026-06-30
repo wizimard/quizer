@@ -1,16 +1,15 @@
-import { useGetQuiz, useQuiz } from "@entities/quiz";
-import { useEditQuizFormModes, QuizEditForm } from "@features/quiz";
+import { useGetQuiz } from "@entities/quiz";
+import { EditQuizFormModes, QuizEditForm } from "@features/quiz/quiz-edit";
 import { LoadingLayout } from "@shared/ui/layout";
 import { useParams } from "react-router-dom";
+import { QUIZ_NEW_ID } from "@shared/constant";
 
 export const QuizEditor = () => {
 	const { id } = useParams();
 
-	const mode = id === "new" ? useEditQuizFormModes.CREATE : useEditQuizFormModes.UPDATE;
+	const mode = id === QUIZ_NEW_ID ? EditQuizFormModes.CREATE : EditQuizFormModes.UPDATE;
 
-	const { isLoading, error } = useGetQuiz(id);
-
-	const quiz = useQuiz((state) => state.selectedQuiz);
+	const { isLoading, error, quiz } = useGetQuiz(id);
 
 	return (
 		<section className="pb-2.5">

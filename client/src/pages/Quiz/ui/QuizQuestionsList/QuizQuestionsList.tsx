@@ -1,5 +1,4 @@
-import { Question, QuestionListItemContainer } from "@features/question";
-import { QUESTION_MODES } from "@features/question/ui/Question/Question.types";
+import { QuestionListItemContainer, QuestionView } from "@entities/question";
 import type { QuestionRequest } from "@shared/api/generated";
 import { Text } from "@shared/ui/text";
 
@@ -16,7 +15,7 @@ export const QuizQuestionsList = ({ questions }: IQuizQuestionsListProps) => {
 						{index + 1}
 					</Text>
 					<QuestionListItemContainer>
-						<Question question={question} mode={QUESTION_MODES.VIEW} />
+						<QuestionView question={question} />
 					</QuestionListItemContainer>
 				</li>
 			))}

@@ -1,7 +1,5 @@
 import { api } from "@shared/api";
 import { type QuizResponse } from "@shared/api/generated";
-import { useEffect } from "react";
-import { useQuiz } from "../model/store";
 import { useQuery } from "@tanstack/react-query";
 
 export const useGetQuizes = () => {
@@ -13,11 +11,5 @@ export const useGetQuizes = () => {
 		},
 	});
 
-	const setQuizes = useQuiz((state) => state.setQuizes);
-
-	useEffect(() => {
-		setQuizes(data);
-	}, [data, setQuizes]);
-
-	return { isLoading, error };
+	return { isLoading, error, quizes: data };
 };

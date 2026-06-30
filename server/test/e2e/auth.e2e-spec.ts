@@ -1,12 +1,16 @@
 import request from 'supertest';
 import { App } from '../../src/app';
-import { boot } from '../../src/main';
+import { getBoot } from '../../src/main';
+import { Bootstrap } from '../../src/bootstrap';
+import type { Container } from 'inversify';
 
 let application: App;
+let container: Container;
 
 beforeAll(async () => {
-	const { app } = await boot;
-	application = app;
+	const bootResult = await getBoot();
+	application = bootResult.app;
+	container = bootResult.container;
 });
 
 describe('Auth e2e', () => {
@@ -21,5 +25,5 @@ describe('Auth e2e', () => {
 });
 
 afterAll(async () => {
-	await application.stop();
+	await Bootstrap.stop(application, container);
 });

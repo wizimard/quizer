@@ -1,9 +1,9 @@
-import { useQuizSettings } from "@pages/Quiz/store/settings.store";
+import { useQuizSettingsDrawer } from "@pages/Quiz";
 import { Button } from "@shared/ui/kit/button";
 import { Settings } from "lucide-react";
 
 export const SettingsDrawerButton = () => {
-	const setIsOpen = useQuizSettings((state) => state.setIsOpen);
+	const setIsOpen = useQuizSettingsDrawer((state) => state.setIsOpen);
 
 	const handleClick = () => {
 		setIsOpen(true);

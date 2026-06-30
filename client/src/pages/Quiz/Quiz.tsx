@@ -1,4 +1,4 @@
-import { useGetQuiz, useQuiz } from "@entities/quiz";
+import { useGetQuiz } from "@entities/quiz";
 import { Text } from "@shared/ui/text";
 import { useParams } from "react-router-dom";
 import { QuizToolbar } from "./ui/QuizToolbar";
@@ -11,9 +11,7 @@ export const Quiz = () => {
 
 	const { id } = useParams();
 
-	const { isLoading, isForbidden } = useGetQuiz(id);
-
-	const quiz = useQuiz((state) => state.selectedQuiz);
+	const { isLoading, isForbidden, quiz } = useGetQuiz(id);
 
 	return (
 		<LoadingLayout isLoading={isLoading} error={isForbidden ? new Error("quiz.errors.forbidden") : undefined}>

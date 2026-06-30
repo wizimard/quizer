@@ -1,4 +1,4 @@
-import { RegisterForm } from "@features/auth";
+import { RegisterForm } from "@features/auth/register";
 import { CenterElement } from "@shared/ui/layout";
 import { Text } from "@shared/ui/text";
 import { useTranslation } from "react-i18next";

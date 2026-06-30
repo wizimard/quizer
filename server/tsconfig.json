@@ -45,15 +45,17 @@
       "experimentalDecorators": true,
       "paths": {
         "@prisma/*": ["./generated/prisma/*"],
-        "@common/*": ["./src/common/*"],
-        "@database": ["./src/database"],
+        "@domain/*": ["./src/domain/*"],
+        "@application/*": ["./src/application/*"],
+        "@infrastructure/*": ["./src/infrastructure/*"],
+        "@interfaces/*": ["./src/interfaces/*"],
+        "@composition/*": ["./src/composition/*"],
+        "@common/*": ["./src/interfaces/http/common/*"],
+        "@database": ["./src/infrastructure/persistence/database"],
         "@logger": ["./src/logger"],
         "@app_types": ["./src/app.types"],
         "@config": ["./src/config"],
-        "@user": ["./src/user"],
-        "@auth": ["./src/auth"],
-        "@error": ["./src/error"],
-        "@quiz": ["./src/quiz"]
+        "@error": ["./src/error"]
       }
   },
 

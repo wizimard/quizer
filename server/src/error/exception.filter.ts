@@ -4,6 +4,7 @@ import type { Request, Response, NextFunction } from 'express';
 import { APP_TYPES } from '@app_types';
 import type { ILogger } from '@logger';
 import { HttpError } from './http.error';
+import { QuizNotOwnedError } from '@domain/quiz/errors/quiz-not-owned.error';
 
 @injectable()
 export class ExceptionFilter implements IExceptionFilter {
@@ -13,9 +14,16 @@ export class ExceptionFilter implements IExceptionFilter {
 		if (err instanceof HttpError) {
 			this.logger.error(`[${err.context}] ${err.statusCode} ${err.message}`);
 			res.status(err.statusCode).send(err.getDataForSend()).end();
-		} else {
-			this.logger.error(err.message);
-			res.status(500).send({ err: err.message }).end();
+			return;
 		}
+
+		if (err instanceof QuizNotOwnedError) {
+			this.logger.error(`[QuizNotOwnedError] 403 ${err.message}`);
+			res.status(403).send({ message: err.message }).end();
+			return;
+		}
+
+		this.logger.error(err.stack ?? err.message);
+		res.status(500).send({ message: 'internal_server_error' }).end();
 	}
 }
