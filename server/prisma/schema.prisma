@@ -23,7 +23,6 @@ model QuizModel {
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
   image        String?
-  isOpen       Boolean             @default(false)
   type         String              @default("private")
   author       UserModel           @relation(fields: [authorId], references: [id])
   questions    QuizQuestionModel[]
