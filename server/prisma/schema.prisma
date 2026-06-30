@@ -28,6 +28,8 @@ model QuizModel {
   author       UserModel           @relation(fields: [authorId], references: [id])
   questions    QuizQuestionModel[]
   quizSettings QuizSettingsModel?
+
+  quizSessions QuizSessionModel[]
 }
 
 model QuizSettingsModel {
@@ -37,8 +39,8 @@ model QuizSettingsModel {
   updatedAt                    DateTime                   @updatedAt
   isShowAnswersAfterCompletion Boolean                    @default(false)
   isRequiredEmail              Boolean                    @default(false)
-  isRequiredFirstName          Boolean                    @default(false)
-  isRequiredLastName           Boolean                    @default(false)
+  isRequiredFirstName          Boolean                    @default(true)
+  isRequiredLastName           Boolean                    @default(true)
   availablePeriods             QuizAvailablePeriodModel[]
   quiz                         QuizModel                  @relation(fields: [quizId], references: [id], onDelete: Cascade)
 }
@@ -58,4 +60,22 @@ model QuizAvailablePeriodModel {
   available_to   DateTime?
   quizSettingsId String
   quizSettings   QuizSettingsModel @relation(fields: [quizSettingsId], references: [id], onDelete: Cascade)
+}
+
+model QuizSessionModel {
+  id String @id @default(uuid())
+  quizId String
+  startedAt DateTime @default(now())
+  finishedAt DateTime?
+  status QuizSessionStatus @default(ACTIVE)
+
+  quiz QuizModel @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@index([quizId, status])
+}
+
+enum QuizSessionStatus {
+  ACTIVE @map("active")
+  FINISHED @map("finished")
+  EXPIRED @map("expired")
 }

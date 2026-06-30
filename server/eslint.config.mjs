@@ -47,4 +47,21 @@ export default defineConfig([
 			],
 		},
 	},
+	{
+		files: ['src/modules/*/domain/**/*.ts'],
+
+		rules: {
+			'no-restricted-imports': [
+				'warn',
+				{
+					patterns: [
+						{
+							group: ['@shared/http/*', '@prisma/*', '@prisma/client'],
+							message: 'Domain layer must not import HTTP layer or prisma.',
+						},
+					],
+				},
+			],
+		},
+	},
 ]);
