@@ -94,6 +94,29 @@ export interface QuestionRequest {
  */
 export type QuestionRequestConfig = QuestionConfigInput | QuestionConfigMultipleChoise | QuestionConfigOrder | QuestionConfigSingleChoise;
 
+export interface QuestionResponse {
+    'id': string;
+    'quizId': string;
+    'order': number;
+    'description': string;
+    'config': QuestionRequestConfig;
+}
+export interface QuizAvailableEditRequestBody {
+    'add'?: Array<QuizAvailablePeriodEdit>;
+    'update'?: Array<QuizAvailablePeriodEdit>;
+    'remove'?: Array<number>;
+}
+export interface QuizAvailablePeriodBase {
+    'id': number;
+    'quizId': string;
+    'available_from': string;
+    'available_to'?: string;
+}
+export interface QuizAvailablePeriodEdit {
+    'id': number;
+    'available_from': string;
+    'available_to'?: string;
+}
 export interface QuizCreateRequestBody {
     'title'?: string;
     'questions'?: Array<QuestionRequest>;
@@ -102,9 +125,25 @@ export interface QuizResponse {
     'id': string;
     'authorId': string;
     'title': string;
-    'questions': Array<QuestionRequest>;
+    'questions': Array<QuestionResponse>;
+    'settings': QuizSettingsBase;
     'updatedAt': string;
     'createdAt': string;
+}
+export interface QuizSettingsBase {
+    'availablePeriods': Array<QuizAvailablePeriodBase>;
+    'isRequiredEmail': boolean;
+    'isRequiredFirstName': boolean;
+    'isRequiredLastName': boolean;
+    'isShowAnswersAfterCompletion': boolean;
+}
+export interface QuizSettingsUpdateRequestBody {
+    'id': string;
+    'isRequiredEmail': boolean;
+    'isRequiredFirstName': boolean;
+    'isRequiredLastName': boolean;
+    'isShowAnswersAfterCompletion': boolean;
+    'available_periods'?: QuizAvailableEditRequestBody;
 }
 export interface QuizUpdateRequestBody {
     'id': string;
@@ -380,6 +419,49 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * Update quiz settings
+         * @summary Update quiz settings
+         * @param {string} id 
+         * @param {QuizSettingsUpdateRequestBody} quizSettingsUpdateRequestBody Updating quiz settings request body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizIdSettingsPatch: async (id: string, quizSettingsUpdateRequestBody: QuizSettingsUpdateRequestBody, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('quizIdSettingsPatch', 'id', id)
+            // verify required parameter 'quizSettingsUpdateRequestBody' is not null or undefined
+            assertParamExists('quizIdSettingsPatch', 'quizSettingsUpdateRequestBody', quizSettingsUpdateRequestBody)
+            const localVarPath = `/quiz/{id}/settings`
+                .replace('{id}', encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(quizSettingsUpdateRequestBody, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Update quiz
          * @summary Update quiz
          * @param {QuizUpdateRequestBody} quizUpdateRequestBody Updating quiz request body
@@ -589,6 +671,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Update quiz settings
+         * @summary Update quiz settings
+         * @param {string} id 
+         * @param {QuizSettingsUpdateRequestBody} quizSettingsUpdateRequestBody Updating quiz settings request body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async quizIdSettingsPatch(id: string, quizSettingsUpdateRequestBody: QuizSettingsUpdateRequestBody, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.quizIdSettingsPatch(id, quizSettingsUpdateRequestBody, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.quizIdSettingsPatch']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Update quiz
          * @summary Update quiz
          * @param {QuizUpdateRequestBody} quizUpdateRequestBody Updating quiz request body
@@ -703,6 +799,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.quizIdGet(id, options).then((request) => request(axios, basePath));
         },
         /**
+         * Update quiz settings
+         * @summary Update quiz settings
+         * @param {string} id 
+         * @param {QuizSettingsUpdateRequestBody} quizSettingsUpdateRequestBody Updating quiz settings request body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizIdSettingsPatch(id: string, quizSettingsUpdateRequestBody: QuizSettingsUpdateRequestBody, options?: RawAxiosRequestConfig): AxiosPromise<QuizResponse> {
+            return localVarFp.quizIdSettingsPatch(id, quizSettingsUpdateRequestBody, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Update quiz
          * @summary Update quiz
          * @param {QuizUpdateRequestBody} quizUpdateRequestBody Updating quiz request body
@@ -810,6 +917,18 @@ export class DefaultApi extends BaseAPI {
      */
     public quizIdGet(id: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).quizIdGet(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Update quiz settings
+     * @summary Update quiz settings
+     * @param {string} id 
+     * @param {QuizSettingsUpdateRequestBody} quizSettingsUpdateRequestBody Updating quiz settings request body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public quizIdSettingsPatch(id: string, quizSettingsUpdateRequestBody: QuizSettingsUpdateRequestBody, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).quizIdSettingsPatch(id, quizSettingsUpdateRequestBody, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

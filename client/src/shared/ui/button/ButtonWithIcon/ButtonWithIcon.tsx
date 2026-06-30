@@ -1,25 +1,16 @@
-import { Button, type ButtonProps, type SvgIconTypeMap, type SxProps, type Theme } from "@mui/material";
-import type { OverridableComponent } from "@mui/material/OverridableComponent";
+import { Button } from "@shared/ui/kit/button";
+import { cn } from "@shared/lib/utils";
+import type { LucideIcon } from "lucide-react";
 
-export type TButtonWithIconProps = ButtonProps & {
+export type TButtonWithIconProps = React.ComponentProps<typeof Button> & {
 	text: string;
-	IconComponent: OverridableComponent<SvgIconTypeMap<object, "svg">> & {
-		muiName: string;
-	};
+	Icon: LucideIcon;
 };
 
-export const ButtonWithIcon = ({ text, IconComponent, sx, ...props }: TButtonWithIconProps) => {
-	const styles: SxProps<Theme> = {
-		height: "36.5px",
-		display: "flex",
-		alignItems: "center",
-		gap: "5px",
-		...(sx ?? {}),
-	};
-
+export const ButtonWithIcon = ({ text, Icon, className, variant = "outline", type = "button", ...props }: TButtonWithIconProps) => {
 	return (
-		<Button sx={styles} {...props}>
-			<IconComponent fontSize="small" sx={{ marginTop: "-2px" }} />
+		<Button className={cn("flex h-9 items-center gap-1.5 text-inherit", className)} variant={variant} type={type} {...props}>
+			<Icon className="size-4" />
 			<span>{text}</span>
 		</Button>
 	);

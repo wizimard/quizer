@@ -1,14 +1,7 @@
-import { useQuiz } from "@entities/quiz";
-import { QuizCard } from "@features/quiz";
-import { Box } from "@mui/material";
-import type { QuizResponse } from "@shared/api/generated";
+import { QuizCard, useGetQuizes } from "@entities/quiz";
 
 export const QuizesList = () => {
-	const quizes: QuizResponse[] = useQuiz((state) => state.quizes);
+	const { quizes } = useGetQuizes();
 
-	return (
-		<Box sx={{ width: "100%", height: "100%", display: "flex", gap: "20px", flexWrap: "wrap", alignContent: "flex-start" }}>
-			{!!quizes && quizes.map((quiz) => <QuizCard key={quiz.id} {...quiz} />)}
-		</Box>
-	);
+	return <div className="flex h-full w-full flex-wrap content-start gap-5">{!!quizes && quizes.map((quiz) => <QuizCard key={quiz.id} {...quiz} />)}</div>;
 };

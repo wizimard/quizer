@@ -1,6 +1,5 @@
 .gitignore
 .npmignore
-.openapi-generator-ignore
 api.ts
 base.ts
 common.ts
@@ -15,8 +14,14 @@ docs/QuestionConfigOrderAnswerOption.md
 docs/QuestionConfigSingleChoise.md
 docs/QuestionRequest.md
 docs/QuestionRequestConfig.md
+docs/QuestionResponse.md
+docs/QuizAvailableEditRequestBody.md
+docs/QuizAvailablePeriodBase.md
+docs/QuizAvailablePeriodEdit.md
 docs/QuizCreateRequestBody.md
 docs/QuizResponse.md
+docs/QuizSettingsBase.md
+docs/QuizSettingsUpdateRequestBody.md
 docs/QuizUpdateRequestBody.md
 docs/RefreshTokenResponse.md
 docs/UserAuthResponse.md

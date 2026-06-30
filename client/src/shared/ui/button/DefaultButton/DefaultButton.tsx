@@ -1,14 +1,31 @@
-import { Button, type ButtonProps } from "@mui/material";
+import { Button } from "@shared/ui/kit/button";
+import { Spinner } from "@shared/ui/kit/spinner";
+import { cn } from "@shared/lib/utils";
 
-export type TDefaultButtonProps = ButtonProps & {
-	children: React.ReactNode;
-	isLoading?: boolean;
+type TButtonVariant = "default" | "outline" | "secondary" | "ghost" | "destructive" | "link" | "contained" | "outlined" | "text";
+
+const variantMap: Record<TButtonVariant, React.ComponentProps<typeof Button>["variant"]> = {
+	default: "default",
+	contained: "default",
+	outlined: "outline",
+	outline: "outline",
+	secondary: "secondary",
+	ghost: "ghost",
+	text: "ghost",
+	destructive: "destructive",
+	link: "link",
 };
 
-const DefaultButton = ({ children, type = "button", isLoading, variant = "contained", ...props }: TDefaultButtonProps) => {
+export type TDefaultButtonProps = Omit<React.ComponentProps<typeof Button>, "variant"> & {
+	children: React.ReactNode;
+	isLoading?: boolean;
+	variant?: TButtonVariant;
+};
+
+const DefaultButton = ({ children, type = "button", isLoading, variant = "outline", className, disabled, ...props }: TDefaultButtonProps) => {
 	return (
-		<Button variant={variant} type={type} loading={isLoading} {...props}>
-			{children}
+		<Button type={type} variant={variantMap[variant]} className={cn(className)} disabled={disabled || isLoading} {...props}>
+			{isLoading ? <Spinner className="size-4" /> : children}
 		</Button>
 	);
 };

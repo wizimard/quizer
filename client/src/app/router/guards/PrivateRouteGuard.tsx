@@ -1,0 +1,19 @@
+import { useGetUser } from "@entities/user";
+import { Navigate } from "react-router-dom";
+import type { ReactNode } from "react";
+import { AuthedLayout } from "../../layout/AuthedLayout";
+
+export interface IPrivateRouteGuardProps {
+	children: ReactNode;
+}
+
+export const PrivateRouteGuard = ({ children }: IPrivateRouteGuardProps) => {
+	const { user } = useGetUser();
+	const isAuthed = !!user;
+
+	if (!isAuthed) {
+		return <Navigate to="/login" />;
+	}
+
+	return <AuthedLayout>{children}</AuthedLayout>;
+};

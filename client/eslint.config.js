@@ -8,6 +8,7 @@ import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 import prettier from "eslint-plugin-prettier";
 import prettierConfig from "eslint-config-prettier";
+import boundaries from "eslint-plugin-boundaries";
 
 export default defineConfig([
 	globalIgnores(["dist"]),
@@ -26,6 +27,66 @@ export default defineConfig([
 		rules: {
 			...prettierConfig.rules,
 			"prettier/prettier": "error",
+			"import/order": "warn",
+			"import/no-unresolved": "warn",
+			"import/no-duplicates": "warn",
+			"import/no-extraneous-dependencies": "warn",
+			"import/no-anonymous-default-export": "warn",
+		},
+	},
+	{
+		files: ["src/**/*.{ts,tsx,js}"],
+		plugins: { boundaries },
+		settings: {
+			"boundaries/root-path": "./src",
+			"boundaries/dependency-nodes": ["import"],
+			"boundaries/elements": [
+				{ type: "app", pattern: "app" },
+				{ type: "pages", pattern: "pages" },
+				{ type: "widgets", pattern: "widgets" },
+				{ type: "features", pattern: "features/*", capture: ["slice"] },
+				{ type: "entities", pattern: "entities/*", capture: ["slice"] },
+				{ type: "shared", pattern: "shared" },
+			],
+		},
+		rules: {
+			...boundaries.configs.recommended.rules,
+			"boundaries/dependencies": [
+				"error",
+				{
+					default: "disallow",
+					rules: [
+						{
+							from: { type: "app" },
+							allow: [{ to: { type: ["pages", "widgets", "features", "entities", "shared"] } }],
+						},
+						{
+							from: { type: "pages" },
+							allow: [{ to: { type: ["widgets", "features", "entities", "shared"] } }],
+						},
+						{
+							from: { type: "widgets" },
+							allow: [{ to: { type: ["features", "entities", "shared"] } }],
+						},
+						{
+							from: { type: "features" },
+							allow: [{ to: { type: ["entities", "shared"] } }],
+						},
+						{
+							from: [{ type: "features", captured: { slice: "{{ from.captured.slice }}" } }],
+							allow: [{ to: { type: "features", captured: { slice: "{{ from.captured.slice }}" } } }],
+						},
+						{
+							from: { type: "entities" },
+							allow: [{ to: { type: "shared" } }],
+						},
+						{
+							from: { type: "shared" },
+							allow: [{ to: { type: "shared" } }],
+						},
+					],
+				},
+			],
 		},
 	},
 ]);

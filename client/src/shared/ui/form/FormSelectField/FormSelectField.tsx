@@ -1,27 +1,35 @@
-import { FormControl, FormHelperText, InputLabel, MenuItem, Select, type SelectProps, type SxProps, type Theme } from "@mui/material";
 import { Controller, type Control, type Path } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { Field, FieldError, FieldLabel } from "@shared/ui/kit/field";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@shared/ui/kit/select";
+import { cn } from "@shared/lib/utils";
 
 export interface ISelectOption {
 	value: string;
 	text: string;
 }
 
-export type TFormTextFieldProps<T> = SelectProps & {
+export type TFormSelectFieldChangeEvent = {
+	target: {
+		value: string;
+		name: string;
+	};
+};
+
+export type TFormSelectFieldProps<T> = {
 	name: Path<T>;
 	id: string;
 	label: string;
 	control: Control<T, unknown, T>;
 	options: ISelectOption[];
+	placeholder?: string;
+	required?: boolean;
+	className?: string;
+	onChange?: (event: TFormSelectFieldChangeEvent) => void;
 };
 
-export const FormSelectField = <T extends object>({ control, name, id, label, required, sx, options, ...props }: TFormTextFieldProps<T>) => {
+export const FormSelectField = <T extends object>({ control, name, id, label, placeholder, required, className, options, onChange }: TFormSelectFieldProps<T>) => {
 	const { t } = useTranslation();
-
-	const styles: SxProps<Theme> = {
-		...(sx || {}),
-		width: "100%",
-	};
 
 	return (
 		<Controller
@@ -29,16 +37,29 @@ export const FormSelectField = <T extends object>({ control, name, id, label, re
 			control={control}
 			rules={{ required: required }}
 			render={({ field, fieldState: { invalid, error } }) => (
-				<FormControl variant="standard" sx={{ width: "100%", minWidth: "150px" }} error={invalid}>
-					<InputLabel id={id}>{t(label)}</InputLabel>
-					<Select labelId={id} id={id} {...field} error={invalid} sx={styles} {...props}>
-						{options.map((option) => (
-							<MenuItem value={option.value}>{t(option.text)}</MenuItem>
-						))}
+				<Field className={cn("w-full min-w-[150px]", className)} data-invalid={invalid}>
+					<FieldLabel htmlFor={id}>{t(label)}</FieldLabel>
+					<Select
+						value={(field.value as string) || undefined}
+						onValueChange={(value) => {
+							field.onChange(value);
+							onChange?.({ target: { value, name: field.name } });
+						}}
+					>
+						<SelectTrigger id={id} className="w-full" aria-invalid={invalid}>
+							<SelectValue placeholder={placeholder ? t(placeholder) : undefined} />
+						</SelectTrigger>
+						<SelectContent>
+							{options.map((option) => (
+								<SelectItem key={option.value} value={option.value}>
+									{t(option.text)}
+								</SelectItem>
+							))}
+						</SelectContent>
 					</Select>
-					{invalid && !!error.message && <FormHelperText>{error.message}</FormHelperText>}
-				</FormControl>
+					{invalid && error?.message && <FieldError>{t(error.message)}</FieldError>}
+				</Field>
 			)}
-		></Controller>
+		/>
 	);
 };

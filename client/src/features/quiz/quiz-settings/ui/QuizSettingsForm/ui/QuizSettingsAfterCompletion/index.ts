@@ -1,0 +1,1 @@
+export { QuizSettingsAfterCompletion } from "./QuizSettingsAfterCompletion";

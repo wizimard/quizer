@@ -1,73 +1,195 @@
-# React + TypeScript + Vite
+# Quizer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Quizer** — это современное веб-приложение для создания, управления и прохождения викторин (квизов). Проект построен на стеке React + TypeScript с использованием архитектуры Feature-Sliced Design (FSD).
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 📋 Содержание
 
-## React Compiler
+- [О проекте](#о-проекте)
+- [Технологический стек](#технологический-стек)
+- [Функциональность](#функциональность)
+- [Архитектура](#архитектура)
+- [Установка и запуск](#установка-и-запуск)
+- [Доступные скрипты](#доступные-скрипты)
+- [Структура проекта](#структура-проекта)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🎯 О проекте
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Quizer предоставляет пользователям возможность:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Создавать викторины** с собственными вопросами и вариантами ответов
+- **Проходить викторины** и проверять свои знания
+- **Управлять своими викторинами** — редактировать и удалять их
+- **Регистрироваться и авторизоваться** в системе для доступа к личным викторинам
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Приложение поддерживает многоязычность (i18n) и имеет современный адаптивный интерфейс на базе Material UI.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## 🛠 Технологический стек
+
+### Frontend
+
+| Технология                          | Назначение                          |
+| ----------------------------------- | ----------------------------------- |
+| **React 19**                        | Библиотека для построения UI        |
+| **TypeScript**                      | Типизация JavaScript                |
+| **Vite**                            | Сборщик и инструмент разработки     |
+| **Material UI (MUI) v9**            | Компонентная библиотека интерфейсов |
+| **Emotion**                         | CSS-in-JS стилизация                |
+| **React Router v7**                 | Клиентская маршрутизация            |
+| **Zustand**                         | Управление состоянием               |
+| **React Hook Form + Zod**           | Управление формами и валидация      |
+| **Axios**                           | HTTP-клиент                         |
+| **i18next + react-i18next**         | Интернационализация                 |
+| **SCSS**                            | Препроцессор CSS                    |
+
+### Инструменты разработки
+
+| Инструмент                  | Назначение                         |
+| --------------------------- | ---------------------------------- |
+| **ESLint**                  | Линтер кода                        |
+| **Prettier**                | Форматировщик кода                 |
+| **OpenAPI Generator**       | Генерация API-клиента из Swagger   |
+
+---
+
+## ✨ Функциональность
+
+- **🔐 Аутентификация и регистрация** — создание учётной записи и вход в систему
+- **📝 Редактор викторин** — создание и редактирование квизов с произвольным количеством вопросов
+- **▶️ Прохождение викторин** — интерактивный режим ответов на вопросы
+- **📊 Главная страница** — просмотр списка доступных викторин
+- **🌐 Многоязычность** — поддержка нескольких языков интерфейса
+- **📱 Адаптивный дизайн** — корректное отображение на различных устройствах
+
+---
+
+## 🏗 Архитектура
+
+Проект использует методологию **Feature-Sliced Design** (FSD), которая предполагает разделение кода на слои:
+
+```
+src/
+├── app/          # Инициализация приложения, роутинг, глобальные стили
+├── entities/     # Бизнес-сущности (question, quiz, user)
+├── features/     # Фичи (auth, question, quiz)
+├── pages/        # Страницы приложения
+├── shared/       # Переиспользуемые утилиты, API, хуки, UI-компоненты
+└── widgets/      # Виджеты (Header и др.)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Слои FSD
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. **app** — настройка приложения, роутер, провайдеры, глобальные стили
+2. **entities** — сущности предметной области (пользователь, квиз, вопрос)
+3. **features** — пользовательские сценарии и взаимодействия (аутентификация, работа с вопросами и квизами)
+4. **pages** — композиция виджетов и фич в полноценные страницы
+5. **shared** — вспомогательный код: UI-кит, API-клиент, хуки, константы
+6. **widgets** — самостоятельные блоки интерфейса
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## 🚀 Установка и запуск
+
+### Предварительные требования
+
+- Node.js (версия 18 или выше)
+- npm или yarn
+
+### Установка зависимостей
+
+```bash
+npm install
 ```
+
+### Запуск в режиме разработки
+
+```bash
+npm run dev
+```
+
+Приложение будет доступно по адресу `http://localhost:5173`.
+
+### Сборка для production
+
+```bash
+npm run build
+```
+
+Собранные файлы будут находиться в директории `dist/`.
+
+### Предпросмотр production-сборки
+
+```bash
+npm run preview
+```
+
+---
+
+## 📜 Доступные скрипты
+
+| Команда              | Описание                                                   |
+| -------------------- | ---------------------------------------------------------- |
+| `npm run dev`        | Запуск dev-сервера Vite                                    |
+| `npm run build`      | Полная сборка проекта (TypeScript + Vite)                  |
+| `npm run lint`       | Проверка кода линтером ESLint                              |
+| `npm run preview`    | Предпросмотр production-сборки                             |
+| `npm run api-generate` | Генерация API-клиента из Swagger-спецификации бэкенда    |
+
+---
+
+## 📁 Структура проекта
+
+```
+client/
+├── public/               # Публичные статические файлы
+│   ├── locales/          # Файлы локализации (i18n)
+│   ├── favicon.svg       # Иконка сайта
+│   ├── icons.svg         # Набор иконок
+│   └── quiz_card_img.png # Изображения для карточек
+├── src/
+│   ├── app/              # Инициализация приложения
+│   │   ├── layout/       # Компоновочные компоненты
+│   │   ├── locale/       # Конфигурация i18n
+│   │   └── router/       # Роутер и маршруты
+│   ├── entities/         # Бизнес-сущности
+│   │   ├── question/     # Сущность "Вопрос"
+│   │   ├── quiz/         # Сущность "Квиз"
+│   │   └── user/         # Сущность "Пользователь"
+│   ├── features/         # Фичи
+│   │   ├── auth/         # Аутентификация
+│   │   ├── question/     # Работа с вопросами
+│   │   └── quiz/         # Работа с квизами
+│   ├── pages/            # Страницы
+│   │   ├── Login/        # Страница входа
+│   │   ├── Main/         # Главная страница
+│   │   ├── NotFound/     # Страница 404
+│   │   ├── Quiz/         # Страница прохождения квиза
+│   │   ├── QuizEditor/   # Редактор квизов
+│   │   └── Register/     # Страница регистрации
+│   ├── shared/           # Общие модули
+│   │   ├── api/          # API-клиент (сгенерированный)
+│   │   ├── constant/     # Константы
+│   │   ├── hooks/        # Пользовательские хуки
+│   │   └── ui/           # UI-компоненты
+│   └── widgets/          # Виджеты
+│       └── Header/       # Шапка приложения
+├── .env                  # Переменные окружения
+├── .eslint.config.js     # Конфигурация ESLint
+├── .prettierrc           # Конфигурация Prettier
+├── vite.config.ts        # Конфигурация Vite
+├── tsconfig.json         # Основная конфигурация TypeScript
+├── tsconfig.app.json     # Конфигурация TS для приложения
+├── tsconfig.node.json    # Конфигурация TS для Node.js
+└── package.json          # Зависимости и скрипты
+```
+
+---
+
+## 📄 Лицензия
+
+Проект распространяется под лицензией MIT.

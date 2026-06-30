@@ -1,5 +1,4 @@
-import { useGetQuiz, useQuiz } from "@entities/quiz";
-import { Box } from "@mui/material";
+import { useGetQuiz } from "@entities/quiz";
 import { Text } from "@shared/ui/text";
 import { useParams } from "react-router-dom";
 import { QuizToolbar } from "./ui/QuizToolbar";
@@ -12,21 +11,19 @@ export const Quiz = () => {
 
 	const { id } = useParams();
 
-	const { isLoading } = useGetQuiz(id);
-
-	const quiz = useQuiz((state) => state.selectedQuiz);
+	const { isLoading, isForbidden, quiz } = useGetQuiz(id);
 
 	return (
-		<LoadingLayout isLoading={isLoading}>
+		<LoadingLayout isLoading={isLoading} error={isForbidden ? new Error("quiz.errors.forbidden") : undefined}>
 			<>
 				{!!quiz && (
-					<Box sx={{ width: "100%", minHeight: "100%", padding: "20px 40px 10px 40px", display: "flex", flexDirection: "column", gap: "10px", flexShrink: 1 }}>
+					<div className="flex min-h-a w-full shrink flex-col gap-2.5 px-10 pt-5 pb-2.5">
 						<QuizToolbar quiz={quiz} />
-						<Text component="h3" sx={{ fontSize: "1.2rem" }}>
+						<Text component="h3" className="text-[1.2rem]">
 							{t("quiz.questions")}
 						</Text>
 						<QuizQuestionsList questions={quiz.questions} />
-					</Box>
+					</div>
 				)}
 			</>
 		</LoadingLayout>

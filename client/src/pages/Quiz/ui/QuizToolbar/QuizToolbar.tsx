@@ -1,49 +1,32 @@
-import { Box, ButtonGroup } from "@mui/material";
-import type { QuizResponse } from "@shared/api/generated";
-import { ButtonWithIcon } from "@shared/ui/button";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import EditIcon from "@mui/icons-material/Edit";
 import { Text } from "@shared/ui/text";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { QuizDeleteDialog } from "./QuizDeleteDialog";
 import { useTranslation } from "react-i18next";
+import { Pencil } from "lucide-react";
+import { Link } from "react-router";
+import { SettingsDrawerButton } from "../SettingsDrawerButton";
+import { QuizSettings } from "../QuizSettings/QuizSettings";
+import type { TQuiz } from "@entities/quiz";
 
 export interface IQuizToolbar {
-	quiz: QuizResponse;
+	quiz: TQuiz;
 }
 
-export const QuizToolbar = ({ quiz: { id, title } }: IQuizToolbar) => {
+export const QuizToolbar = ({ quiz }: IQuizToolbar) => {
 	const { t } = useTranslation();
-
-	const navigate = useNavigate();
-
-	const [isOpen, setIsOpen] = useState<boolean>(false);
-
-	const handleClickEdit = () => {
-		navigate(`/quiz-edit/${id}`);
-	};
-
-	const handleClickRemove = () => {
-		setIsOpen(true);
-	};
-
-	const handleCloseDialog = () => {
-		setIsOpen(false);
-	};
 
 	return (
 		<>
-			<Box sx={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
-				<Text component="h1" sx={{ fontSize: "1.4rem" }}>
-					{t("quiz.title")} {title}
+			<div className="flex w-full justify-between">
+				<Text component="h1" className="text-[1.4rem]">
+					{t("quiz.title")} {quiz.title}
 				</Text>
-				<ButtonGroup>
-					<ButtonWithIcon IconComponent={EditIcon} text={t("common.button_edit")} onClick={handleClickEdit} />
-					<ButtonWithIcon IconComponent={DeleteForeverIcon} text={t("common.button_delete")} color="error" onClick={handleClickRemove} />
-				</ButtonGroup>
-			</Box>
-			<QuizDeleteDialog quizId="id" handleClose={handleCloseDialog} isOpen={isOpen} />
+				<div className="flex gap-2.5">
+					<Link to={`/quiz-edit/${quiz.id}`} className="flex h-full items-center justify-center text-muted-foreground hover:text-foreground" title="Нажмите, чтобы внести изменения в тест">
+						<Pencil className="size-5" />
+					</Link>
+					<SettingsDrawerButton />
+					<QuizSettings quiz={quiz} />
+				</div>
+			</div>
 		</>
 	);
 };

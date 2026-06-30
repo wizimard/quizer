@@ -1,31 +1,38 @@
 import { api } from "@shared/api";
-import { type QuizResponse } from "@shared/api/generated";
-import { useApi } from "@shared/hooks";
-import { useCallback, useEffect } from "react";
-import { useQuiz } from "../model/store";
+import { useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { normalizeQuiz, type TQuiz } from "..";
+import { QUIZ_NEW_ID } from "@shared/constant";
 
 export const useGetQuiz = (id: string) => {
-	const callback = useCallback(() => {
-		if (id === "new") {
-			return {
-				id: "new_quiz",
-				authorId: "",
-				title: "",
-				questions: [],
-				updatedAt: "",
-				createdAt: "",
-			};
-		}
-		return api.quizIdGet(id);
-	}, [id]);
+	const { data, isLoading, error } = useQuery<TQuiz>({
+		queryKey: ["quiz", id],
+		queryFn: async () => {
+			if (id === QUIZ_NEW_ID) {
+				return {
+					id: "new_quiz",
+					authorId: "",
+					title: "",
+					questions: [],
+					settings: {
+						availablePeriods: [],
+						isRequiredEmail: false,
+						isRequiredFirstName: false,
+						isRequiredLastName: false,
+						isShowAnswersAfterCompletion: false,
+					},
+					updatedAt: "",
+					createdAt: "",
+				};
+			}
 
-	const { data, isLoading, error } = useApi<QuizResponse>(callback);
+			const response = await api.quizIdGet(id);
 
-	const setSelectedQuiz = useQuiz((state) => state.setSelectedQuiz);
+			return normalizeQuiz(response.data);
+		},
+	});
 
-	useEffect(() => {
-		setSelectedQuiz(data);
-	}, [data, setSelectedQuiz]);
+	const isForbidden = error instanceof AxiosError && error.response?.status === 403;
 
-	return { isLoading, error };
+	return { isLoading, error, isForbidden, quiz: data as TQuiz };
 };

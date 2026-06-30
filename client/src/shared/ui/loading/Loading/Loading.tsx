@@ -1,9 +1,10 @@
-import { Box, CircularProgress, type CircularProgressProps } from "@mui/material";
+import { Spinner } from "@shared/ui/kit/spinner";
+import { cn } from "@shared/lib/utils";
 
-export const Loading = ({ ...props }: CircularProgressProps) => {
+export const Loading = ({ className, ...props }: React.ComponentProps<typeof Spinner>) => {
 	return (
-		<Box sx={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-			<CircularProgress aria-label="Loading…" {...props} />
-		</Box>
+		<div className="flex h-full w-full items-center justify-center">
+			<Spinner aria-label="Loading…" className={cn("size-8", className)} {...props} />
+		</div>
 	);
 };

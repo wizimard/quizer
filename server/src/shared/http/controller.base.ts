@@ -1,0 +1,60 @@
+import { Router, type Response, type NextFunction } from 'express';
+import type { IController } from './controller.interface';
+import type { IRoute } from './route.interface';
+import type { IRequestHandler } from './request-handler.interface';
+
+export abstract class BaseController implements IController {
+	private _router: Router;
+
+	get router(): Router {
+		return this._router;
+	}
+
+	constructor() {
+		this._router = Router();
+	}
+
+	protected useRoutes(routes: IRoute[]): void {
+		for (const route of routes) {
+			const middlewares: IRequestHandler[] = [];
+
+			if (route.middlewares) {
+				for (const middleware of route.middlewares) {
+					middlewares.push(middleware.execute.bind(middleware));
+				}
+			}
+
+			this._router[route.method](route.url, ...middlewares, this.wrapAsync(route.handler.bind(this)));
+		}
+	}
+
+	private wrapAsync(handler: IRequestHandler): IRequestHandler {
+		return async (req, res, next: NextFunction) => {
+			try {
+				await handler(req, res, next);
+			} catch (error: unknown) {
+				next(error);
+			}
+		};
+	}
+
+	protected send(res: Response, status: number, data: unknown = null): void {
+		res.status(status).send(data).end();
+	}
+
+	protected ok(res: Response, data: unknown = null): void {
+		this.send(res, 200, data);
+	}
+
+	protected created(res: Response, data: unknown = null): void {
+		this.send(res, 201, data);
+	}
+
+	protected noContent(res: Response): void {
+		this.send(res, 204);
+	}
+
+	protected accepted(res: Response, data: unknown = null): void {
+		this.send(res, 202, data);
+	}
+}
