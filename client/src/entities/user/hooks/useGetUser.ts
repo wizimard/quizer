@@ -1,13 +1,15 @@
-import { api } from "@shared/api";
 import { useEffect } from "react";
-import { useUser } from "../model/store";
 import { useQuery } from "@tanstack/react-query";
+import { useUser } from "../model/store";
+import { api } from "@shared/api";
+import { ACCESS_TOKEN_KEY } from "@shared/constant";
 import type { UserAuthResponseUser } from "@shared/api/generated";
 
 export const useGetUser = () => {
 	const storeUser = useUser((state) => state.user);
 	const setUser = useUser((state) => state.setUser);
 	const clearUser = useUser((state) => state.clearUser);
+	const hasAccessToken = !!localStorage.getItem(ACCESS_TOKEN_KEY);
 
 	const {
 		data: userResponse,
@@ -20,8 +22,8 @@ export const useGetUser = () => {
 			const response = await api.userMeGet();
 			return response.data;
 		},
-		retry: false,
-		refetchOnWindowFocus: false,
+		enabled: hasAccessToken,
+		refetchOnMount: false,
 	});
 
 	useEffect(() => {

@@ -5,9 +5,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**add** | [**Array&lt;QuizAvailablePeriodEdit&gt;**](QuizAvailablePeriodEdit.md) |  | [optional] [default to undefined]
-**update** | [**Array&lt;QuizAvailablePeriodEdit&gt;**](QuizAvailablePeriodEdit.md) |  | [optional] [default to undefined]
-**remove** | **Array&lt;number&gt;** |  | [optional] [default to undefined]
+**add** | [**Array&lt;QuizAvailablePeriodEdit&gt;**](QuizAvailablePeriodEdit.md) | Periods to create | [optional] [default to undefined]
+**update** | [**Array&lt;QuizAvailablePeriodEdit&gt;**](QuizAvailablePeriodEdit.md) | Existing periods to update | [optional] [default to undefined]
+**remove** | **Array&lt;number&gt;** | IDs of periods to delete | [optional] [default to undefined]
 
 ## Example
 

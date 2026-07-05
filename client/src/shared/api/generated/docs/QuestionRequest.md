@@ -1,27 +1,24 @@
 # QuestionRequest
 
-
 ## Properties
 
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**id** | **string** |  | [default to undefined]
-**quizId** | **string** |  | [default to undefined]
-**order** | **number** |  | [default to undefined]
-**description** | **string** |  | [default to undefined]
-**config** | [**QuestionRequestConfig**](QuestionRequestConfig.md) |  | [default to undefined]
+| Name            | Type                                                  | Description | Notes                  |
+| --------------- | ----------------------------------------------------- | ----------- | ---------------------- |
+| **id**          | **string**                                            |             | [default to undefined] |
+| **order**       | **number**                                            |             | [default to undefined] |
+| **description** | **string**                                            |             | [default to undefined] |
+| **config**      | [**QuestionRequestConfig**](QuestionRequestConfig.md) |             | [default to undefined] |
 
 ## Example
 
 ```typescript
-import { QuestionRequest } from './api';
+import { QuestionRequest } from "./api";
 
 const instance: QuestionRequest = {
-    id,
-    quizId,
-    order,
-    description,
-    config,
+	id,
+	order,
+	description,
+	config,
 };
 ```
 

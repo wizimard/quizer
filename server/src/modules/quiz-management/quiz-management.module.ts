@@ -1,24 +1,28 @@
 import { ContainerModule, type ContainerModuleLoadOptions } from 'inversify';
 import { QM_TYPES } from './quiz-management.types';
-import type { QuizRepository } from './domain/repositories/quiz.repository.port';
-import { PrismaQuizRepository } from './infrastructure/persistence/repositories/prisma-quiz.repository';
-import { CreateQuizHandler } from './application/handlers/create-quiz.handler';
-import { UpdateQuizHandler } from './application/handlers/update-quiz.handler';
-import { UpdateQuizSettingsHandler } from './application/handlers/update-quiz-settings.handler';
-import { DeleteQuizHandler } from './application/handlers/delete-quiz.handler';
-import { GetQuizByIdHandler } from './application/handlers/get-quiz-by-id.handler';
-import { GetQuizzesByAuthorHandler } from './application/handlers/get-quizzes-by-author.handler';
-import { QuizController } from './interfaces/http/controllers/quiz.controller';
+import type { QuizRepository } from './interfaces/repository/quiz.repository.interface';
+import type { QuizExecutionRepository } from './interfaces/repository/quiz-execution.repository.interface';
+import type { QuestionRepository } from './interfaces/repository/question.repository.interface';
+import { PrismaQuizRepository } from './repositories/prisma-quiz.repository';
+import { PrismaQuizExecutionRepository } from './repositories/prisma-quiz-execution.repository';
+import { PrismaQuestionRepository } from './repositories/prisma-question.repository';
+import { QuizService } from './services/quiz.service';
+import { QuestionService } from './services/question.service';
+import { QuizController } from './controllers/quiz.controller';
+import { QuestionController } from './controllers/question.controller';
+import { QuizMiddleware } from './middlewares/quiz.middleware';
+import { QuizOwnershipGuard } from './middlewares/quiz-ownership.guard';
 
 const quizManagementModule: ContainerModule = new ContainerModule((options: ContainerModuleLoadOptions) => {
 	options.bind<QuizRepository>(QM_TYPES.QUIZ_REPOSITORY).to(PrismaQuizRepository).inSingletonScope();
-	options.bind(QM_TYPES.CREATE_QUIZ_HANDLER).to(CreateQuizHandler).inSingletonScope();
-	options.bind(QM_TYPES.UPDATE_QUIZ_HANDLER).to(UpdateQuizHandler).inSingletonScope();
-	options.bind(QM_TYPES.UPDATE_QUIZ_SETTINGS_HANDLER).to(UpdateQuizSettingsHandler).inSingletonScope();
-	options.bind(QM_TYPES.DELETE_QUIZ_HANDLER).to(DeleteQuizHandler).inSingletonScope();
-	options.bind(QM_TYPES.GET_QUIZ_BY_ID_HANDLER).to(GetQuizByIdHandler).inSingletonScope();
-	options.bind(QM_TYPES.GET_QUIZZES_BY_AUTHOR_HANDLER).to(GetQuizzesByAuthorHandler).inSingletonScope();
+	options.bind<QuizExecutionRepository>(QM_TYPES.QUIZ_EXECUTION_REPOSITORY).to(PrismaQuizExecutionRepository).inSingletonScope();
+	options.bind<QuestionRepository>(QM_TYPES.QUESTION_REPOSITORY).to(PrismaQuestionRepository).inSingletonScope();
+	options.bind(QM_TYPES.QUIZ_SERVICE).to(QuizService).inSingletonScope();
+	options.bind(QM_TYPES.QUESTION_SERVICE).to(QuestionService).inSingletonScope();
 	options.bind(QM_TYPES.QUIZ_CONTROLLER).to(QuizController).inSingletonScope();
+	options.bind(QM_TYPES.QUESTION_CONTROLLER).to(QuestionController).inSingletonScope();
+	options.bind(QM_TYPES.QUIZ_MIDDLEWARE).to(QuizMiddleware).inSingletonScope();
+	options.bind(QM_TYPES.QUIZ_OWNERSHIP_GUARD).to(QuizOwnershipGuard).inSingletonScope();
 });
 
 export { quizManagementModule, QM_TYPES };

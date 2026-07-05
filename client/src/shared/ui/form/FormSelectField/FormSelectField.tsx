@@ -1,4 +1,4 @@
-import { Controller, type Control, type Path } from "react-hook-form";
+import { Controller, type Control, type Path, type FieldValues } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Field, FieldError, FieldLabel } from "@shared/ui/kit/field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@shared/ui/kit/select";
@@ -16,7 +16,7 @@ export type TFormSelectFieldChangeEvent = {
 	};
 };
 
-export type TFormSelectFieldProps<T> = {
+export type TFormSelectFieldProps<T extends FieldValues> = {
 	name: Path<T>;
 	id: string;
 	label: string;

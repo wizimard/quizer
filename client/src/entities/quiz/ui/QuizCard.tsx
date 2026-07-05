@@ -1,7 +1,7 @@
+import { Link } from "react-router-dom";
 import { Card, CardContent } from "@shared/ui/kit/card";
 import type { QuizResponse } from "@shared/api/generated";
 import { Text } from "@shared/ui/text";
-import { Link } from "react-router-dom";
 
 export const QuizCard = ({ id, title }: QuizResponse) => {
 	return (

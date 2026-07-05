@@ -5,12 +5,11 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** |  | [default to undefined]
+**title** | **string** |  | [default to undefined]
 **isRequiredEmail** | **boolean** |  | [default to undefined]
 **isRequiredFirstName** | **boolean** |  | [default to undefined]
 **isRequiredLastName** | **boolean** |  | [default to undefined]
 **isShowAnswersAfterCompletion** | **boolean** |  | [default to undefined]
-**available_periods** | [**QuizAvailableEditRequestBody**](QuizAvailableEditRequestBody.md) |  | [optional] [default to undefined]
 
 ## Example
 
@@ -18,12 +17,11 @@ Name | Type | Description | Notes
 import { QuizSettingsUpdateRequestBody } from './api';
 
 const instance: QuizSettingsUpdateRequestBody = {
-    id,
+    title,
     isRequiredEmail,
     isRequiredFirstName,
     isRequiredLastName,
     isShowAnswersAfterCompletion,
-    available_periods,
 };
 ```
 

@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
-import { appRoutes, type IAppRoute } from "./routes";
 import { Suspense } from "react";
+import { appRoutes, type IAppRoute } from "./routes";
 import { AuthLoadingGuard, PrivateRouteGuard, PublicRouteGuard } from "./guards";
 
 const routeFallback = <div>Loading...</div>;

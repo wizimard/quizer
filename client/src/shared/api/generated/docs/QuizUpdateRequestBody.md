@@ -5,11 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** |  | [default to undefined]
 **title** | **string** |  | [optional] [default to undefined]
-**add** | [**Array&lt;QuestionRequest&gt;**](QuestionRequest.md) |  | [optional] [default to undefined]
-**update** | [**Array&lt;QuestionRequest&gt;**](QuestionRequest.md) |  | [optional] [default to undefined]
-**_delete** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -17,11 +13,7 @@ Name | Type | Description | Notes
 import { QuizUpdateRequestBody } from './api';
 
 const instance: QuizUpdateRequestBody = {
-    id,
     title,
-    add,
-    update,
-    _delete,
 };
 ```
 

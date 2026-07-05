@@ -1,5 +1,5 @@
-import { Header } from "@widgets/Header";
 import type { ReactNode } from "react";
+import { Header } from "@widgets/Header";
 
 export interface IAuthedLayoutProps {
 	children: ReactNode;

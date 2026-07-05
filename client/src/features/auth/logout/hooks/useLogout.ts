@@ -1,7 +1,7 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@entities/user";
 import { api } from "@shared/api";
 import { ACCESS_TOKEN_KEY } from "@shared/constant";
-import { useQueryClient } from "@tanstack/react-query";
 
 export const useLogout = () => {
 	const clearUser = useUser((state) => state.clearUser);

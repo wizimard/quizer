@@ -1,6 +1,6 @@
-import { useQuizSettingsDrawer } from "@pages/Quiz";
-import { Button } from "@shared/ui/kit/button";
 import { Settings } from "lucide-react";
+import { useQuizSettingsDrawer } from "@pages/Quiz/store/settings-drawer.store";
+import { Button } from "@shared/ui/kit/button";
 
 export const SettingsDrawerButton = () => {
 	const setIsOpen = useQuizSettingsDrawer((state) => state.setIsOpen);

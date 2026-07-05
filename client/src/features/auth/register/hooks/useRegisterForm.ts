@@ -1,11 +1,11 @@
-import { useUser } from "@entities/user";
-import { api } from "@shared/api";
-import { ACCESS_TOKEN_KEY } from "@shared/constant";
 import { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
-import { registerFormValidationSchema, type IRegisterFormValues } from "../model/userRegisterForm";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { registerFormValidationSchema, type IRegisterFormValues } from "../model/userRegisterForm";
+import { ACCESS_TOKEN_KEY } from "@shared/constant";
+import { api } from "@shared/api";
+import { useUser } from "@entities/user";
 
 export const useRegisterForm = () => {
 	const setUser = useUser((state) => state.setUser);
@@ -36,7 +36,7 @@ export const useRegisterForm = () => {
 
 			navigate("/");
 		} catch (err: unknown) {
-			if (err instanceof AxiosError && err.status < 500) {
+			if (err instanceof AxiosError && err.response?.status && err.response.status < 500) {
 				setError("form", { message: "auth.form.server_errors.email_busy" });
 			} else {
 				setError("form", { message: "auth.form.server_errors.something_wrong" });

@@ -5,7 +5,7 @@ export function parseIdParam(req: Request, paramName = 'id', message = 'id_wrong
 	const value = req.params[paramName];
 
 	if (!value || typeof value !== 'string') {
-		throw new HttpError(400, message);
+		throw new HttpError(422, message);
 	}
 
 	return value;

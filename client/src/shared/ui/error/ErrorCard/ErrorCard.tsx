@@ -1,7 +1,7 @@
-import { Card, CardContent } from "@shared/ui/kit/card";
-import { Text } from "@shared/ui/text";
 import { CircleAlert } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Card, CardContent } from "@shared/ui/kit/card";
+import { Text } from "@shared/ui/text";
 
 export interface IErrorCardProps {
 	message: string;

@@ -1,16 +1,13 @@
 export const IA_TYPES = {
 	USER_REPOSITORY: Symbol('IA_USER_REPOSITORY'),
-	PASSWORD_HASHER: Symbol('IA_PASSWORD_HASHER'),
 	TOKEN_SERVICE: Symbol('IA_TOKEN_SERVICE'),
-	JWT_TOKEN_SERVICE: Symbol('IA_JWT_TOKEN_SERVICE'),
-	LOGIN_HANDLER: Symbol('IA_LOGIN_HANDLER'),
-	REGISTER_HANDLER: Symbol('IA_REGISTER_HANDLER'),
-	REFRESH_TOKENS_HANDLER: Symbol('IA_REFRESH_TOKENS_HANDLER'),
+	AUTH_SERVICE: Symbol('IA_AUTH_SERVICE'),
 	REFRESH_TOKEN_COOKIE_SERVICE: Symbol('IA_REFRESH_TOKEN_COOKIE_SERVICE'),
 	AUTH_CONTROLLER: Symbol('IA_AUTH_CONTROLLER'),
 	AUTH_MIDDLEWARE: Symbol('IA_AUTH_MIDDLEWARE'),
 	AUTH_GUARD: Symbol('IA_AUTH_GUARD'),
 	USER_CONTROLLER: Symbol('IA_USER_CONTROLLER'),
+	USER_SERVICE: Symbol('IA_USER_SERVICE'),
 } as const;
 
-export type { ITokenPayload } from './infrastructure/auth/token.service.interface';
+export type { ITokenPayload } from './interfaces/token.service.interface';

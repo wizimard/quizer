@@ -5,8 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**title** | **string** |  | [optional] [default to undefined]
-**questions** | [**Array&lt;QuestionRequest&gt;**](QuestionRequest.md) |  | [optional] [default to undefined]
+**title** | **string** |  | [default to undefined]
 
 ## Example
 
@@ -15,7 +14,6 @@ import { QuizCreateRequestBody } from './api';
 
 const instance: QuizCreateRequestBody = {
     title,
-    questions,
 };
 ```
 

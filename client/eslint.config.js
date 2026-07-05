@@ -9,6 +9,7 @@ import tsParser from "@typescript-eslint/parser";
 import prettier from "eslint-plugin-prettier";
 import prettierConfig from "eslint-config-prettier";
 import boundaries from "eslint-plugin-boundaries";
+import importPlugin from "eslint-plugin-import-x";
 
 export default defineConfig([
 	globalIgnores(["dist"]),
@@ -23,6 +24,15 @@ export default defineConfig([
 		plugins: {
 			"@typescript-eslint": typescriptEslint,
 			prettier: prettier,
+			import: importPlugin,
+		},
+		settings: {
+			"import-x/resolver": {
+				typescript: {
+					project: "./tsconfig.app.json",
+				},
+				node: true,
+			},
 		},
 		rules: {
 			...prettierConfig.rules,

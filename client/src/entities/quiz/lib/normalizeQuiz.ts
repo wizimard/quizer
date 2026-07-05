@@ -1,7 +1,9 @@
-import type { QuizResponse } from "@shared/api/generated";
 import type { TQuiz } from "../model/quiz.interface";
+import type { QuizResponse } from "@shared/api/generated";
 
 export function normalizeQuiz(quiz: QuizResponse): TQuiz {
+	quiz.questions.sort((a, b) => a.order - b.order);
+
 	return {
 		...quiz,
 		settings: {

@@ -1,14 +1,14 @@
-import { useGetUser } from "@entities/user";
 import type { ReactNode } from "react";
+import { useGetUser } from "@entities/user";
 
 export interface IAuthLoadingGuardProps {
 	children: ReactNode;
 }
 
 export const AuthLoadingGuard = ({ children }: IAuthLoadingGuardProps) => {
-	const { isLoading } = useGetUser();
+	const { isLoading, error } = useGetUser();
 
-	if (isLoading) {
+	if (isLoading && !error) {
 		return null;
 	}
 

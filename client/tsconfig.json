@@ -1,17 +1,18 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ],
-  "compilerOptions": {
-    "paths": {
-      "@shared/*": ["./src/shared/*"],
-      "@features/*": ["./src/features/*"],
-      "@pages/*": ["./src/pages/*"],
-      "@entities/*": ["./src/entities/*"],
-      "@widgets/*": ["./src/widgets/*"],
-      "@/*": ["./src/*"]
-    }
-  }
+	"files": [],
+	"references": [
+		{ "path": "./tsconfig.generated.json" },
+		{ "path": "./tsconfig.app.json" },
+		{ "path": "./tsconfig.node.json" }
+	],
+	"compilerOptions": {
+		"paths": {
+			"@shared/*": ["./src/shared/*"],
+			"@features/*": ["./src/features/*"],
+			"@pages/*": ["./src/pages/*"],
+			"@entities/*": ["./src/entities/*"],
+			"@widgets/*": ["./src/widgets/*"],
+			"@/*": ["./src/*"]
+		}
+	}
 }

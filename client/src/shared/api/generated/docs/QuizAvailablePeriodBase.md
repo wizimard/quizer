@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **number** |  | [default to undefined]
-**quizId** | **string** |  | [default to undefined]
+**quizSettingsId** | **string** |  | [default to undefined]
 **available_from** | **string** |  | [default to undefined]
 **available_to** | **string** |  | [optional] [default to undefined]
 
@@ -17,7 +17,7 @@ import { QuizAvailablePeriodBase } from './api';
 
 const instance: QuizAvailablePeriodBase = {
     id,
-    quizId,
+    quizSettingsId,
     available_from,
     available_to,
 };

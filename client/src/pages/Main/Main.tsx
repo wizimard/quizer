@@ -1,11 +1,11 @@
-import { useGetQuizes } from "@entities/quiz";
-import { Text } from "@shared/ui/text";
-import { QuizesList } from "./ui/QuizesList";
-import { ButtonWithIcon } from "@shared/ui/button";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { LoadingLayout } from "@shared/ui/layout";
 import { useTranslation } from "react-i18next";
+import { QuizesList } from "./ui/QuizesList";
+import { useGetQuizes } from "@entities/quiz";
+import { Text } from "@shared/ui/text";
+import { ButtonWithIcon } from "@shared/ui/button";
+import { LoadingLayout } from "@shared/ui/layout";
 
 export const Main = () => {
 	const { t } = useTranslation();

@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
 import { api } from "@shared/api";
 import { type QuizResponse } from "@shared/api/generated";
-import { useQuery } from "@tanstack/react-query";
 
 export const useGetQuizes = () => {
 	const { data, isLoading, error } = useQuery<QuizResponse[]>({

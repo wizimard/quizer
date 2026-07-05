@@ -1,6 +1,6 @@
-import { useGetUser } from "@entities/user";
 import { Navigate } from "react-router-dom";
 import type { ReactNode } from "react";
+import { useGetUser } from "@entities/user";
 
 export interface IPublicRouteGuardProps {
 	children: ReactNode;

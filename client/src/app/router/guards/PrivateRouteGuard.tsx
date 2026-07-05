@@ -1,7 +1,7 @@
-import { useGetUser } from "@entities/user";
 import { Navigate } from "react-router-dom";
 import type { ReactNode } from "react";
 import { AuthedLayout } from "../../layout/AuthedLayout";
+import { useGetUser } from "@entities/user";
 
 export interface IPrivateRouteGuardProps {
 	children: ReactNode;

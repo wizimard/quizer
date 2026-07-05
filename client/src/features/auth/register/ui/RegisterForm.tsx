@@ -1,8 +1,8 @@
+import { useTranslation } from "react-i18next";
 import { FormTextField } from "@shared/ui/form";
 import { DefaultButton } from "@shared/ui/button";
 import { Text } from "@shared/ui/text";
 import { useRegisterForm } from "@features/auth/register/hooks/useRegisterForm";
-import { useTranslation } from "react-i18next";
 
 export const RegisterForm = () => {
 	const { t } = useTranslation();
@@ -34,7 +34,7 @@ export const RegisterForm = () => {
 					required
 					autoComplete="none"
 				></FormTextField>
-				{errors.root && (
+				{errors.root?.message && (
 					<Text variant="body1" color="error">
 						{t(errors.root.message)}
 					</Text>

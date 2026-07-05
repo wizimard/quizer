@@ -1,8 +1,8 @@
-import { ErrorCard } from "@shared/ui/error";
-import { Loading } from "@shared/ui/loading";
 import { AxiosError } from "axios";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Loading } from "@shared/ui/loading";
+import { ErrorCard } from "@shared/ui/error";
 
 export interface ILoadingLayoutProps {
 	isLoading: boolean;

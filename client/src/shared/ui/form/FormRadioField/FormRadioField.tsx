@@ -1,13 +1,13 @@
-import { Controller, type Control, type Path } from "react-hook-form";
+import { Controller, type Control, type Path, type FieldValues } from "react-hook-form";
 import { RadioGroup, RadioGroupItem } from "@shared/ui/kit/radio-group";
 import { cn } from "@shared/lib/utils";
 
-export type TFormRadioField<T> = Omit<React.ComponentProps<typeof RadioGroupItem>, "value"> & {
+export type TFormRadioField<T extends FieldValues> = Omit<React.ComponentProps<typeof RadioGroupItem>, "value"> & {
 	name: Path<T>;
 	control: Control<T, unknown, T>;
 	value?: string;
 	checked?: boolean;
-	onChange?: React.ChangeEventHandler<HTMLInputElement>;
+	onChange?: (value: string) => void;
 };
 
 const FormRadioField = <T extends object>({ control, name, className, checked, onChange, value = "on", ...props }: TFormRadioField<T>) => {
@@ -24,7 +24,7 @@ const FormRadioField = <T extends object>({ control, name, className, checked, o
 						value={isChecked ? value : ""}
 						onValueChange={() => {
 							if (onChange) {
-								onChange({ target: { value, name: field.name } } as React.ChangeEvent<HTMLInputElement>);
+								onChange(value);
 								return;
 							}
 							field.onChange(value);

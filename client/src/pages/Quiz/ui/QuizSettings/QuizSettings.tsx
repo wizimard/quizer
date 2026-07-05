@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { DefaultButton } from "@shared/ui/button";
 import { useTranslation } from "react-i18next";
+import { DefaultButton } from "@shared/ui/button";
 import { type TQuiz } from "@entities/quiz";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@shared/ui/kit/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@shared/ui/kit/tabs";
 import { QuizDeleteDialog } from "@features/quiz/quiz-delete";
-import { QuizSettingsForm } from "@features/quiz/quiz-settings";
-import { useQuizSettingsDrawer } from "@pages/Quiz";
+import { QuizGeneralSettingsForm } from "@features/quiz/quiz-settings-general";
+import { QuizScheduleForm } from "@features/quiz/quiz-schedule";
+import { useQuizSettingsDrawer } from "@pages/Quiz/store/settings-drawer.store";
 
 export interface IQuizSettingsProps {
 	quiz: TQuiz;
@@ -34,16 +36,43 @@ export const QuizSettings = ({ quiz }: IQuizSettingsProps) => {
 	return (
 		<>
 			<Sheet open={isOpen} onOpenChange={setIsOpen}>
-				<SheetContent side="right" className="scrollbar-styled w-[350px] gap-5 overflow-y-auto p-5 sm:max-w-[350px]">
-					<SheetHeader className="p-0">
+				<SheetContent side="right" className="scrollbar-styled w-[350px] gap-1 overflow-y-auto p-0 sm:max-w-[350px]">
+					<SheetHeader className="px-5">
 						<SheetTitle className="text-xl font-semibold tracking-tight">Настройки</SheetTitle>
 					</SheetHeader>
 
-					<QuizSettingsForm quiz={quiz} />
+					<Tabs defaultValue="general" className="gap-4 p-1">
+						<TabsList className="grid h-auto w-full grid-cols-4">
+							<TabsTrigger value="general" className="text-xs">
+								Общие
+							</TabsTrigger>
+							<TabsTrigger value="scheduler" className="text-xs">
+								Планировщик
+							</TabsTrigger>
+							<TabsTrigger value="link" className="text-xs">
+								Ссылка
+							</TabsTrigger>
+							<TabsTrigger value="delete" className="text-xs">
+								Удалить
+							</TabsTrigger>
+						</TabsList>
 
-					<DefaultButton variant="destructive" onClick={handleClickRemove}>
-						{t("quiz_settings.button_delete_quiz")}
-					</DefaultButton>
+						<TabsContent value="general" className="px-5">
+							<QuizGeneralSettingsForm quiz={quiz} />
+						</TabsContent>
+
+						<TabsContent value="scheduler" className="px-5">
+							<QuizScheduleForm quiz={quiz} />
+						</TabsContent>
+
+						<TabsContent value="link" className="px-5" />
+
+						<TabsContent value="delete" className="px-5">
+							<DefaultButton variant="destructive" onClick={handleClickRemove}>
+								{t("quiz_delete.button")}
+							</DefaultButton>
+						</TabsContent>
+					</Tabs>
 				</SheetContent>
 			</Sheet>
 			<QuizDeleteDialog quizId={quiz.id} isOpen={isOpenDeleteDialog} handleClose={handleCloseDialog} />

@@ -1,6 +1,6 @@
 import type { QuizAvailablePeriodBase, QuizResponse, QuizSettingsBase } from "@shared/api/generated";
 
-export type TQuizAvailablePeriod = Pick<QuizAvailablePeriodBase, "id" | "quizId"> & {
+export type TQuizAvailablePeriod = Pick<QuizAvailablePeriodBase, "id"> & {
 	available_from: Date;
 	available_to: Date | null;
 };

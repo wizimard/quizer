@@ -1,9 +1,9 @@
+import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback } from "@shared/ui/kit/avatar";
 import { Button } from "@shared/ui/kit/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@shared/ui/kit/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@shared/ui/kit/tooltip";
 import { Text } from "@shared/ui/text";
-import { useTranslation } from "react-i18next";
 
 const menuItems = [{ id: "logout", title: "header.user_menu.logout" }];
 

@@ -12,7 +12,6 @@ import type { IConfigService } from '@shared/config';
 import type { IExceptionFilter } from '@shared/error';
 import cors from 'cors';
 import { QM_TYPES } from '@modules/quiz-management/quiz-management.types';
-import { QE_TYPES } from '@modules/quiz-execution/quiz-execution.types';
 
 @injectable()
 export class App {
@@ -32,7 +31,7 @@ export class App {
 		@inject(APP_TYPES.EXCEPTION_FILTER) private readonly exceptionFilter: IExceptionFilter,
 		@inject(APP_TYPES.SWAGGER) private readonly swaggerController: IController,
 		@inject(QM_TYPES.QUIZ_CONTROLLER) private readonly quizController: IController,
-		@inject(QE_TYPES.QUIZ_EXECUTE_CONTROLLER) private readonly quizExecuteController: IController,
+		@inject(QM_TYPES.QUESTION_CONTROLLER) private readonly questionController: IController,
 	) {
 		this.app = express();
 
@@ -91,7 +90,7 @@ export class App {
 		this.app.use('/api/auth', this.authController.router);
 		this.app.use('/api/user', this.userController.router);
 		this.app.use('/api/quiz', this.quizController.router);
-		this.app.use('/api', this.quizExecuteController.router);
+		this.app.use('/api/question', this.questionController.router);
 	}
 
 	private useExceptionFilter(): void {

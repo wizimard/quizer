@@ -1,7 +1,7 @@
-import { api } from "@shared/api";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { normalizeQuiz, type TQuiz } from "..";
+import { api } from "@shared/api";
 import { QUIZ_NEW_ID } from "@shared/constant";
 
 export const useGetQuiz = (id: string) => {
@@ -26,7 +26,7 @@ export const useGetQuiz = (id: string) => {
 				};
 			}
 
-			const response = await api.quizIdGet(id);
+			const response = await api.quizQuizIdGet(id);
 
 			return normalizeQuiz(response.data);
 		},
