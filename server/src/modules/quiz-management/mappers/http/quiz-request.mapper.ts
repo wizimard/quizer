@@ -1,9 +1,9 @@
-import type { QuizCreateDto } from '../../dto/quiz-create.dto';
-import type { QuizSettingsUpdateDto } from '../../dto/quiz-settings-update.dto';
-import type { QuizAvailableEditDto } from '../../dto/quiz-available-edit.dto';
-import type { QuizUpdateDto } from '../../dto/quiz-update.dto';
-import type { CreateQuizInput, UpdateQuizAvailablePeriodsInput, UpdateQuizInput, UpdateQuizSettingsInput } from '../../interfaces/input/quiz.input';
-import type { QuizStartDto } from '../../dto/quiz-start.dto';
+import type { QuizCreateDto } from '../../dto/http/quiz-create.dto';
+import type { QuizSettingsUpdateDto } from '../../dto/http/quiz-settings-update.dto';
+import type { QuizAvailableEditDto } from '../../dto/http/quiz-available-edit.dto';
+import type { QuizUpdateDto } from '../../dto/http/quiz-update.dto';
+import type { CloseAvailablePeriodInput, CreateQuizInput, UpdateQuizAvailablePeriodsInput, UpdateQuizInput, UpdateQuizSettingsInput } from '../../interfaces/input/quiz.input';
+import type { QuizStartDto } from '../../dto/http/quiz-start.dto';
 import type { StartQuizInput } from '@modules/quiz-execution/types/start-quiz.input';
 import type { QuizEntity } from '../../entities/quiz.entity';
 import type { FinishQuizInput } from '@modules/quiz-execution/types/finish-quiz.input';
@@ -91,6 +91,13 @@ export class QuizRequestMapper {
 	static toFinishCommand(quiz: QuizEntity): FinishQuizInput {
 		return {
 			quiz,
+		};
+	}
+
+	static toCloseAvailablePeriodInput(quiz: QuizEntity, periodId: string): CloseAvailablePeriodInput {
+		return {
+			quiz,
+			periodId: parseInt(periodId),
 		};
 	}
 }

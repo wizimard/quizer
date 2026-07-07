@@ -17,7 +17,7 @@ export const QuizPersistenceMapper = {
 		};
 	},
 
-	toUpdateData(entity: QuizEntity) {
+	toUpdateData(entity: QuizEntity): QuizModelUpdateInput {
 		return {
 			title: entity.title,
 		};
@@ -72,5 +72,15 @@ export const QuizPersistenceMapper = {
 		}
 
 		return updateInput;
+	},
+
+	toAvailablePeriodsCloseInput({ periodId }: { periodId: number }): QuizModelUpdateInput {
+		return {
+			quizSettings: {
+				update: {
+					availablePeriods: { update: { where: { id: periodId }, data: { status: 'MANUALLY_CLOSED' } } },
+				},
+			},
+		};
 	},
 };

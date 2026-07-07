@@ -5,19 +5,33 @@ import type { ILogger } from '@shared/logger';
 import { repositoryCall } from '@shared/http/utils/repository-call';
 import { UserId } from '@modules/identity-access';
 import type { QuizEntity } from '../entities/quiz.entity';
-import type { IQuizUpdateAvailablePeriodsData, IQuizUpdateSettingsData, QuizRepository, TQuizModelAll } from '../interfaces/repository/quiz.repository.interface';
+import type { IQuizUpdateAvailablePeriodsData, IQuizUpdateSettingsData, QuizRepository, TQuizModelAll, TQuizModelWithSessions } from '../interfaces/repository/quiz.repository.interface';
 import type { QuizId } from '../entities/value-object/quiz-id';
 import { QuizMapper } from '../mappers/quiz.mapper';
 import { QuizPersistenceMapper } from '../mappers/repositories/quiz-persistence.mapper';
 
 const FULL_QUIZ_INCLUDE = {
-	questions: true,
+	questions: {
+		orderBy: { sort_key: 'asc' },
+	},
 	quizSettings: {
 		include: {
 			availablePeriods: true,
 		},
 	},
-	quizSessions: true,
+	quizSessions: {
+		where: {
+			status: 'ACTIVE',
+		},
+	},
+} as const;
+
+const SHORT_QUIZ_INCLUDE = {
+	quizSessions: {
+		where: {
+			status: 'ACTIVE',
+		},
+	},
 } as const;
 
 @injectable()
@@ -83,7 +97,7 @@ export class PrismaQuizRepository implements QuizRepository {
 	}
 
 	async findFullById(id: QuizId): Promise<QuizEntity | null> {
-		const row = await repositoryCall(
+		const row: TQuizModelAll | null = await repositoryCall(
 			() =>
 				this.prismaService.client.quizModel.findUnique({
 					where: { id: id.value },
@@ -93,20 +107,21 @@ export class PrismaQuizRepository implements QuizRepository {
 			this.logger,
 		);
 
-		return row ? QuizMapper.toDomain(row as TQuizModelAll) : null;
+		return row ? QuizMapper.toDomain(row) : null;
 	}
 
 	async findByAuthor(authorId: UserId): Promise<QuizEntity[]> {
-		const rows = await repositoryCall(
+		const rows: TQuizModelWithSessions[] = await repositoryCall(
 			() =>
 				this.prismaService.client.quizModel.findMany({
 					where: { authorId: authorId.value },
+					include: SHORT_QUIZ_INCLUDE,
 				}),
 			'PrismaQuizRepository.findByAuthor',
 			this.logger,
 		);
 
-		return rows.map((row) => QuizMapper.toDomain(row));
+		return rows.map((row: TQuizModelWithSessions) => QuizMapper.toDomain(row));
 	}
 
 	async updateSettings(quizId: QuizId, updateSettingsData: IQuizUpdateSettingsData): Promise<QuizEntity> {
@@ -134,6 +149,21 @@ export class PrismaQuizRepository implements QuizRepository {
 				}),
 			'PrismaQuizRepository.updateAvailablePeriods',
 			this.logger,
+		);
+
+		return QuizMapper.toDomain(row);
+	}
+
+	async closeAvailablePeriod(quizId: QuizId, periodId: number): Promise<QuizEntity> {
+		console.log('closeAvailablePeriod', quizId.value, periodId);
+		const row = await repositoryCall(
+			() =>
+				this.prismaService.client.quizModel.update({
+					where: { id: quizId.value },
+					data: QuizPersistenceMapper.toAvailablePeriodsCloseInput({ periodId }),
+					include: FULL_QUIZ_INCLUDE,
+				}),
+			'PrismaQuizRepository.closeAvailablePeriod',
 		);
 
 		return QuizMapper.toDomain(row);

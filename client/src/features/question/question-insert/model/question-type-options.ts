@@ -3,15 +3,15 @@ import type { ISelectOption } from "@shared/ui/form/FormSelectField/FormSelectFi
 
 export const QUESTION_TYPES_OPTIONS: ISelectOption[] = [
 	{
-		text: "question_form.type.label",
+		text: "question_types.input",
 		value: QUESTION_TYPES.INPUT,
 	},
 	{
-		text: "question_form.type.label",
+		text: "question_types.single_choise",
 		value: QUESTION_TYPES.SIGNLE_CHOISE,
 	},
 	{
-		text: "question_form.type.label",
+		text: "question_types.multiple_choise",
 		value: QUESTION_TYPES.MULTIPLE_CHOISE,
 	},
 ];

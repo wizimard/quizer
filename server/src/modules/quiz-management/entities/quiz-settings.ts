@@ -38,11 +38,11 @@ export class QuizSettings implements IQuizSettings {
 		const updateData: IQuizUpdateAvailablePeriodsData = { availablePeriods: {} };
 
 		if (periods.add?.length) {
-			updateData.availablePeriods.add = periods.add.map((period) => new QuizAvailablePeriod(0, quizId.value, period.available_from, period.available_to));
+			updateData.availablePeriods.add = periods.add.map((period) => new QuizAvailablePeriod(0, quizId.value, 'SCHEDULED', period.available_from, period.available_to));
 		}
 
 		if (periods.update?.length) {
-			updateData.availablePeriods.update = periods.update.map((period) => new QuizAvailablePeriod(period.id, quizId.value, period.available_from, period.available_to));
+			updateData.availablePeriods.update = periods.update.map((period) => new QuizAvailablePeriod(period.id, quizId.value, 'SCHEDULED', period.available_from, period.available_to));
 		}
 
 		if (periods.remove?.length) {

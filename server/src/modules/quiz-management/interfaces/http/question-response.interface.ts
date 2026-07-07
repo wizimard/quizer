@@ -1,7 +1,7 @@
 export interface IQuestionResponse {
 	id: string;
 	quizId: string;
-	order: number;
+	sortKey: number;
 	description: string;
 	config: object;
 }

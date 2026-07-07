@@ -42,3 +42,8 @@ export interface GetQuizByIdInput {
 export interface GetQuizzesByAuthorInput {
 	authorId: string;
 }
+
+export interface CloseAvailablePeriodInput {
+	quiz: QuizEntity;
+	periodId: number;
+}

@@ -12,7 +12,7 @@ export const createNewQuestion = ({ quizId, order }: ICreateNewQuestionProps): Q
 		id: QUESTION_NEW_ID,
 		quizId,
 		description: "",
-		order,
+		sortKey: (order + 1) * 1000,
 		config: {
 			type: QUESTION_TYPES.INPUT,
 			answer: "",

@@ -4,3 +4,5 @@ export type { TQuiz, TQuizSettings, TQuizAvailablePeriod } from "./model/quiz.in
 export { normalizeQuiz } from "./lib/normalizeQuiz";
 
 export { QuizCard } from "./ui/QuizCard";
+export { QuizStatus } from "./ui/QuizStatus";
+export { QuizStartButton } from "./ui/QuizStartButton";

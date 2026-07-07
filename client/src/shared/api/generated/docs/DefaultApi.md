@@ -10,6 +10,7 @@ All URIs are relative to *http://localhost:8031/api*
 |[**authRegisterPost**](#authregisterpost) | **POST** /auth/register | Register user|
 |[**questionQuizIdQuestionsPost**](#questionquizidquestionspost) | **POST** /question/{quizId}/questions | Create question|
 |[**questionQuizIdQuestionsQuestionIdDelete**](#questionquizidquestionsquestioniddelete) | **DELETE** /question/{quizId}/questions/{questionId} | Delete question|
+|[**questionQuizIdQuestionsQuestionIdOrderPatch**](#questionquizidquestionsquestionidorderpatch) | **PATCH** /question/{quizId}/questions/{questionId}/order | Change question order|
 |[**questionQuizIdQuestionsQuestionIdPatch**](#questionquizidquestionsquestionidpatch) | **PATCH** /question/{quizId}/questions/{questionId} | Update question|
 |[**quizExecuteQuizIdGet**](#quizexecutequizidget) | **GET** /quiz-execute/{quizId} | Get quiz for execution|
 |[**quizExecuteQuizIdQuestionIdGet**](#quizexecutequizidquestionidget) | **GET** /quiz-execute/{quizId}/{questionId} | Get question for execution|
@@ -21,6 +22,7 @@ All URIs are relative to *http://localhost:8031/api*
 |[**quizQuizIdGet**](#quizquizidget) | **GET** /quiz/{quizId} | Get quiz by id|
 |[**quizQuizIdPatch**](#quizquizidpatch) | **PATCH** /quiz/{quizId} | Update quiz|
 |[**quizQuizIdSettingsAvailablePeriodsPatch**](#quizquizidsettingsavailableperiodspatch) | **PATCH** /quiz/{quizId}/settings/available-periods | Update quiz available periods|
+|[**quizQuizIdSettingsAvailablePeriodsPeriodIdClosePatch**](#quizquizidsettingsavailableperiodsperiodidclosepatch) | **PATCH** /quiz/{quizId}/settings/available-periods/{periodId}/close | Close quiz available period|
 |[**quizQuizIdSettingsPatch**](#quizquizidsettingspatch) | **PATCH** /quiz/{quizId}/settings | Update quiz settings|
 |[**quizQuizIdStartPost**](#quizquizidstartpost) | **POST** /quiz/{quizId}/start | Start quiz|
 |[**userMeGet**](#usermeget) | **GET** /user/me | Get authorized user|
@@ -338,6 +340,68 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **questionQuizIdQuestionsQuestionIdOrderPatch**
+> QuizResponse questionQuizIdQuestionsQuestionIdOrderPatch(questionChangeOrderRequestBody)
+
+Change the position of a question within a quiz relative to neighboring questions
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    QuestionChangeOrderRequestBody
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let quizId: string; // (default to undefined)
+let questionId: string; // (default to undefined)
+let questionChangeOrderRequestBody: QuestionChangeOrderRequestBody; //Change question order request body
+
+const { status, data } = await apiInstance.questionQuizIdQuestionsQuestionIdOrderPatch(
+    quizId,
+    questionId,
+    questionChangeOrderRequestBody
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **questionChangeOrderRequestBody** | **QuestionChangeOrderRequestBody**| Change question order request body | |
+| **quizId** | [**string**] |  | defaults to undefined|
+| **questionId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**QuizResponse**
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Question order changed |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Don\&#39;t have rights |  -  |
+|**404** | Not Found |  -  |
+|**422** | Validation failed |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **questionQuizIdQuestionsQuestionIdPatch**
 > QuestionResponse questionQuizIdQuestionsQuestionIdPatch(questionUpdateRequestBody)
 
@@ -567,7 +631,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **quizGet**
-> Array<QuizResponse> quizGet()
+> Array<QuizResponseBase> quizGet()
 
 Get user\'s quizes
 
@@ -591,7 +655,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**Array<QuizResponse>**
+**Array<QuizResponseBase>**
 
 ### Authorization
 
@@ -944,6 +1008,65 @@ const { status, data } = await apiInstance.quizQuizIdSettingsAvailablePeriodsPat
 |**403** | Don\&#39;t have rights |  -  |
 |**422** | Validation failed |  -  |
 |**500** | Updating available periods failed |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **quizQuizIdSettingsAvailablePeriodsPeriodIdClosePatch**
+> QuizResponse quizQuizIdSettingsAvailablePeriodsPeriodIdClosePatch()
+
+Mark a quiz availability period as closed
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let quizId: string; // (default to undefined)
+let periodId: number; // (default to undefined)
+
+const { status, data } = await apiInstance.quizQuizIdSettingsAvailablePeriodsPeriodIdClosePatch(
+    quizId,
+    periodId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **quizId** | [**string**] |  | defaults to undefined|
+| **periodId** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+**QuizResponse**
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Available period closed |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Don\&#39;t have rights |  -  |
+|**404** | Not Found |  -  |
+|**422** | Validation failed |  -  |
+|**500** | Closing available period failed |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

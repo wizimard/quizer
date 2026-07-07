@@ -18,7 +18,14 @@ export const QuestionList = ({ question, index, isLast, handleClickEdit, handleC
 				{index + 1}
 			</Text>
 			<QuestionListItemContainer>
-				<QuestionView question={question} handleClickEdit={handleClickEdit} handleClickUp={handleClickUp} handleClickDown={handleClickDown} isLast={isLast} />
+				<QuestionView
+					question={question}
+					handleClickEdit={handleClickEdit}
+					handleClickUp={handleClickUp}
+					handleClickDown={handleClickDown}
+					isDisableDownButton={isLast}
+					isDisableUpButton={index === 0}
+				/>
 			</QuestionListItemContainer>
 		</li>
 	);

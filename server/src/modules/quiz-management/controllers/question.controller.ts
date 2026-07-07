@@ -4,15 +4,17 @@ import { inject, injectable } from 'inversify';
 import type { QuestionService } from '../services/question.service';
 import type { NextFunction, Request, Response } from 'express';
 import type { ParamsDictionary } from 'express-serve-static-core';
-import { QuestionCreateDto } from '../dto/question-create.dto';
+import { QuestionCreateDto } from '../dto/http/question-create.dto';
 import type { IQuestionResponse } from '../interfaces/http/question-response.interface';
 import { QuestionRequestMapper } from '../mappers/http/question-request.mapper';
 import { QuestionResponseMapper } from '../mappers/http/question-response.mapper';
-import { QuestionUpdateDto } from '../dto/question-update.dto';
+import { QuestionUpdateDto } from '../dto/http/question-update.dto';
 import { parseIdParam } from '@shared/http/utils/parse-id-param';
 import { APP_TYPES } from '@app/app.types';
 import type { IMiddlewareFactory } from '@shared/http/middleware.factory.interface';
 import { QuestionExistsGuard } from '../middlewares/question-exists.guard';
+import { QuizResponseMapper } from '../mappers/http/quiz-response.mapper';
+import type { QuestionChangeOrderDto } from '../dto/http/question-change-order.dto';
 
 @injectable()
 export class QuestionController extends BaseController {
@@ -31,7 +33,6 @@ export class QuestionController extends BaseController {
 					this.middlewareFactory.authGuard(),
 					this.middlewareFactory.quizMiddleware(),
 					this.middlewareFactory.quizOwnershipGuard(),
-					this.questionExistsGuard,
 					this.middlewareFactory.validate(QuestionCreateDto),
 				],
 				handler: this.createQuestion.bind(this),
@@ -54,6 +55,12 @@ export class QuestionController extends BaseController {
 				middlewares: [this.middlewareFactory.authGuard(), this.middlewareFactory.quizMiddleware(), this.middlewareFactory.quizOwnershipGuard(), this.questionExistsGuard],
 				handler: this.deleteQuestion.bind(this),
 			},
+			{
+				url: '/:quizId/questions/:questionId/order',
+				method: 'patch',
+				middlewares: [this.middlewareFactory.authGuard(), this.middlewareFactory.quizMiddleware(), this.middlewareFactory.quizOwnershipGuard(), this.questionExistsGuard],
+				handler: this.changeQuestionOrder.bind(this),
+			},
 		]);
 	}
 
@@ -66,10 +73,9 @@ export class QuestionController extends BaseController {
 	}
 
 	async updateQuestion(req: Request<ParamsDictionary, unknown, QuestionUpdateDto>, res: Response, _next: NextFunction): Promise<void> {
-		const quizId = parseIdParam(req, 'quizId');
 		const questionId = parseIdParam(req, 'questionId');
 
-		const dto = await this.questionService.update(QuestionRequestMapper.toUpdateInput(req.body, quizId, questionId));
+		const dto = await this.questionService.update(QuestionRequestMapper.toUpdateInput(req.body, req.quiz!.id.value, questionId));
 
 		const updatedQuestion: IQuestionResponse = QuestionResponseMapper.toHttp(dto);
 
@@ -83,5 +89,13 @@ export class QuestionController extends BaseController {
 		await this.questionService.delete(QuestionRequestMapper.toDeleteInput(questionId, quizId));
 
 		this.noContent(res);
+	}
+
+	async changeQuestionOrder(req: Request<ParamsDictionary, unknown, QuestionChangeOrderDto>, res: Response, _next: NextFunction): Promise<void> {
+		const questionId = parseIdParam(req, 'questionId');
+
+		const dto = await this.questionService.changeOrder(QuestionRequestMapper.toChangeOrderInput(req.body, req.quiz!, questionId));
+
+		this.ok(res, QuizResponseMapper.toHttp(dto));
 	}
 }

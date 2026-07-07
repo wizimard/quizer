@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { AxiosError, AxiosResponse } from "axios";
 import { QuestionList } from "./ui/QuestionList";
 import { api } from "@shared/api";
-import type { QuestionResponse, QuizResponse } from "@shared/api/generated";
+import type { QuestionChangeOrderRequestBody, QuestionResponse, QuizResponse } from "@shared/api/generated";
 import { useQuestionDrawer } from "@widgets/QuizQuestions/store/question-drawer";
 
 export interface IQuestionsListProps {
@@ -13,34 +13,14 @@ export const QuestionsList = ({ questions }: IQuestionsListProps) => {
 	const queryClient = useQueryClient();
 
 	const questionOrderChagenMutation = useMutation({
-		mutationFn: ({ question, newOrder }: { question: QuestionResponse; newOrder: number }) => {
-			return api.questionQuizIdQuestionsQuestionIdPatch(question.quizId, question.id, {
-				...question,
-				order: newOrder,
+		mutationFn: ({ question, nextQuestionId, previousQuestionId }: QuestionChangeOrderRequestBody & { question: QuestionResponse }) => {
+			return api.questionQuizIdQuestionsQuestionIdOrderPatch(question.quizId, question.id, {
+				nextQuestionId,
+				previousQuestionId,
 			});
 		},
-		onSuccess: (response: AxiosResponse<QuestionResponse>) => {
-			queryClient.setQueryData(["quiz", response.data.quizId], (old: QuizResponse) => {
-				const oldOrder: number = old.questions.find((question) => question.id === response.data.id)!.order;
-
-				old.questions.forEach((question) => {
-					// меняем порядок у вопроса, с которым поменялись местами
-					if (question.order === response.data.order) {
-						question.order = oldOrder;
-					}
-					// меняем порядок у измененного вопроса
-					if (question.id === response.data.id) {
-						question.order = response.data.order;
-					}
-				});
-
-				// сортируем вопросы по порядку
-				old.questions.sort((a, b) => a.order - b.order);
-
-				return {
-					...old,
-				};
-			});
+		onSuccess: (response: AxiosResponse<QuizResponse>) => {
+			queryClient.setQueryData(["quiz", response.data.id], response);
 		},
 		onError: (error: AxiosError) => {
 			console.error(error, error.response);
@@ -56,15 +36,15 @@ export const QuestionsList = ({ questions }: IQuestionsListProps) => {
 	};
 
 	const handleClickUp = (question: QuestionResponse) => {
-		const newOrder = questions[questions.findIndex((q) => q.id === question.id) - 1].order;
+		const prevQuestion = questions[questions.findIndex((q) => q.id === question.id) - 1];
 
-		questionOrderChagenMutation.mutate({ question, newOrder });
+		questionOrderChagenMutation.mutate({ question, previousQuestionId: prevQuestion.id });
 	};
 
 	const handleClickDown = (question: QuestionResponse) => {
-		const newOrder = questions[questions.findIndex((q) => q.id === question.id) + 1].order;
+		const nextQuestion = questions[questions.findIndex((q) => q.id === question.id) + 1];
 
-		questionOrderChagenMutation.mutate({ question, newOrder });
+		questionOrderChagenMutation.mutate({ question, nextQuestionId: nextQuestion.id });
 	};
 
 	return (

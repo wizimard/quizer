@@ -27,7 +27,7 @@ export class PrismaQuestionRepository implements QuestionRepository {
 			this.logger,
 		);
 
-		return QuestionMapper.toDomain(row, data.quizId);
+		return QuestionMapper.toDomain(row);
 	}
 
 	async update(data: QuestionEntity): Promise<QuestionEntity> {
@@ -41,12 +41,12 @@ export class PrismaQuestionRepository implements QuestionRepository {
 			this.logger,
 		);
 
-		return QuestionMapper.toDomain(row, data.quizId);
+		return QuestionMapper.toDomain(row);
 	}
 
 	async delete(id: QuestionId, quizId: QuizId): Promise<boolean> {
 		const rows = await repositoryCall(
-			() => this.prismaService.client.quizQuestionModel.deleteMany({ where: { id: id.value, quizId: quizId.value } }),
+			() => this.prismaService.client.quizQuestionModel.deleteMany(QuestionPersistenceMapper.toDeleteData(id, quizId)),
 			'PrismaQuestionRepository.delete',
 			this.logger,
 		);
@@ -56,11 +56,25 @@ export class PrismaQuestionRepository implements QuestionRepository {
 
 	async findById(id: QuestionId): Promise<QuestionEntity | null> {
 		const row = await repositoryCall(() => this.prismaService.client.quizQuestionModel.findUnique({ where: { id: id.value } }), 'PrismaQuestionRepository.findById', this.logger);
-		return row ? QuestionMapper.toDomain(row, QuizId.of(row.quizId)) : null;
+		return row ? QuestionMapper.toDomain(row) : null;
 	}
 
 	async findByQuizId(quizId: QuizId): Promise<QuestionEntity[]> {
 		const rows = await repositoryCall(() => this.prismaService.client.quizQuestionModel.findMany({ where: { quizId: quizId.value } }), 'PrismaQuestionRepository.findByQuizId', this.logger);
-		return rows.map((row) => QuestionMapper.toDomain(row, quizId));
+		return rows.map((row) => QuestionMapper.toDomain(row));
+	}
+
+	async updateQuestionsOrders(questions: QuestionEntity[]): Promise<boolean> {
+		const rows = await repositoryCall(
+			() => {
+				const updateQuestions = questions.map((question) => this.prismaService.client.quizQuestionModel.update(QuestionPersistenceMapper.toUpdateOrderData(question)));
+
+				return this.prismaService.client.$transaction(updateQuestions);
+			},
+			'PrismaQuestionRepository.updateQuestionsOrders',
+			this.logger,
+		);
+
+		return rows.length === questions.length;
 	}
 }

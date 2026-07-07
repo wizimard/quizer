@@ -1,14 +1,14 @@
 import { BaseController } from '@shared/http/controller.base';
 import { inject, injectable } from 'inversify';
 import type { Request, Response, NextFunction } from 'express';
-import { QuizCreateDto } from '../dto/quiz-create.dto';
-import { QuizUpdateDto } from '../dto/quiz-update.dto';
-import type { IQuizResponse } from '../interfaces/http/quiz-response.interface';
+import { QuizCreateDto } from '../dto/http/quiz-create.dto';
+import { QuizUpdateDto } from '../dto/http/quiz-update.dto';
+import type { IQuizResponse, IQuizResponseBase } from '../interfaces/http/quiz-response.interface';
 import type { IRoute } from '@shared/http/route.interface';
 import { APP_TYPES } from '@app/app.types';
 import type { IMiddlewareFactory } from '@shared/http/middleware.factory.interface';
-import { QuizSettingsUpdateDto } from '../dto/quiz-settings-update.dto';
-import { QuizAvailableEditDto } from '../dto/quiz-available-edit.dto';
+import { QuizSettingsUpdateDto } from '../dto/http/quiz-settings-update.dto';
+import { QuizAvailableEditDto } from '../dto/http/quiz-available-edit.dto';
 import { QM_TYPES } from '../quiz-management.types';
 import type { QuizService } from '../services/quiz.service';
 import { QuizRequestMapper } from '../mappers/http/quiz-request.mapper';
@@ -16,9 +16,10 @@ import { QuizResponseMapper } from '../mappers/http/quiz-response.mapper';
 import { QE_TYPES } from '@modules/quiz-execution/quiz-execution.types';
 import type { QuizSessionService } from '@modules/quiz-execution/services/quiz-session.service';
 import { ExecutionResponseMapper } from '@modules/quiz-execution/mappers/execution-response.mapper';
-import { QuizStartDto } from '../dto/quiz-start.dto';
+import { QuizStartDto } from '../dto/http/quiz-start.dto';
 import type { ParamsDictionary } from 'express-serve-static-core';
 import { toQuizDto } from '../mappers/to-quiz.dto';
+import { parseIdParam } from '@shared/http/utils/parse-id-param';
 
 @injectable()
 export class QuizController extends BaseController {
@@ -83,6 +84,12 @@ export class QuizController extends BaseController {
 				],
 			},
 			{
+				url: '/:quizId/settings/available-periods/:periodId/close',
+				method: 'patch',
+				handler: this.closeAvailablePeriod,
+				middlewares: [this.middlewareFactory.authGuard(), this.middlewareFactory.quizMiddleware(), this.middlewareFactory.quizOwnershipGuard()],
+			},
+			{
 				url: '/:quizId/start',
 				method: 'post',
 				handler: this.startQuiz,
@@ -108,7 +115,7 @@ export class QuizController extends BaseController {
 
 	async getUserQuiz(req: Request, res: Response, _next: NextFunction): Promise<void> {
 		const dtos = await this.quizService.getByAuthor({ authorId: req.user!.id });
-		const quizes: IQuizResponse[] = QuizResponseMapper.toHttpList(dtos);
+		const quizes: IQuizResponseBase[] = QuizResponseMapper.toHttpList(dtos);
 
 		this.ok(res, quizes);
 	}
@@ -157,5 +164,13 @@ export class QuizController extends BaseController {
 		const result = await this.quizSessionService.finishQuiz(QuizRequestMapper.toFinishCommand(req.quiz!));
 
 		this.ok(res, ExecutionResponseMapper.toQuizHttp(result));
+	}
+
+	async closeAvailablePeriod(req: Request, res: Response, _next: NextFunction): Promise<void> {
+		const periodId = parseIdParam(req, 'periodId');
+
+		const result = await this.quizService.closeAvailablePeriod(req.quiz!, QuizRequestMapper.toCloseAvailablePeriodInput(req.quiz!, periodId));
+
+		this.ok(res, QuizResponseMapper.toHttp(result));
 	}
 }

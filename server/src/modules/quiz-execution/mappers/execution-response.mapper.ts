@@ -19,7 +19,6 @@ export class ExecutionResponseMapper {
 		return {
 			id: dto.id,
 			quizId: dto.quizId,
-			order: dto.order,
 			description: dto.description,
 			config: dto.config,
 		};

@@ -46,4 +46,5 @@ export interface QuizRepository {
 	findByAuthor(authorId: UserId): Promise<QuizEntity[]>;
 	updateSettings(quizId: QuizId, updateSettingsData: IQuizUpdateSettingsData): Promise<QuizEntity>;
 	updateAvailablePeriods(quizId: QuizId, updateData: IQuizUpdateAvailablePeriodsData): Promise<QuizEntity>;
+	closeAvailablePeriod(quizId: QuizId, periodId: number): Promise<QuizEntity>;
 }

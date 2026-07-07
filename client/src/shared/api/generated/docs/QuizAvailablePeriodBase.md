@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **quizSettingsId** | **string** |  | [default to undefined]
 **available_from** | **string** |  | [default to undefined]
 **available_to** | **string** |  | [optional] [default to undefined]
+**status** | **string** |  | [default to undefined]
 
 ## Example
 
@@ -20,6 +21,7 @@ const instance: QuizAvailablePeriodBase = {
     quizSettingsId,
     available_from,
     available_to,
+    status,
 };
 ```
 

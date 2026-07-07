@@ -17,7 +17,7 @@ export class QuestionEntity {
 		public readonly id: QuestionId,
 		public readonly quizId: QuizId,
 		public description: string,
-		public order: number,
+		public sortKey: number,
 		private _config: QuestionConfigBase,
 	) {}
 

@@ -83,6 +83,7 @@ export const useQuestionForm = (question: QuestionResponse) => {
 			isSubmitting,
 			isDirty,
 			errors: { root: formError },
+			dirtyFields,
 		},
 		setValue,
 		clearErrors,
@@ -99,13 +100,23 @@ export const useQuestionForm = (question: QuestionResponse) => {
 	}, [question, reset]);
 
 	useEffect(() => {
-		if (configType === question.config.type) {
+		if (!dirtyFields?.config?.type) {
 			return;
 		}
 
-		setValue("config", createDefaultQuestionConfig(configType) as TQuestionForm["config"]);
-		clearErrors("config");
-	}, [configType, setValue, clearErrors, question.config.type]);
+		const newConfig = createDefaultQuestionConfig(configType) as TQuestionForm["config"];
+
+		if ("options" in newConfig) {
+			newConfig.options.forEach((option) => {
+				option.optionId = option.id;
+			});
+		}
+
+		if (newConfig) {
+			setValue("config", newConfig);
+			clearErrors("config");
+		}
+	}, [configType, setValue, clearErrors, question.config.type, dirtyFields?.config?.type]);
 
 	const onSubmit = handleSubmit(async (data) => {
 		clearErrors("root");

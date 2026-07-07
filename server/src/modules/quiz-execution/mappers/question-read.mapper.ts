@@ -10,7 +10,6 @@ export class QuestionReadMapper {
 		return {
 			id: row.id,
 			quizId: QuizId.of(row.quizId),
-			order: row.order,
 			description: row.description,
 			config,
 		};

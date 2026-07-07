@@ -6,13 +6,14 @@ import { ButtonIcon } from "@shared/ui/button";
 
 export interface IQuestionViewProps {
 	question: QuestionResponse;
-	isLast: boolean;
+	isDisableDownButton: boolean;
+	isDisableUpButton: boolean;
 	handleClickEdit: (question: QuestionResponse) => void;
 	handleClickUp?(question: QuestionResponse): void;
 	handleClickDown?(question: QuestionResponse): void;
 }
 
-export const QuestionView = ({ question, handleClickEdit, handleClickUp, handleClickDown, isLast }: IQuestionViewProps) => {
+export const QuestionView = ({ question, handleClickEdit, handleClickUp, handleClickDown, isDisableDownButton, isDisableUpButton }: IQuestionViewProps) => {
 	const clickUpHandler = () => {
 		handleClickUp?.(question);
 	};
@@ -28,10 +29,10 @@ export const QuestionView = ({ question, handleClickEdit, handleClickUp, handleC
 	return (
 		<div className="relative flex w-full flex-col gap-2.5">
 			<div className="flex items-center">
-				<ButtonIcon title="Поднять вопрос к началу" onClick={clickUpHandler} disabled={question.order === 0}>
+				<ButtonIcon title="Поднять вопрос к началу" onClick={clickUpHandler} disabled={isDisableUpButton}>
 					<CircleChevronUp className="size-5" />
 				</ButtonIcon>
-				<ButtonIcon title="Опустить вопрос к концу" onClick={clickDownHandler} disabled={isLast}>
+				<ButtonIcon title="Опустить вопрос к концу" onClick={clickDownHandler} disabled={isDisableDownButton}>
 					<CircleChevronDown className="size-5" />
 				</ButtonIcon>
 				<ButtonIcon onClick={clickEditHandler} className="ml-auto" title="Редактировать вопрос">

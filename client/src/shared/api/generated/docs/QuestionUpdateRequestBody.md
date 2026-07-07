@@ -5,7 +5,6 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**order** | **number** |  | [default to undefined]
 **description** | **string** |  | [default to undefined]
 **config** | [**QuestionRequestConfig**](QuestionRequestConfig.md) |  | [default to undefined]
 
@@ -15,7 +14,6 @@ Name | Type | Description | Notes
 import { QuestionUpdateRequestBody } from './api';
 
 const instance: QuestionUpdateRequestBody = {
-    order,
     description,
     config,
 };

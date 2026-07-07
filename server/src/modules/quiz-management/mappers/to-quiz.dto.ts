@@ -1,6 +1,6 @@
 import type { QuizEntity } from '../entities/quiz.entity';
-import type { QuizDto } from '../dto/quiz.dto';
-import type { QuizSettingsDto } from '../dto/quiz-settings.dto';
+import type { QuizDto } from '../dto/entities/quiz.entity.dto';
+import type { QuizSettingsDto } from '../dto/entities/quiz-settings.entity.dto';
 
 const emptySettings = (): QuizSettingsDto => ({
 	availablePeriods: [],
@@ -18,6 +18,7 @@ export function toQuizDto(quiz: QuizEntity): QuizDto {
 					quizSettingsId: period.quizSettingsId,
 					available_from: period.available_from,
 					available_to: period.available_to ?? null,
+					status: period.status,
 				})),
 				isRequiredEmail: quiz.settings.isRequiredEmail,
 				isRequiredFirstName: quiz.settings.isRequiredFirstName,
@@ -30,11 +31,12 @@ export function toQuizDto(quiz: QuizEntity): QuizDto {
 		id: quiz.id.value,
 		authorId: quiz.authorId.value,
 		title: quiz.title,
-		questions: quiz.questions.map((question) => ({
+		status: quiz.status,
+		questions: quiz.questions.map((question, index) => ({
 			id: question.id.value,
 			quizId: question.quizId.value,
+			sortKey: question.sortKey,
 			description: question.description,
-			order: question.order,
 			config: question.config.toObject(),
 		})),
 		settings,

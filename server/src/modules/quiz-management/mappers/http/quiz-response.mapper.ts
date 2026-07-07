@@ -1,11 +1,12 @@
-import type { IQuizResponse } from '../../interfaces/http/quiz-response.interface';
-import type { QuizDto } from '../../dto/quiz.dto';
+import type { IQuizResponse, IQuizResponseBase } from '../../interfaces/http/quiz-response.interface';
+import type { QuizDto } from '../../dto/entities/quiz.entity.dto';
 
 export class QuizResponseMapper {
 	static toHttp(dto: QuizDto): IQuizResponse {
 		return {
 			id: dto.id,
 			authorId: dto.authorId,
+			status: dto.status,
 			title: dto.title,
 			questions: dto.questions,
 			settings: dto.settings,
@@ -14,7 +15,14 @@ export class QuizResponseMapper {
 		};
 	}
 
-	static toHttpList(dtos: QuizDto[]): IQuizResponse[] {
-		return dtos.map(QuizResponseMapper.toHttp);
+	static toHttpList(dtos: QuizDto[]): IQuizResponseBase[] {
+		return dtos.map((dto) => ({
+			id: dto.id,
+			authorId: dto.authorId,
+			status: dto.status,
+			title: dto.title,
+			updatedAt: dto.updatedAt,
+			createdAt: dto.createdAt,
+		}));
 	}
 }

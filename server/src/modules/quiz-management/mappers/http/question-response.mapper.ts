@@ -1,4 +1,4 @@
-import type { QuestionDto } from '../../dto/quiz.dto';
+import type { QuestionDto } from '../../dto/entities/quiz.entity.dto';
 import type { IQuestionResponse } from '../../interfaces/http/question-response.interface';
 
 export class QuestionResponseMapper {
@@ -6,7 +6,7 @@ export class QuestionResponseMapper {
 		return {
 			id: dto.id,
 			quizId: dto.quizId,
-			order: dto.order,
+			sortKey: dto.sortKey,
 			description: dto.description,
 			config: dto.config,
 		};

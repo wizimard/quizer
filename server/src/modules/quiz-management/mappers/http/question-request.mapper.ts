@@ -1,16 +1,17 @@
-import type { CreateQuestionInput, DeleteQuestionInput, UpdateQuestionInput } from '../../interfaces/input/question.input';
-import type { QuestionCreateDto } from '../../dto/question-create.dto';
+import type { ChangeQuestionOrderInput, CreateQuestionInput, DeleteQuestionInput, UpdateQuestionInput } from '../../interfaces/input/question.input';
+import type { QuestionCreateDto } from '../../dto/http/question-create.dto';
 import type { IQuestionConfigBase } from '../../entities/question-configs/question-config.interface';
-import type { QuestionUpdateDto } from '../../dto/question-update.dto';
+import type { QuestionUpdateDto } from '../../dto/http/question-update.dto';
 import type { QuizEntity } from '../..';
+import type { QuestionChangeOrderDto } from '@modules/quiz-management/dto/http/question-change-order.dto';
 
 export class QuestionRequestMapper {
 	static toCreateInput(dto: QuestionCreateDto, quiz: QuizEntity): CreateQuestionInput {
 		return {
 			quizId: quiz.id.value,
 			description: dto.description,
-			order: quiz.questions.length + 1,
 			config: dto.config as IQuestionConfigBase,
+			sortKey: (quiz.questions.length + 1) * 1000,
 		};
 	}
 
@@ -19,7 +20,6 @@ export class QuestionRequestMapper {
 			id: questionId,
 			quizId,
 			description: dto.description,
-			order: dto.order,
 			config: dto.config as IQuestionConfigBase,
 		};
 	}
@@ -28,6 +28,15 @@ export class QuestionRequestMapper {
 		return {
 			id,
 			quizId,
+		};
+	}
+
+	static toChangeOrderInput(dto: QuestionChangeOrderDto, quiz: QuizEntity, questionId: string): ChangeQuestionOrderInput {
+		return {
+			quiz,
+			previousQuestionId: dto.previousQuestionId ?? null,
+			nextQuestionId: dto.nextQuestionId ?? null,
+			questionId,
 		};
 	}
 }

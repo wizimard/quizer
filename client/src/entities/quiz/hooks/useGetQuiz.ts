@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { normalizeQuiz, type TQuiz } from "..";
 import { api } from "@shared/api";
+import { QuizResponseStatusEnum } from "@shared/api/generated";
 import { QUIZ_NEW_ID } from "@shared/constant";
 
 export const useGetQuiz = (id: string) => {
@@ -12,6 +13,7 @@ export const useGetQuiz = (id: string) => {
 				return {
 					id: "new_quiz",
 					authorId: "",
+					status: QuizResponseStatusEnum.Closed,
 					title: "",
 					questions: [],
 					settings: {

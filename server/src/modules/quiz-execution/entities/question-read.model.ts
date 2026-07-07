@@ -4,7 +4,6 @@ import type { QuizId } from '@modules/quiz-management/entities/value-object/quiz
 export interface QuestionReadModel {
 	readonly id: string;
 	readonly quizId: QuizId;
-	readonly order: number;
 	readonly description: string;
 	readonly config: QuestionConfigBase;
 }

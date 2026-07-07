@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@shared/ui/kit/card";
-import type { QuizResponse } from "@shared/api/generated";
+import type { QuizResponseBase } from "@shared/api/generated";
 import { Text } from "@shared/ui/text";
 
-export const QuizCard = ({ id, title }: QuizResponse) => {
+export const QuizCard = ({ id, title }: QuizResponseBase) => {
 	return (
 		<Card className="h-[auto] w-[500px] p-0">
 			<Link to={`/quiz/${id}`} className="flex h-full w-full items-start justify-start gap-2.5 p-2.5 transition-colors hover:bg-muted/50">

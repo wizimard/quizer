@@ -8,7 +8,6 @@ export function updateQuestion(question: QuestionResponse, data: TQuestionForm) 
 	}
 
 	const requestBody: QuestionUpdateRequestBody = {
-		order: question.order,
 		description: data.description,
 		config: data.config,
 	};

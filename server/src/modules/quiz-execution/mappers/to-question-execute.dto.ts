@@ -9,7 +9,6 @@ export function toQuestionExecuteDto(question: QuestionReadModel): QuestionExecu
 	return {
 		id: question.id,
 		quizId: question.quizId.value,
-		order: question.order,
 		description: question.description,
 		config,
 	};

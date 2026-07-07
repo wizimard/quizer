@@ -1,3 +1,5 @@
+import path from "path";
+import { fileURLToPath } from "url";
 import js from "@eslint/js";
 import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
@@ -10,6 +12,10 @@ import prettier from "eslint-plugin-prettier";
 import prettierConfig from "eslint-config-prettier";
 import boundaries from "eslint-plugin-boundaries";
 import importPlugin from "eslint-plugin-import-x";
+import { createTypeScriptImportResolver } from "eslint-import-resolver-typescript";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const srcPath = path.resolve(__dirname, "./src");
 
 export default defineConfig([
 	globalIgnores(["dist"]),
@@ -27,12 +33,19 @@ export default defineConfig([
 			import: importPlugin,
 		},
 		settings: {
-			"import-x/resolver": {
-				typescript: {
+			"import-x/resolver-next": [
+				createTypeScriptImportResolver({
 					project: "./tsconfig.app.json",
-				},
-				node: true,
-			},
+					alias: {
+						"@shared": [path.join(srcPath, "shared")],
+						"@features": [path.join(srcPath, "features")],
+						"@pages": [path.join(srcPath, "pages")],
+						"@entities": [path.join(srcPath, "entities")],
+						"@widgets": [path.join(srcPath, "widgets")],
+						"@": [srcPath],
+					},
+				}),
+			],
 		},
 		rules: {
 			...prettierConfig.rules,

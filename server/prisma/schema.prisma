@@ -47,18 +47,30 @@ model QuizSettingsModel {
 model QuizQuestionModel {
   id          String    @id @default(uuid())
   quizId      String
-  order       Int
+
+  sort_key Int
+
   description String
   config      Json
   quiz        QuizModel @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@unique([quizId, sort_key])
 }
 
 model QuizAvailablePeriodModel {
   id             BigInt            @id @default(autoincrement())
+  status         QuizAvailablePeriodStatus @default(SCHEDULED)
   available_from DateTime
   available_to   DateTime?
   quizSettingsId String
   quizSettings   QuizSettingsModel @relation(fields: [quizSettingsId], references: [id], onDelete: Cascade)
+}
+
+enum QuizAvailablePeriodStatus {
+  OPEN @map("open")
+  MANUALLY_CLOSED @map("manually_closed")
+  SCHEDULED @map("scheduled")
+  EXPIRED @map("expired")
 }
 
 model QuizSessionModel {

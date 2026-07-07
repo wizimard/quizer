@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** |  | [default to undefined]
 **quizId** | **string** |  | [default to undefined]
-**order** | **number** |  | [default to undefined]
+**sortKey** | **number** |  | [default to undefined]
 **description** | **string** |  | [default to undefined]
 **config** | [**QuestionRequestConfig**](QuestionRequestConfig.md) |  | [default to undefined]
 
@@ -19,7 +19,7 @@ import { QuestionResponse } from './api';
 const instance: QuestionResponse = {
     id,
     quizId,
-    order,
+    sortKey,
     description,
     config,
 };

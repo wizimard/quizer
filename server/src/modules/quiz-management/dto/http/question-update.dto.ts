@@ -1,6 +1,6 @@
 import { Trim } from '@shared/http/trim.decorator';
-import { IsArray, IsDefined, IsNumber, IsObject, IsString, Validate, ValidateNested } from 'class-validator';
-import { IsQuestionConfigConstraint } from '../utils/validators/is-question-config.validator';
+import { IsArray, IsDefined, IsObject, IsString, Validate, ValidateNested } from 'class-validator';
+import { IsQuestionConfigConstraint } from '../../utils/validators/is-question-config.validator';
 import { Type } from 'class-transformer';
 
 export class QuestionUpdateDto {
@@ -8,10 +8,6 @@ export class QuestionUpdateDto {
 	@IsString()
 	@Trim()
 	description: string;
-
-	@IsDefined()
-	@IsNumber()
-	order: number;
 
 	@IsDefined()
 	@IsObject()

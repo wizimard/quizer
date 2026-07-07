@@ -62,7 +62,15 @@
 	"quiz": {
 		"title": "Тест:",
 		"questions": "Вопросы",
-		"add_question_button": "Добавить вопрос"
+		"add_question_button": "Добавить вопрос",
+		"status": {
+			"scheduler": "По расписанию",
+			"open_by_scheduler": "Открыт",
+			"manual_open": "Открыт вручную",
+			"closed": "Закрыт"
+		},
+		"start": "Открыть тест",
+		"close": "Закрыть тест"
 	},
 	"header": {
 		"tests_link": "тесты",

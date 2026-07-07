@@ -8,4 +8,5 @@ export interface QuestionRepository {
 	delete(id: QuestionId, quizId: QuizId): Promise<boolean>;
 	findById(id: QuestionId): Promise<QuestionEntity | null>;
 	findByQuizId(quizId: QuizId): Promise<QuestionEntity[]>;
+	updateQuestionsOrders(questions: QuestionEntity[]): Promise<boolean>;
 }

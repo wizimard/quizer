@@ -4,11 +4,11 @@ import { QM_TYPES } from '../quiz-management.types';
 import { QuizSettings } from '../entities/quiz-settings';
 import { QuizValidationFailedError } from '../utils/errors/quiz-validation-failed.error';
 import type { QuizRepository } from '../interfaces/repository/quiz.repository.interface';
-import type { QuizDto } from '../dto/quiz.dto';
+import type { QuizDto } from '../dto/entities/quiz.entity.dto';
 import { buildQuizFromCreateInput } from '../mappers/quiz-entity.mapper';
 import { toQuizDto } from '../mappers/to-quiz.dto';
 import { QuizValidator } from '../utils/validators/quiz.validator';
-import type { CreateQuizInput, GetQuizzesByAuthorInput, UpdateQuizAvailablePeriodsInput, UpdateQuizInput, UpdateQuizSettingsInput } from '../interfaces/input/quiz.input';
+import type { CloseAvailablePeriodInput, CreateQuizInput, GetQuizzesByAuthorInput, UpdateQuizAvailablePeriodsInput, UpdateQuizInput, UpdateQuizSettingsInput } from '../interfaces/input/quiz.input';
 import type { QuizEntity } from '../entities/quiz.entity';
 
 @injectable()
@@ -65,6 +65,12 @@ export class QuizService {
 	async updateAvailablePeriods(quiz: QuizEntity, input: UpdateQuizAvailablePeriodsInput): Promise<QuizDto> {
 		const updateData = QuizSettings.buildAvailablePeriodsUpdateData(quiz.id, input.availablePeriods);
 		const updatedQuiz = await this.quizRepository.updateAvailablePeriods(quiz.id, updateData);
+
+		return toQuizDto(updatedQuiz);
+	}
+
+	async closeAvailablePeriod(quiz: QuizEntity, input: CloseAvailablePeriodInput): Promise<QuizDto> {
+		const updatedQuiz = await this.quizRepository.closeAvailablePeriod(quiz.id, input.periodId);
 
 		return toQuizDto(updatedQuiz);
 	}

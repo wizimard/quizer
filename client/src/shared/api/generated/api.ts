@@ -38,6 +38,16 @@ export interface QuestionAnswerSubmitRequestBody {
  */
 export type QuestionAnswerSubmitRequestBodyAnswer = Array<QuestionConfigOrderAnswerOption> | Array<string> | string;
 
+export interface QuestionChangeOrderRequestBody {
+    /**
+     * ID of the question that should appear immediately before the moved question
+     */
+    'previousQuestionId'?: string | null;
+    /**
+     * ID of the question that should appear immediately after the moved question
+     */
+    'nextQuestionId'?: string | null;
+}
 export interface QuestionConfigInput {
     'type': QuestionConfigInputTypeEnum;
     'answer': string;
@@ -162,12 +172,11 @@ export type QuestionRequestConfig = QuestionConfigInput | QuestionConfigMultiple
 export interface QuestionResponse {
     'id': string;
     'quizId': string;
-    'order': number;
+    'sortKey': number;
     'description': string;
     'config': QuestionRequestConfig;
 }
 export interface QuestionUpdateRequestBody {
-    'order': number;
     'description': string;
     'config': QuestionRequestConfig;
 }
@@ -190,7 +199,18 @@ export interface QuizAvailablePeriodBase {
     'quizSettingsId': string;
     'available_from': string;
     'available_to'?: string;
+    'status': QuizAvailablePeriodBaseStatusEnum;
 }
+
+export const QuizAvailablePeriodBaseStatusEnum = {
+    Open: 'OPEN',
+    ManuallyClosed: 'MANUALLY_CLOSED',
+    Scheduled: 'SCHEDULED',
+    Expired: 'EXPIRED',
+} as const;
+
+export type QuizAvailablePeriodBaseStatusEnum = typeof QuizAvailablePeriodBaseStatusEnum[keyof typeof QuizAvailablePeriodBaseStatusEnum];
+
 export interface QuizAvailablePeriodEdit {
     'id': number;
     'available_from': string;
@@ -208,12 +228,41 @@ export interface QuizExecuteResponse {
 export interface QuizResponse {
     'id': string;
     'authorId': string;
+    'status': QuizResponseStatusEnum;
     'title': string;
     'questions': Array<QuestionResponse>;
     'settings': QuizSettingsBase;
     'updatedAt': string;
     'createdAt': string;
 }
+
+export const QuizResponseStatusEnum = {
+    Scheduler: 'scheduler',
+    OpenByScheduler: 'open_by_scheduler',
+    ManualOpen: 'manual_open',
+    Closed: 'closed',
+} as const;
+
+export type QuizResponseStatusEnum = typeof QuizResponseStatusEnum[keyof typeof QuizResponseStatusEnum];
+
+export interface QuizResponseBase {
+    'id': string;
+    'authorId': string;
+    'status': QuizResponseBaseStatusEnum;
+    'title': string;
+    'updatedAt': string;
+    'createdAt': string;
+}
+
+export const QuizResponseBaseStatusEnum = {
+    Scheduler: 'scheduler',
+    OpenByScheduler: 'open_by_scheduler',
+    ManualOpen: 'manual_open',
+    Closed: 'closed',
+} as const;
+
+export type QuizResponseBaseStatusEnum = typeof QuizResponseBaseStatusEnum[keyof typeof QuizResponseBaseStatusEnum];
+
 export interface QuizSettingsBase {
     'availablePeriods': Array<QuizAvailablePeriodBase>;
     'isRequiredEmail': boolean;
@@ -468,6 +517,53 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Change the position of a question within a quiz relative to neighboring questions
+         * @summary Change question order
+         * @param {string} quizId 
+         * @param {string} questionId 
+         * @param {QuestionChangeOrderRequestBody} questionChangeOrderRequestBody Change question order request body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionQuizIdQuestionsQuestionIdOrderPatch: async (quizId: string, questionId: string, questionChangeOrderRequestBody: QuestionChangeOrderRequestBody, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'quizId' is not null or undefined
+            assertParamExists('questionQuizIdQuestionsQuestionIdOrderPatch', 'quizId', quizId)
+            // verify required parameter 'questionId' is not null or undefined
+            assertParamExists('questionQuizIdQuestionsQuestionIdOrderPatch', 'questionId', questionId)
+            // verify required parameter 'questionChangeOrderRequestBody' is not null or undefined
+            assertParamExists('questionQuizIdQuestionsQuestionIdOrderPatch', 'questionChangeOrderRequestBody', questionChangeOrderRequestBody)
+            const localVarPath = `/question/{quizId}/questions/{questionId}/order`
+                .replace('{quizId}', encodeURIComponent(String(quizId)))
+                .replace('{questionId}', encodeURIComponent(String(questionId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(questionChangeOrderRequestBody, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -909,6 +1005,48 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * Mark a quiz availability period as closed
+         * @summary Close quiz available period
+         * @param {string} quizId 
+         * @param {number} periodId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizQuizIdSettingsAvailablePeriodsPeriodIdClosePatch: async (quizId: string, periodId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'quizId' is not null or undefined
+            assertParamExists('quizQuizIdSettingsAvailablePeriodsPeriodIdClosePatch', 'quizId', quizId)
+            // verify required parameter 'periodId' is not null or undefined
+            assertParamExists('quizQuizIdSettingsAvailablePeriodsPeriodIdClosePatch', 'periodId', periodId)
+            const localVarPath = `/quiz/{quizId}/settings/available-periods/{periodId}/close`
+                .replace('{quizId}', encodeURIComponent(String(quizId)))
+                .replace('{periodId}', encodeURIComponent(String(periodId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Update quiz title and boolean settings (required fields and answer visibility). Availability periods are managed via PATCH /quiz/{quizId}/settings/available-periods.
          * @summary Update quiz settings
          * @param {string} quizId 
@@ -1114,6 +1252,21 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Change the position of a question within a quiz relative to neighboring questions
+         * @summary Change question order
+         * @param {string} quizId 
+         * @param {string} questionId 
+         * @param {QuestionChangeOrderRequestBody} questionChangeOrderRequestBody Change question order request body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async questionQuizIdQuestionsQuestionIdOrderPatch(quizId: string, questionId: string, questionChangeOrderRequestBody: QuestionChangeOrderRequestBody, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.questionQuizIdQuestionsQuestionIdOrderPatch(quizId, questionId, questionChangeOrderRequestBody, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.questionQuizIdQuestionsQuestionIdOrderPatch']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Update an existing quiz question
          * @summary Update question
          * @param {string} quizId 
@@ -1176,7 +1329,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async quizGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<QuizResponse>>> {
+        async quizGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<QuizResponseBase>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.quizGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.quizGet']?.[localVarOperationServerIndex]?.url;
@@ -1260,6 +1413,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.quizQuizIdSettingsAvailablePeriodsPatch(quizId, quizAvailableEditRequestBody, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.quizQuizIdSettingsAvailablePeriodsPatch']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Mark a quiz availability period as closed
+         * @summary Close quiz available period
+         * @param {string} quizId 
+         * @param {number} periodId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async quizQuizIdSettingsAvailablePeriodsPeriodIdClosePatch(quizId: string, periodId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.quizQuizIdSettingsAvailablePeriodsPeriodIdClosePatch(quizId, periodId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.quizQuizIdSettingsAvailablePeriodsPeriodIdClosePatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -1372,6 +1539,18 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.questionQuizIdQuestionsQuestionIdDelete(quizId, questionId, options).then((request) => request(axios, basePath));
         },
         /**
+         * Change the position of a question within a quiz relative to neighboring questions
+         * @summary Change question order
+         * @param {string} quizId 
+         * @param {string} questionId 
+         * @param {QuestionChangeOrderRequestBody} questionChangeOrderRequestBody Change question order request body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionQuizIdQuestionsQuestionIdOrderPatch(quizId: string, questionId: string, questionChangeOrderRequestBody: QuestionChangeOrderRequestBody, options?: RawAxiosRequestConfig): AxiosPromise<QuizResponse> {
+            return localVarFp.questionQuizIdQuestionsQuestionIdOrderPatch(quizId, questionId, questionChangeOrderRequestBody, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Update an existing quiz question
          * @summary Update question
          * @param {string} quizId 
@@ -1422,7 +1601,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        quizGet(options?: RawAxiosRequestConfig): AxiosPromise<Array<QuizResponse>> {
+        quizGet(options?: RawAxiosRequestConfig): AxiosPromise<Array<QuizResponseBase>> {
             return localVarFp.quizGet(options).then((request) => request(axios, basePath));
         },
         /**
@@ -1486,6 +1665,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         quizQuizIdSettingsAvailablePeriodsPatch(quizId: string, quizAvailableEditRequestBody: QuizAvailableEditRequestBody, options?: RawAxiosRequestConfig): AxiosPromise<QuizResponse> {
             return localVarFp.quizQuizIdSettingsAvailablePeriodsPatch(quizId, quizAvailableEditRequestBody, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Mark a quiz availability period as closed
+         * @summary Close quiz available period
+         * @param {string} quizId 
+         * @param {number} periodId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizQuizIdSettingsAvailablePeriodsPeriodIdClosePatch(quizId: string, periodId: number, options?: RawAxiosRequestConfig): AxiosPromise<QuizResponse> {
+            return localVarFp.quizQuizIdSettingsAvailablePeriodsPeriodIdClosePatch(quizId, periodId, options).then((request) => request(axios, basePath));
         },
         /**
          * Update quiz title and boolean settings (required fields and answer visibility). Availability periods are managed via PATCH /quiz/{quizId}/settings/available-periods.
@@ -1589,6 +1779,19 @@ export class DefaultApi extends BaseAPI {
      */
     public questionQuizIdQuestionsQuestionIdDelete(quizId: string, questionId: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).questionQuizIdQuestionsQuestionIdDelete(quizId, questionId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Change the position of a question within a quiz relative to neighboring questions
+     * @summary Change question order
+     * @param {string} quizId 
+     * @param {string} questionId 
+     * @param {QuestionChangeOrderRequestBody} questionChangeOrderRequestBody Change question order request body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public questionQuizIdQuestionsQuestionIdOrderPatch(quizId: string, questionId: string, questionChangeOrderRequestBody: QuestionChangeOrderRequestBody, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).questionQuizIdQuestionsQuestionIdOrderPatch(quizId, questionId, questionChangeOrderRequestBody, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1716,6 +1919,18 @@ export class DefaultApi extends BaseAPI {
      */
     public quizQuizIdSettingsAvailablePeriodsPatch(quizId: string, quizAvailableEditRequestBody: QuizAvailableEditRequestBody, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).quizQuizIdSettingsAvailablePeriodsPatch(quizId, quizAvailableEditRequestBody, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Mark a quiz availability period as closed
+     * @summary Close quiz available period
+     * @param {string} quizId 
+     * @param {number} periodId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public quizQuizIdSettingsAvailablePeriodsPeriodIdClosePatch(quizId: string, periodId: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).quizQuizIdSettingsAvailablePeriodsPeriodIdClosePatch(quizId, periodId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
