@@ -2,7 +2,7 @@ import { useController, useFieldArray, useWatch } from "react-hook-form";
 import { AnswerOption } from "../AnswerOption";
 import { FormCheckboxField } from "@shared/ui/form";
 import type { TQuestionFormComponentProps, TQuestionFormOption } from "@features/question/question-insert/model/question-form";
-import { AddButton } from "@shared/ui/button";
+import { ButtonAddListItem } from "@shared/ui/button";
 import { generateOptions } from "@entities/question/model/questionConfigDefaults";
 
 export interface IMultipleChoiseConfigProps {
@@ -51,7 +51,7 @@ export const MultipleChoiseConfig = ({ answer, options, control }: TQuestionForm
 							</AnswerOption>
 						))}
 					</ul>
-					{options.length < 8 && <AddButton onClick={handleAppend} label="question_form.answer_option.add" />}
+					{options.length < 8 && <ButtonAddListItem onClick={handleAppend} label="question_form.answer_option.add" />}
 				</>
 			)}
 		</>

@@ -1,7 +1,7 @@
 import { createNewQuestion } from "@entities/question";
 import type { TQuiz } from "@entities/quiz";
 import { useQuestionDrawer } from "@widgets/QuizQuestions/store/question-drawer";
-import { AddButton } from "@shared/ui/button";
+import { ButtonAddListItem } from "@shared/ui/button";
 
 export interface IQuestionAddButtonProps {
 	quiz: TQuiz;
@@ -21,7 +21,7 @@ export const QuestionAddButton = ({ quiz }: IQuestionAddButtonProps) => {
 	return (
 		<div className="mb-4 flex w-full gap-2.5 pr-9">
 			<div className="w-7 shrink-0" aria-hidden />
-			<AddButton onClick={handleAddQuestion} label="quiz.add_question_button" />
+			<ButtonAddListItem onClick={handleAddQuestion} label="quiz.add_question_button" />
 		</div>
 	);
 };

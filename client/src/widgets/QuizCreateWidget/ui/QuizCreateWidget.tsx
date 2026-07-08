@@ -1,8 +1,7 @@
-import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { QuizCreateDialog } from "./QuizCreateDialog";
-import { ButtonWithIcon } from "@shared/ui/button";
+import { ButtonAdd } from "@shared/ui/button/ButtonAdd";
 
 export const QuizCreateWidget = () => {
 	const { t } = useTranslation();
@@ -19,7 +18,7 @@ export const QuizCreateWidget = () => {
 
 	return (
 		<>
-			<ButtonWithIcon text={t("quiz_list.add_button")} Icon={Plus} onClick={handleClickNewQuiz} variant="outline" />
+			<ButtonAdd text={t("quiz_list.add_button")} onClick={handleClickNewQuiz} />
 			<QuizCreateDialog isOpen={isOpen} handleClose={handleCloseDialog} />
 		</>
 	);

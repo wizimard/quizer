@@ -1,13 +1,26 @@
 import { useTranslation } from "react-i18next";
+import { useContext, useEffect } from "react";
 import { useQuizCreateForm } from "../hooks/useQuizCreateForm";
 import { FormTextField } from "@shared/ui/form";
 import { DefaultButton } from "@shared/ui/button";
 import { Text } from "@shared/ui/text";
+import { dialogContext } from "@shared/ui/dialog";
 
 export const QuizCreateForm = () => {
 	const { t } = useTranslation();
 
+	const { lock, unlock } = useContext(dialogContext);
+
 	const { control, handleSubmit, isLoading, formError } = useQuizCreateForm();
+
+	useEffect(() => {
+		if (isLoading) {
+			lock();
+			return;
+		}
+
+		unlock();
+	}, [isLoading, lock, unlock]);
 
 	return (
 		<form onSubmit={handleSubmit} className="flex flex-col gap-2.5">

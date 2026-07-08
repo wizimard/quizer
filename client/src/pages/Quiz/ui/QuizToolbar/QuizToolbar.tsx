@@ -1,9 +1,11 @@
 import { SettingsDrawerButton } from "../SettingsDrawerButton";
 import { QuizSettings } from "../QuizSettings/QuizSettings";
+import { isQuizStatusOpen } from "@entities/quiz";
 import { Text } from "@shared/ui/text";
 import type { TQuiz } from "@entities/quiz";
 import { QuizStatus } from "@entities/quiz/ui/QuizStatus";
-import { QuizStartButton } from "@entities/quiz/ui/QuizStartButton";
+import { QuizStop } from "@features/quiz/quiz-stop";
+import { QuizStart } from "@features/quiz/quiz-start";
 
 export interface IQuizToolbar {
 	quiz: TQuiz;
@@ -17,7 +19,7 @@ export const QuizToolbar = ({ quiz }: IQuizToolbar) => {
 					{quiz.title}
 				</Text>
 				<QuizStatus status={quiz.status} className="ml-auto" />
-				<QuizStartButton quiz={quiz} />
+				{isQuizStatusOpen(quiz.status) ? <QuizStop quiz={quiz} /> : <QuizStart quiz={quiz} />}
 				<SettingsDrawerButton />
 			</div>
 			<QuizSettings quiz={quiz} />

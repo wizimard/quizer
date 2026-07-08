@@ -12,7 +12,7 @@ import { useQuizSettingsDrawer } from "@pages/Quiz/store/settings-drawer.store";
 export interface IQuizSettingsProps {
 	quiz: TQuiz;
 }
-
+// TODO: translate
 export const QuizSettings = ({ quiz }: IQuizSettingsProps) => {
 	const { t } = useTranslation();
 

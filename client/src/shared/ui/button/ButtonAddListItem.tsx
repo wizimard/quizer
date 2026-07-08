@@ -3,12 +3,12 @@ import { useTranslation } from "react-i18next";
 import { Button } from "../kit/button";
 import { cn } from "@shared/lib/utils";
 
-export interface IAddButtonProps {
+export interface IButtonAddListItemProps {
 	onClick: () => void;
 	label: string;
 }
 
-export const AddButton = ({ onClick, label }: IAddButtonProps) => {
+export const ButtonAddListItem = ({ onClick, label }: IButtonAddListItemProps) => {
 	const { t } = useTranslation();
 
 	return (
