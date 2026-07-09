@@ -3,7 +3,7 @@ import type { IMiddleware } from './middleware.interface';
 
 export interface IMiddlewareFactory {
 	authGuard(): IMiddleware;
-	quizMiddleware(): IMiddleware;
-	quizOwnershipGuard(): IMiddleware;
+	testMiddleware(): IMiddleware;
+	testOwnershipGuard(): IMiddleware;
 	validate(dtoClass: ClassConstructor<object>): IMiddleware;
 }

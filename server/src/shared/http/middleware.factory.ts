@@ -1,7 +1,7 @@
 import type { ClassConstructor } from 'class-transformer';
 import { inject, injectable } from 'inversify';
 import { IA_TYPES } from '@modules/identity-access/identity-access.types';
-import { QM_TYPES } from '@modules/quiz-management/quiz-management.types';
+import { TM_TYPES } from '@modules/test-management/test-management.types';
 import type { IMiddleware } from './middleware.interface';
 import type { IMiddlewareFactory } from './middleware.factory.interface';
 import { ValidateMiddleware } from './validate.middleware';
@@ -10,20 +10,20 @@ import { ValidateMiddleware } from './validate.middleware';
 export class MiddlewareFactory implements IMiddlewareFactory {
 	constructor(
 		@inject(IA_TYPES.AUTH_GUARD) private readonly authGuardMiddleware: IMiddleware,
-		@inject(QM_TYPES.QUIZ_MIDDLEWARE) private readonly quizMiddlewareMiddleware: IMiddleware,
-		@inject(QM_TYPES.QUIZ_OWNERSHIP_GUARD) private readonly quizOwnershipGuardMiddleware: IMiddleware,
+		@inject(TM_TYPES.TEST_MIDDLEWARE) private readonly testMiddlewareMiddleware: IMiddleware,
+		@inject(TM_TYPES.TEST_OWNERSHIP_GUARD) private readonly testOwnershipGuardMiddleware: IMiddleware,
 	) {}
 
 	authGuard(): IMiddleware {
 		return this.authGuardMiddleware;
 	}
 
-	quizMiddleware(): IMiddleware {
-		return this.quizMiddlewareMiddleware;
+	testMiddleware(): IMiddleware {
+		return this.testMiddlewareMiddleware;
 	}
 
-	quizOwnershipGuard(): IMiddleware {
-		return this.quizOwnershipGuardMiddleware;
+	testOwnershipGuard(): IMiddleware {
+		return this.testOwnershipGuardMiddleware;
 	}
 
 	validate(dtoClass: ClassConstructor<object>): IMiddleware {

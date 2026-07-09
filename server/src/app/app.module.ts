@@ -11,8 +11,8 @@ import { SwaggerController } from '@shared/http/swagger.controller';
 import { MiddlewareFactory } from '@shared/http/middleware.factory';
 import type { IMiddlewareFactory } from '@shared/http/middleware.factory.interface';
 import { identityAccessModule } from '@modules/identity-access/identity-access.module';
-import { quizManagementModule } from '@modules/quiz-management/quiz-management.module';
-import { quizExecutionModule } from '@modules/quiz-execution/quiz-execution.module';
+import { testManagementModule } from '@modules/test-management/test-management.module';
+import { testExecutionModule } from '@modules/test-execution/test-execution.module';
 
 const coreModule: ContainerModule = new ContainerModule((options: ContainerModuleLoadOptions) => {
 	options.bind(APP_TYPES.APP).to(App).inSingletonScope();
@@ -26,6 +26,6 @@ const coreModule: ContainerModule = new ContainerModule((options: ContainerModul
 	options.bind<IMiddlewareFactory>(APP_TYPES.MIDDLEWARE_FACTORY).to(MiddlewareFactory).inSingletonScope();
 });
 
-const appModules: ContainerModule[] = [coreModule, identityAccessModule, quizManagementModule, quizExecutionModule];
+const appModules: ContainerModule[] = [coreModule, identityAccessModule, testManagementModule, testExecutionModule];
 
 export { coreModule, appModules };

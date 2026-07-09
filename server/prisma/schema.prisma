@@ -8,85 +8,101 @@ datasource db {
 }
 
 model UserModel {
-  id        String      @id @default(uuid())
-  email     String      @unique
-  password  String
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  quizes    QuizModel[]
+  id          String @id @default(uuid())
+  email       String @unique
+  password    String
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  tests       TestModel[]
 }
 
-model QuizModel {
-  id           String              @id @default(uuid())
-  title        String
-  authorId     String
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
-  image        String?
-  type         String              @default("private")
-  author       UserModel           @relation(fields: [authorId], references: [id])
-  questions    QuizQuestionModel[]
-  quizSettings QuizSettingsModel?
+model TestModel {
+  id                String  @id @default(uuid())
+  title             String
+  image             String?
 
-  quizSessions QuizSessionModel[]
+  author_id         String
+  author            UserModel @relation(fields: [author_id], references: [id])
+
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  test_settings     TestSettingsModel?
+
+  questions         TestQuestionModel[]
+  test_sessions     TestSessionModel[]
+  scheduler_periods TestSchedulerPeriodModel[]
+
+  @@index([author_id])
 }
 
-model QuizSettingsModel {
-  id                           String                     @id @default(uuid())
-  quizId                       String                     @unique
-  createdAt                    DateTime                   @default(now())
-  updatedAt                    DateTime                   @updatedAt
-  isShowAnswersAfterCompletion Boolean                    @default(false)
-  isRequiredEmail              Boolean                    @default(false)
-  isRequiredFirstName          Boolean                    @default(true)
-  isRequiredLastName           Boolean                    @default(true)
-  availablePeriods             QuizAvailablePeriodModel[]
-  quiz                         QuizModel                  @relation(fields: [quizId], references: [id], onDelete: Cascade)
+model TestSettingsModel {
+  id                            String @id @default(uuid())
+
+  test_id                       String    @unique
+  test                          TestModel @relation(fields: [test_id], references: [id], onDelete: Cascade)
+
+  show_answers_after_completion Boolean @default(false)
+  required_email                Boolean @default(false)
+  required_first_name           Boolean @default(true)
+  required_last_name            Boolean @default(true)
+
+  created_at                    DateTime @default(now())
+  updated_at                    DateTime @updatedAt
 }
 
-model QuizQuestionModel {
-  id          String    @id @default(uuid())
-  quizId      String
+model TestQuestionModel {
+  id          String @id @default(uuid())
 
-  sort_key Int
+  test_id     String
+  test        TestModel @relation(fields: [test_id], references: [id], onDelete: Cascade)
 
   description String
-  config      Json
-  quiz        QuizModel @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  sort_key    Int
+  config      Json?
 
-  @@unique([quizId, sort_key])
+  @@unique([test_id, sort_key])
+  @@index([test_id])
 }
 
-model QuizAvailablePeriodModel {
-  id             BigInt            @id @default(autoincrement())
-  status         QuizAvailablePeriodStatus @default(SCHEDULED)
-  available_from DateTime
-  available_to   DateTime?
-  quizSettingsId String
-  quizSettings   QuizSettingsModel @relation(fields: [quizSettingsId], references: [id], onDelete: Cascade)
+model TestSchedulerPeriodModel {
+  id              BigInt @id @default(autoincrement())
+
+  test_id         String
+  test            TestModel @relation(fields: [test_id], references: [id], onDelete: Cascade)
+
+  available_from  DateTime
+  available_to    DateTime?
+
+  @@index([test_id])
+  @@index([available_from])
 }
 
-enum QuizAvailablePeriodStatus {
-  OPEN @map("open")
-  MANUALLY_CLOSED @map("manually_closed")
-  SCHEDULED @map("scheduled")
-  EXPIRED @map("expired")
+model TestSessionModel {
+  id          String @id @default(uuid())
+
+  test_id     String
+  test        TestModel @relation(fields: [test_id], references: [id], onDelete: Cascade)
+
+  started_at  DateTime  @default(now())
+  finished_at DateTime?
+
+  status      TestSessionStatus  @default(ACTIVE)
+  start_by    TestSessionStartBy @default(MANUALLY)
+
+  @@unique([test_id, status])
+  @@index([test_id])
 }
 
-model QuizSessionModel {
-  id String @id @default(uuid())
-  quizId String
-  startedAt DateTime @default(now())
-  finishedAt DateTime?
-  status QuizSessionStatus @default(ACTIVE)
-
-  quiz QuizModel @relation(fields: [quizId], references: [id], onDelete: Cascade)
-
-  @@index([quizId, status])
-}
-
-enum QuizSessionStatus {
-  ACTIVE @map("active")
+enum TestSessionStatus {
+  ACTIVE   @map("active")
   FINISHED @map("finished")
-  EXPIRED @map("expired")
+  EXPIRED  @map("expired")
+}
+
+enum TestSessionStartBy {
+  MANUALLY  @map("manually")
+  SCHEDULED @map("scheduled")
 }
