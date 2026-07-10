@@ -5,6 +5,20 @@ import type { QuestionId } from './value-object/question-id';
 import type { TestId } from './value-object/test-id';
 
 export class QuestionEntity {
+	public readonly id: QuestionId;
+	public readonly testId: TestId;
+	public description: string;
+	public sortKey: number;
+	private _config: QuestionConfigBase;
+
+	constructor(id: QuestionId, testId: TestId, description: string, sortKey: number, config: QuestionConfigBase) {
+		this.id = id;
+		this.testId = testId;
+		this.description = description;
+		this.sortKey = sortKey;
+		this._config = config;
+	}
+
 	get type(): string {
 		return this._config.type;
 	}
@@ -13,20 +27,12 @@ export class QuestionEntity {
 		return this._config;
 	}
 
-	constructor(
-		public readonly id: QuestionId,
-		public readonly testId: TestId,
-		public description: string,
-		public sortKey: number,
-		private _config: QuestionConfigBase,
-	) {}
-
-	changeConfig(config: QuestionConfigBase): this {
+	public changeConfig(config: QuestionConfigBase): this {
 		this._config = config;
 		return this;
 	}
 
-	validate(): IQuestionValidationError {
+	public validate(): IQuestionValidationError {
 		const errorData: IQuestionValidationError = { id: this.id.value, errors: [] };
 
 		if (!isQuestionType(this._config.type)) {

@@ -4,6 +4,7 @@ import { QuestionId } from '../entities/value-object/question-id';
 import { TestId } from '../entities/value-object/test-id';
 import { createQuestionConfigFromPayload } from '../entities/question-configs/question-config.registry';
 import type { TestQuestionModel } from '@prisma/client';
+import { QuestionConfigMapper } from './question-config.mapper';
 
 export type TQuestionCreateOrUpdateData = Omit<TestQuestionModel, 'id' | 'testId'> & { config: JsonObject };
 
@@ -13,7 +14,7 @@ export const QuestionMapper = {
 			test_id: entity.testId.value,
 			description: entity.description,
 			sort_key: entity.sortKey,
-			config: entity.config.toObject() as JsonObject,
+			config: QuestionConfigMapper.toPlain(entity.config) as JsonObject,
 		};
 	},
 

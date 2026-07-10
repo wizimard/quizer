@@ -9,6 +9,10 @@ export class TestId {
 		return new TestId(value);
 	}
 
+	static generate(): TestId {
+		return new TestId(crypto.randomUUID());
+	}
+
 	equals(other: TestId): boolean {
 		return this.value === other.value;
 	}

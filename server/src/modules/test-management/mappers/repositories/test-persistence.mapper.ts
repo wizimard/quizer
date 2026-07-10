@@ -9,6 +9,7 @@ import type {
 import type { TestEntity } from '../../entities/test.entity';
 import type { ITestUpdateSchedulerPeriodsData, ITestUpdateSettingsData } from '../../interfaces/repository/test.repository.interface';
 import type { TestId } from '@modules/test-management';
+import type { ITestSchedulerPeriod } from '@modules/test-management/interfaces/entities/test-scheduler-period.interface';
 
 export interface ITestPersistenceUpdate {
 	createData: Array<TestSchedulerPeriodModelCreateManyInput>;
@@ -45,8 +46,8 @@ export const TestPersistenceMapper = {
 		};
 	},
 
-	toSchedulerPeriodsUpdateInput(testId: TestId, data: ITestUpdateSchedulerPeriodsData): ITestPersistenceUpdate {
-		const { add: addPeriods, update: updatePeriods, remove: deletePeriods } = data.availablePeriods;
+	toSchedulerPeriodsUpdateInput(testId: string, data: ITestUpdateSchedulerPeriodsData): ITestPersistenceUpdate {
+		const { add: addPeriods, update: updatePeriods, remove: deletePeriods } = data;
 
 		const createData: Array<TestSchedulerPeriodModelCreateManyInput> = [];
 		const updateData: Array<TestSchedulerPeriodModelUpdateArgs> = [];
@@ -55,10 +56,10 @@ export const TestPersistenceMapper = {
 		if (addPeriods?.length) {
 			createData.push(
 				...addPeriods.map(
-					(period): TestSchedulerPeriodModelCreateManyInput => ({
-						test_id: testId.value,
-						available_from: period.available_from,
-						available_to: period.available_to ?? null,
+					(period: ITestSchedulerPeriod): TestSchedulerPeriodModelCreateManyInput => ({
+						test_id: testId,
+						available_from: period.availableFrom,
+						available_to: period.availableTo ?? null,
 					}),
 				),
 			);
@@ -69,9 +70,9 @@ export const TestPersistenceMapper = {
 		if (updatePeriods?.length) {
 			updateData.push(
 				...updatePeriods.map(
-					(period): TestSchedulerPeriodModelUpdateArgs => ({
+					(period: ITestSchedulerPeriod): TestSchedulerPeriodModelUpdateArgs => ({
 						where: { id: period.id, available_from: { gt: now } },
-						data: { available_from: period.available_from, available_to: period.available_to ?? null },
+						data: { available_from: period.availableFrom, available_to: period.availableTo ?? null },
 					}),
 				),
 			);

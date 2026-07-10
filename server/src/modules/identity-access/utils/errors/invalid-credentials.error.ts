@@ -1,6 +1,7 @@
-export class InvalidCredentialsError extends Error {
+import { HttpError } from '@shared/error';
+
+export class InvalidCredentialsError extends HttpError {
 	constructor() {
-		super('invalid_credentials');
-		this.name = 'InvalidCredentialsError';
+		super(422, 'invalid_credentials', 'InvalidCredentialsError');
 	}
 }

@@ -1,21 +1,26 @@
 import { HttpValidationError } from '@shared/error/http-validation.error';
 import { inject, injectable } from 'inversify';
-import type { QuestionDto, TestDto } from '../dto/entities/test.entity.dto';
+import type { ITest } from '../interfaces/entities/test.interface';
 import type { QuestionRepository } from '../interfaces/repository/question.repository.interface';
-import { buildQuestionFromCreateInput, buildQuestionFromUpdateInput, toQuestionDto } from '../mappers/question-entity.mapper';
+import { buildQuestionFromCreateInput, buildQuestionFromUpdateInput, toQuestion } from '../mappers/question-entity.mapper';
 import { QuestionId } from '../entities/value-object/question-id';
 import { TestId } from '../entities/value-object/test-id';
 import { TM_TYPES } from '../test-management.types';
-import type { ChangeQuestionOrderInput, CreateQuestionInput, DeleteQuestionInput, UpdateQuestionInput } from '../interfaces/input/question.input';
 import { HttpError } from '@shared/error';
 import type { QuestionEntity } from '../entities/question.entity';
-import { toTestDto } from '../mappers/to-test.dto';
+import { toTest } from '../mappers/to-test.dto';
+import type { CreateQuestionInput } from '../interfaces/services/input/create-question.input';
+import type { DeleteQuestionInput } from '../interfaces/services/input/delete-question.input';
+import type { ChangeQuestionOrderInput } from '../interfaces/services/input/update-question-order.input';
+import type { UpdateQuestionInput } from '../interfaces/services/input/update-question.input';
+import type { IQuestion } from '../interfaces/entities/question.interface';
+import type { IQuestionService } from '../interfaces/services/question.service.interface';
 
 @injectable()
-export class QuestionService {
+export class QuestionService implements IQuestionService {
 	constructor(@inject(TM_TYPES.QUESTION_REPOSITORY) private readonly questionRepository: QuestionRepository) {}
 
-	async create(input: CreateQuestionInput): Promise<QuestionDto> {
+	async create(input: CreateQuestionInput): Promise<IQuestion> {
 		const questionEntity = buildQuestionFromCreateInput(input);
 		const errors = questionEntity.validate();
 
@@ -24,10 +29,10 @@ export class QuestionService {
 		}
 
 		const createdQuestion = await this.questionRepository.create(questionEntity);
-		return toQuestionDto(createdQuestion);
+		return toQuestion(createdQuestion);
 	}
 
-	async update(input: UpdateQuestionInput): Promise<QuestionDto> {
+	async update(input: UpdateQuestionInput): Promise<IQuestion> {
 		const questionEntity = buildQuestionFromUpdateInput(input);
 		const errors = questionEntity.validate();
 
@@ -37,7 +42,7 @@ export class QuestionService {
 
 		const updatedQuestion = await this.questionRepository.update(questionEntity);
 
-		return toQuestionDto(updatedQuestion);
+		return toQuestion(updatedQuestion);
 	}
 
 	async delete(input: DeleteQuestionInput): Promise<void> {
@@ -48,11 +53,11 @@ export class QuestionService {
 		}
 	}
 
-	async changeOrder(input: ChangeQuestionOrderInput): Promise<TestDto> {
+	async changeOrder(input: ChangeQuestionOrderInput): Promise<ITest> {
 		const { test, questionId, previousQuestionId, nextQuestionId } = input;
 
 		if (!previousQuestionId && !nextQuestionId) {
-			return toTestDto(test);
+			return toTest(test);
 		}
 
 		let newSortKey: number = 0;
@@ -94,7 +99,7 @@ export class QuestionService {
 
 		if (!isNeedChangeOrders) {
 			await this.questionRepository.updateQuestionsOrders([question]);
-			return toTestDto(test);
+			return toTest(test);
 		}
 
 		for (let i = 0; i < test.questions.length; i++) {
@@ -103,6 +108,6 @@ export class QuestionService {
 
 		await this.questionRepository.updateQuestionsOrders(test.questions);
 
-		return toTestDto(test);
+		return toTest(test);
 	}
 }

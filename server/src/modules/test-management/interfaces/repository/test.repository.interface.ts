@@ -1,9 +1,7 @@
-import type { UserId } from '@modules/identity-access';
 import type { TestEntity } from '../../entities/test.entity';
-import type { ITestSchedulerPeriod } from '../test-scheduler-period.interface';
-import type { TestId } from '../../entities/value-object/test-id';
+import type { ITestSchedulerPeriod } from '../entities/test-scheduler-period.interface';
 import type { TestModelGetPayload, TestSettingsModelGetPayload } from '@prisma/models';
-import type { TestModel, TestSettingsModel } from '@prisma/client';
+import type { TestModel, TestSchedulerPeriodModel, TestSettingsModel } from '@prisma/client';
 
 export type TTestSettingsModelAll = TestSettingsModel &
 	TestSettingsModelGetPayload<{ select: { show_answers_after_completion: true; required_email: true; required_first_name: true; required_last_name: true } }>;
@@ -31,20 +29,18 @@ export interface ITestUpdateSettingsData {
 }
 
 export interface ITestUpdateSchedulerPeriodsData {
-	availablePeriods: {
-		add?: Array<ITestSchedulerPeriod>;
-		update?: Array<ITestSchedulerPeriod>;
-		remove?: Array<number>;
-	};
+	add?: Array<ITestSchedulerPeriod>;
+	update?: Array<ITestSchedulerPeriod>;
+	remove?: Array<number>;
 }
 
 export interface TestRepository {
 	create(data: TestEntity): Promise<TestEntity>;
 	update(data: TestEntity): Promise<TestEntity>;
-	delete(id: TestId): Promise<boolean>;
-	findById(id: TestId): Promise<TestEntity | null>;
-	findFullById(id: TestId): Promise<TestEntity | null>;
-	findByAuthor(authorId: UserId): Promise<TestEntity[]>;
-	updateSettings(testId: TestId, updateSettingsData: ITestUpdateSettingsData): Promise<TestEntity>;
-	updateSchedulerPeriods(testId: TestId, updateData: ITestUpdateSchedulerPeriodsData): Promise<boolean>;
+	delete(id: string): Promise<boolean>;
+	findById(id: string): Promise<TestEntity | null>;
+	findFullById(id: string): Promise<TestEntity | null>;
+	findByAuthor(authorId: string): Promise<TestEntity[]>;
+	updateSettings(testId: string, updateSettingsData: ITestUpdateSettingsData): Promise<TestEntity>;
+	updateSchedulerPeriods(testId: string, updateData: ITestUpdateSchedulerPeriodsData): Promise<Array<TestSchedulerPeriodModel>>;
 }

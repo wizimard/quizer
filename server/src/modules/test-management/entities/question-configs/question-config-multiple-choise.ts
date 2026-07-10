@@ -51,12 +51,4 @@ export class QuestionConfigMultipleChoise extends QuestionConfigBase<IQuestionCo
 
 		return errors;
 	}
-
-	public toObject(): object {
-		return {
-			type: this.type,
-			options: this.options.map((option) => option.toObject()),
-			answer: this.answer,
-		};
-	}
 }

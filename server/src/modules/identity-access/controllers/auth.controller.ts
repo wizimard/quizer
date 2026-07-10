@@ -9,8 +9,8 @@ import type { IMiddlewareFactory } from '@shared/http/middleware.factory.interfa
 import { IA_TYPES } from '../identity-access.types';
 import type { AuthService } from '../services/auth.service';
 import type { AuthResultDto } from '../dto/auth-result.dto';
-import type { IRefreshTokenCookieService } from '../interfaces/refresh-token-cookie.service.interface';
-import type { ITokenPair } from '../interfaces/token.service.interface';
+import type { IRefreshTokenCookieService } from '../interfaces/services/refresh-token-cookie.service.interface';
+import type { ITokenPair } from '../interfaces/services/token.service.interface';
 import { AuthResponseMapper } from '../mappers/auth-response.mapper';
 
 @injectable()

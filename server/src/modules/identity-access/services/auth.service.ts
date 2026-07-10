@@ -7,20 +7,23 @@ import { InvalidCredentialsError } from '../utils/errors/invalid-credentials.err
 import { EmailAlreadyTakenError } from '../utils/errors/email-already-taken.error';
 import { User, type PasswordHasher } from '../entities/user.entity';
 import type { UserRepository } from '../interfaces/user.repository.interface';
-import type { ITokenPair } from '../interfaces/token.service.interface';
+import type { ITokenPair } from '../interfaces/services/token.service.interface';
 import { Email } from '../entities/email';
 import { Password } from '../entities/password';
 import { TokenService } from './token.service';
+import type { ILoginInput } from '../interfaces/inputs/login.input';
+import type { IRegisterInput } from '../interfaces/inputs/register.input';
+import type { IAuthService } from '../interfaces/services/auth.service.interface';
 
 @injectable()
-export class AuthService {
+export class AuthService implements IAuthService {
 	constructor(
 		@inject(IA_TYPES.USER_REPOSITORY) private readonly userRepository: UserRepository,
 		@inject(IA_TYPES.TOKEN_SERVICE) private readonly tokenService: TokenService,
 		@inject(APP_TYPES.HASH_SERVICE) private readonly hasher: PasswordHasher,
 	) {}
 
-	async login(input: { email: string; password: string }): Promise<AuthResultDto> {
+	async login(input: ILoginInput): Promise<AuthResultDto> {
 		const email = Email.of(input.email);
 		const password = Password.of(input.password);
 
@@ -35,7 +38,7 @@ export class AuthService {
 		return toAuthResultDto(user, tokens);
 	}
 
-	async register(input: { email: string; password: string }): Promise<AuthResultDto> {
+	async register(input: IRegisterInput): Promise<AuthResultDto> {
 		const email = Email.of(input.email);
 		const password = Password.of(input.password);
 

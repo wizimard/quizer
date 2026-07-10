@@ -70,4 +70,10 @@ export class PrismaUserRepository implements UserRepository {
 
 		return model !== null;
 	}
+
+	async delete(id: UserId): Promise<boolean> {
+		const row = await repositoryCall(() => this.prismaService.client.userModel.delete({ where: { id: id.value } }), 'PrismaUserRepository.delete', this.logger);
+
+		return !!row;
+	}
 }

@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import type { Request, Response } from 'express';
-import type { IRefreshTokenCookieService } from '../interfaces/refresh-token-cookie.service.interface';
+import type { IRefreshTokenCookieService } from '../interfaces/services/refresh-token-cookie.service.interface';
 
 @injectable()
 export class RefreshTokenCookieService implements IRefreshTokenCookieService {

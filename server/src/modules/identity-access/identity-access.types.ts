@@ -10,4 +10,4 @@ export const IA_TYPES = {
 	USER_SERVICE: Symbol('IA_USER_SERVICE'),
 } as const;
 
-export type { ITokenPayload } from './interfaces/token.service.interface';
+export type { ITokenPayload } from './interfaces/services/token.service.interface';

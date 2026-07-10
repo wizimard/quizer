@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import { APP_TYPES } from '@app/app.types';
 import type { IConfigService } from '@shared/config';
 import { HttpError } from '@shared/error';
-import type { IHashService } from '../interfaces/hash.service.interface';
+import type { IHashService } from '../interfaces/services/hash.service.interface';
 import type { PasswordHasher } from '../entities/user.entity';
 
 @injectable()

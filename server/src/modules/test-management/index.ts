@@ -3,7 +3,6 @@ export { TestId } from './entities/value-object/test-id';
 export { QuestionId } from './entities/value-object/question-id';
 export { TestEntity } from './entities/test.entity';
 export { QuestionEntity } from './entities/question.entity';
-export type { ExecutableTest } from './entities/executable-test';
 export type { TestRepository } from './interfaces/repository/test.repository.interface';
 export type { QuestionRepository } from './interfaces/repository/question.repository.interface';
 export type { TestExecutionRepository } from './interfaces/repository/test-execution.repository.interface';

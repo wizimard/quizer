@@ -1,14 +1,14 @@
-import type { QuestionDto } from '../../dto/entities/test.entity.dto';
+import type { IQuestion } from '../../interfaces/entities/question.interface';
 import type { IQuestionResponse } from '../../interfaces/http/question-response.interface';
 
 export class QuestionResponseMapper {
-	static toHttp(dto: QuestionDto): IQuestionResponse {
+	static toHttp(question: IQuestion): IQuestionResponse {
 		return {
-			id: dto.id,
-			testId: dto.testId,
-			sortKey: dto.sortKey,
-			description: dto.description,
-			config: dto.config,
+			id: question.id,
+			testId: question.testId,
+			sortKey: question.sortKey,
+			description: question.description,
+			config: question.config,
 		};
 	}
 }

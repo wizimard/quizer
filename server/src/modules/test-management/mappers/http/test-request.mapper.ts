@@ -2,11 +2,15 @@ import type { TestCreateDto } from '../../dto/http/test-create.dto';
 import type { TestSettingsUpdateDto } from '../../dto/http/test-settings-update.dto';
 import type { TestSchedulerPeriodsEditDto } from '../../dto/http/test-scheduler-periods-edit.dto';
 import type { TestUpdateDto } from '../../dto/http/test-update.dto';
-import type { CreateTestInput, UpdateTestSchedulerPeriodsInput, UpdateTestInput, UpdateTestSettingsInput } from '../../interfaces/input/test.input';
 import type { TestStartDto } from '../../dto/http/test-start.dto';
-import type { StartTestInput } from '@modules/test-execution/types/start-test.input';
 import type { TestEntity } from '../../entities/test.entity';
 import type { FinishTestInput } from '@modules/test-execution/types/finish-test.input';
+import type { StartTestInput } from '@modules/test-execution/types/start-test.input';
+import type { CreateTestInput } from '@modules/test-management/interfaces/services/input/create-test.input';
+import type { UpdateTestSchedulerInput } from '@modules/test-management/interfaces/services/input/update-test-scheduler.input';
+import type { UpdateTestSettingsInput } from '@modules/test-management/interfaces/services/input/update-test-settings.input';
+import type { UpdateTestInput } from '@modules/test-management/interfaces/services/input/update-test.input';
+import type { DeleteTestInput } from '@modules/test-management/interfaces/services/input/delete-test.input';
 
 export class TestRequestMapper {
 	static toCreateInput(dto: TestCreateDto, authorId: string): CreateTestInput {
@@ -18,15 +22,22 @@ export class TestRequestMapper {
 
 	static toUpdateInput(test: TestEntity, dto: TestUpdateDto): UpdateTestInput {
 		const input: UpdateTestInput = {
-			id: test.id.value,
-			authorId: test.authorId.value,
+			test,
+			changes: {},
 		};
 
 		if (dto.title !== undefined) {
-			input.title = dto.title;
+			input.changes.title = dto.title;
 		}
 
 		return input;
+	}
+
+	static toDeleteInput(test: TestEntity): DeleteTestInput {
+		return {
+			testId: test.id.value,
+			authorId: test.authorId.value,
+		};
 	}
 
 	static toUpdateSettingsInput(test: TestEntity, dto: TestSettingsUpdateDto): UpdateTestSettingsInput {
@@ -40,14 +51,14 @@ export class TestRequestMapper {
 		};
 	}
 
-	static toUpdateSchedulerPeriodsInput(test: TestEntity, dto: TestSchedulerPeriodsEditDto): UpdateTestSchedulerPeriodsInput {
-		const input: UpdateTestSchedulerPeriodsInput = {
+	static toUpdateSchedulerPeriodsInput(test: TestEntity, dto: TestSchedulerPeriodsEditDto): UpdateTestSchedulerInput {
+		const input: UpdateTestSchedulerInput = {
 			test,
-			availablePeriods: {},
+			schedulerPeriods: {},
 		};
 
 		if (dto.add?.length) {
-			input.availablePeriods.add = dto.add.map((period) => {
+			input.schedulerPeriods.add = dto.add.map((period) => {
 				const item: { available_from: Date; available_to?: Date } = { available_from: new Date(period.available_from) };
 				if (period.available_to !== undefined) {
 					item.available_to = new Date(period.available_to);
@@ -57,7 +68,7 @@ export class TestRequestMapper {
 		}
 
 		if (dto.update?.length) {
-			input.availablePeriods.update = dto.update.map((period) => {
+			input.schedulerPeriods.update = dto.update.map((period) => {
 				const item: { id: number; available_from: Date; available_to?: Date } = {
 					id: period.id,
 					available_from: new Date(period.available_from),
@@ -70,7 +81,7 @@ export class TestRequestMapper {
 		}
 
 		if (dto.remove?.length) {
-			input.availablePeriods.remove = dto.remove;
+			input.schedulerPeriods.remove = dto.remove;
 		}
 
 		return input;

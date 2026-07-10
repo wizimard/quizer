@@ -24,7 +24,7 @@ export class TestExecutionService {
 	) {}
 
 	async getTest(input: GetTestForExecutionInput): Promise<ExecutableTestDto> {
-		const test = await this.testRepository.findFullById(TestId.of(input.testId));
+		const test = await this.testRepository.findFullById(input.testId);
 
 		if (!test) {
 			throw new TestNotFoundError('TestExecutionService.getTest');

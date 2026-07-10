@@ -7,7 +7,6 @@ export interface IQuestionConfigOptionBase {
 
 export interface IQuestionConfigOption extends IQuestionConfigOptionBase {
 	validate(): IValidationError[];
-	toObject(): IQuestionConfigOptionBase;
 }
 
 export class QuestionConfigOption implements IQuestionConfigOption {
@@ -34,12 +33,5 @@ export class QuestionConfigOption implements IQuestionConfigOption {
 		}
 
 		return errors;
-	}
-
-	toObject(): IQuestionConfigOptionBase {
-		return {
-			id: this.id,
-			value: this.value,
-		};
 	}
 }

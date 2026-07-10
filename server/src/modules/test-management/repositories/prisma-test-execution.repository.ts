@@ -3,15 +3,9 @@ import { APP_TYPES } from '@app/app.types';
 import type { IPrismaService } from '@shared/persistence';
 import type { ILogger } from '@shared/logger';
 import { repositoryCall } from '@shared/http/utils/repository-call';
-import type { TestId } from '../entities/value-object/test-id';
 import type { TestExecutionRepository } from '../interfaces/repository/test-execution.repository.interface';
-import type { ExecutableTest } from '../entities/executable-test';
-import { ExecutableTestMapper } from '../mappers/executable-test.mapper';
-import type { UserId } from '@modules/identity-access';
-
-const TEST_INCLUDE_SESSIONS = {
-	test_sessions: true,
-} as const;
+import type { TestSessionModel } from '@prisma/client';
+import type { BatchPayload } from '@prisma/internal/prismaNamespace';
 
 @injectable()
 export class PrismaTestExecutionRepository implements TestExecutionRepository {
@@ -20,44 +14,30 @@ export class PrismaTestExecutionRepository implements TestExecutionRepository {
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
 	) {}
 
-	async startTest(id: TestId, userId: UserId, finishedAt?: Date): Promise<ExecutableTest> {
-		const row = await repositoryCall(
+	async startTest(testId: string, finishedAt?: Date): Promise<TestSessionModel> {
+		const row: TestSessionModel | null = await repositoryCall(
 			() =>
-				this.prismaService.client.testModel.update({
-					where: { id: id.value, author_id: userId.value },
-					data: {
-						test_sessions: {
-							create: finishedAt === undefined ? {} : { finished_at: finishedAt },
-						},
-					},
-					include: TEST_INCLUDE_SESSIONS,
-				} as const),
+				this.prismaService.client.testSessionModel.create({
+					data: { test_id: testId, started_at: new Date(), finished_at: finishedAt ?? null },
+				}),
 			'PrismaTestExecutionRepository.startTest',
 			this.logger,
 		);
 
-		return ExecutableTestMapper.toReadModel(row);
+		return row;
 	}
 
-	async finishTest(id: TestId, userId: UserId): Promise<ExecutableTest> {
-		const row = await repositoryCall(
+	async finishTest(testId: string): Promise<number> {
+		const rows: BatchPayload = await repositoryCall(
 			() =>
-				this.prismaService.client.testModel.update({
-					where: { id: id.value, author_id: userId.value },
-					data: {
-						test_sessions: {
-							updateMany: {
-								where: { status: 'ACTIVE', test_id: id.value },
-								data: { status: 'FINISHED', finished_at: new Date() },
-							},
-						},
-					},
-					include: TEST_INCLUDE_SESSIONS,
-				} as const),
+				this.prismaService.client.testSessionModel.updateMany({
+					where: { status: 'ACTIVE', test_id: testId },
+					data: { status: 'FINISHED', finished_at: new Date() },
+				}),
 			'PrismaTestExecutionRepository.finishTest',
 			this.logger,
 		);
 
-		return ExecutableTestMapper.toReadModel(row);
+		return rows.count;
 	}
 }

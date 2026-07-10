@@ -3,13 +3,12 @@ import { APP_TYPES } from '@app/app.types';
 import type { IPrismaService } from '@shared/persistence';
 import type { ILogger } from '@shared/logger';
 import { repositoryCall } from '@shared/http/utils/repository-call';
-import { UserId } from '@modules/identity-access';
 import type { TestEntity } from '../entities/test.entity';
 import type { ITestUpdateSchedulerPeriodsData, ITestUpdateSettingsData, TestRepository, TTestModelAll, TTestModelWithSessions } from '../interfaces/repository/test.repository.interface';
-import type { TestId } from '../entities/value-object/test-id';
 import { TestMapper } from '../mappers/test.mapper';
 import { TestPersistenceMapper } from '../mappers/repositories/test-persistence.mapper';
 import type { PrismaPromise } from '@prisma/internal/prismaNamespace';
+import type { TestSchedulerPeriodModel } from '@prisma/client';
 
 const FULL_TEST_INCLUDE = {
 	questions: {
@@ -39,11 +38,11 @@ export class PrismaTestRepository implements TestRepository {
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
 	) {}
 
-	async create(entity: TestEntity): Promise<TestEntity> {
+	async create(test: TestEntity): Promise<TestEntity> {
 		const row = await repositoryCall(
 			() =>
 				this.prismaService.client.testModel.create({
-					data: TestPersistenceMapper.toCreateData(entity),
+					data: TestPersistenceMapper.toCreateData(test),
 					include: FULL_TEST_INCLUDE,
 				}),
 			'PrismaTestRepository.create',
@@ -53,12 +52,12 @@ export class PrismaTestRepository implements TestRepository {
 		return TestMapper.toDomain(row);
 	}
 
-	async update(entity: TestEntity): Promise<TestEntity> {
+	async update(test: TestEntity): Promise<TestEntity> {
 		const row = await repositoryCall(
 			() =>
 				this.prismaService.client.testModel.update({
-					where: { id: entity.id.value },
-					data: TestPersistenceMapper.toUpdateData(entity),
+					where: { id: test.id.value },
+					data: TestPersistenceMapper.toUpdateData(test),
 					include: FULL_TEST_INCLUDE,
 				}),
 			'PrismaTestRepository.update',
@@ -68,11 +67,11 @@ export class PrismaTestRepository implements TestRepository {
 		return TestMapper.toDomain(row);
 	}
 
-	async delete(id: TestId): Promise<boolean> {
+	async delete(testId: string): Promise<boolean> {
 		const rows = await repositoryCall(
 			() =>
 				this.prismaService.client.testModel.deleteMany({
-					where: { id: id.value },
+					where: { id: testId },
 				}),
 			'PrismaTestRepository.delete',
 			this.logger,
@@ -81,11 +80,11 @@ export class PrismaTestRepository implements TestRepository {
 		return rows.count > 0;
 	}
 
-	async findById(id: TestId): Promise<TestEntity | null> {
+	async findById(testId: string): Promise<TestEntity | null> {
 		const row = await repositoryCall(
 			() =>
 				this.prismaService.client.testModel.findUnique({
-					where: { id: id.value },
+					where: { id: testId },
 				}),
 			'PrismaTestRepository.findById',
 			this.logger,
@@ -94,11 +93,11 @@ export class PrismaTestRepository implements TestRepository {
 		return row ? TestMapper.toDomain(row) : null;
 	}
 
-	async findFullById(id: TestId): Promise<TestEntity | null> {
+	async findFullById(testId: string): Promise<TestEntity | null> {
 		const row: TTestModelAll | null = await repositoryCall(
 			() =>
 				this.prismaService.client.testModel.findUnique({
-					where: { id: id.value },
+					where: { id: testId },
 					include: FULL_TEST_INCLUDE,
 				}),
 			'PrismaTestRepository.findFullById',
@@ -108,11 +107,11 @@ export class PrismaTestRepository implements TestRepository {
 		return row ? TestMapper.toDomain(row) : null;
 	}
 
-	async findByAuthor(authorId: UserId): Promise<TestEntity[]> {
+	async findByAuthor(authorId: string): Promise<TestEntity[]> {
 		const rows: TTestModelWithSessions[] = await repositoryCall(
 			() =>
 				this.prismaService.client.testModel.findMany({
-					where: { author_id: authorId.value },
+					where: { author_id: authorId },
 					include: SHORT_TEST_INCLUDE,
 				}),
 			'PrismaTestRepository.findByAuthor',
@@ -122,11 +121,11 @@ export class PrismaTestRepository implements TestRepository {
 		return rows.map((row: TTestModelWithSessions) => TestMapper.toDomain(row));
 	}
 
-	async updateSettings(testId: TestId, updateSettingsData: ITestUpdateSettingsData): Promise<TestEntity> {
+	async updateSettings(testId: string, updateSettingsData: ITestUpdateSettingsData): Promise<TestEntity> {
 		const row = await repositoryCall(
 			() =>
 				this.prismaService.client.testModel.update({
-					where: { id: testId.value },
+					where: { id: testId },
 					data: TestPersistenceMapper.toSettingsUpdateInput(updateSettingsData),
 					include: FULL_TEST_INCLUDE,
 				}),
@@ -137,8 +136,8 @@ export class PrismaTestRepository implements TestRepository {
 		return TestMapper.toDomain(row);
 	}
 
-	async updateSchedulerPeriods(testId: TestId, data: ITestUpdateSchedulerPeriodsData): Promise<boolean> {
-		const row = await repositoryCall(
+	async updateSchedulerPeriods(testId: string, data: ITestUpdateSchedulerPeriodsData): Promise<Array<TestSchedulerPeriodModel>> {
+		const rows = await repositoryCall(
 			() => {
 				const { createData, updateData, deleteData } = TestPersistenceMapper.toSchedulerPeriodsUpdateInput(testId, data);
 
@@ -166,12 +165,18 @@ export class PrismaTestRepository implements TestRepository {
 					);
 				}
 
+				transactions.push(
+					this.prismaService.client.testSchedulerPeriodModel.findMany({
+						where: { test_id: testId },
+					}),
+				);
+
 				return this.prismaService.client.$transaction(transactions);
 			},
 			'PrismaTestRepository.updateSchedulerPeriods',
 			this.logger,
 		);
 
-		return true;
+		return rows.at(-1) as Array<TestSchedulerPeriodModel>;
 	}
 }

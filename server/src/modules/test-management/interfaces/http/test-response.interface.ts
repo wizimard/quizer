@@ -1,11 +1,11 @@
 import type { IQuestionResponse } from './question-response.interface';
-import type { ITestSettingsBase } from '../test-settings.interface';
-import type { TestSessionStatus } from '@prisma/enums';
+import type { ITestSettings } from '../../interfaces/entities/test-settings.interface';
+import type { TestStatus } from '@modules/test-management/entities/test.entity';
 
 export interface ITestResponseBase {
 	id: string;
 	authorId: string;
-	status: TestSessionStatus;
+	status: TestStatus;
 	title: string;
 	updatedAt: Date;
 	createdAt: Date;
@@ -13,5 +13,5 @@ export interface ITestResponseBase {
 
 export interface ITestResponse extends ITestResponseBase {
 	questions: Array<IQuestionResponse>;
-	settings: ITestSettingsBase;
+	settings: ITestSettings;
 }

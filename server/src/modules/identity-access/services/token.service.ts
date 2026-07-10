@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import jwt, { type Secret, type SignOptions } from 'jsonwebtoken';
 import { APP_TYPES } from '@app/app.types';
 import type { IConfigService } from '@shared/config';
-import type { ITokenPayload, ITokenPair, ITokenService } from '../interfaces/token.service.interface';
+import type { ITokenPayload, ITokenPair, ITokenService } from '../interfaces/services/token.service.interface';
 import type { User } from '../entities/user.entity';
 import { toTokenPayload } from '../mappers/token-payload.mapper';
 

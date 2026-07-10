@@ -1,19 +1,16 @@
-import type { ITestSchedulerPeriod, ITestSchedulerPeriodBase } from '../interfaces/test-scheduler-period.interface';
+import type { ITestSchedulerPeriod } from '../interfaces/entities/test-scheduler-period.interface';
+import type { TestId } from './value-object/test-id';
 
 export class TestSchedulerPeriod implements ITestSchedulerPeriod {
-	constructor(
-		public readonly id: number,
-		public readonly testId: string,
-		public available_from: Date,
-		public available_to?: Date | null,
-	) {}
+	public readonly id: number;
+	public readonly testId: TestId;
+	public availableFrom: Date;
+	public availableTo?: Date | null;
 
-	public toObject(): ITestSchedulerPeriodBase {
-		return {
-			id: this.id,
-			testId: this.testId,
-			available_from: this.available_from,
-			available_to: this.available_to,
-		};
+	constructor(id: number, testId: TestId, availableFrom: Date, availableTo?: Date | null) {
+		this.id = id;
+		this.testId = testId;
+		this.availableFrom = availableFrom;
+		this.availableTo = availableTo ?? null;
 	}
 }

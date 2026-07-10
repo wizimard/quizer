@@ -1,9 +1,12 @@
-import type { ChangeQuestionOrderInput, CreateQuestionInput, DeleteQuestionInput, UpdateQuestionInput } from '../../interfaces/input/question.input';
 import type { QuestionCreateDto } from '../../dto/http/question-create.dto';
 import type { IQuestionConfigBase } from '../../entities/question-configs/question-config.interface';
 import type { QuestionUpdateDto } from '../../dto/http/question-update.dto';
 import type { TestEntity } from '../..';
 import type { QuestionChangeOrderDto } from '@modules/test-management/dto/http/question-change-order.dto';
+import type { CreateQuestionInput } from '@modules/test-management/interfaces/services/input/create-question.input';
+import type { DeleteQuestionInput } from '@modules/test-management/interfaces/services/input/delete-question.input';
+import type { ChangeQuestionOrderInput } from '@modules/test-management/interfaces/services/input/update-question-order.input';
+import type { UpdateQuestionInput } from '@modules/test-management/interfaces/services/input/update-question.input';
 
 export class QuestionRequestMapper {
 	static toCreateInput(dto: QuestionCreateDto, test: TestEntity): CreateQuestionInput {

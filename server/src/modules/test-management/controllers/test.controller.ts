@@ -10,21 +10,21 @@ import type { IMiddlewareFactory } from '@shared/http/middleware.factory.interfa
 import { TestSettingsUpdateDto } from '../dto/http/test-settings-update.dto';
 import { TestSchedulerPeriodsEditDto } from '../dto/http/test-scheduler-periods-edit.dto';
 import { TM_TYPES } from '../test-management.types';
-import type { TestService } from '../services/test.service';
 import { TestRequestMapper } from '../mappers/http/test-request.mapper';
 import { TestResponseMapper } from '../mappers/http/test-response.mapper';
-import { TE_TYPES } from '@modules/test-execution/test-execution.types';
-import type { TestSessionService } from '@modules/test-execution/services/test-session.service';
-import { ExecutionResponseMapper } from '@modules/test-execution/mappers/execution-response.mapper';
 import { TestStartDto } from '../dto/http/test-start.dto';
 import type { ParamsDictionary } from 'express-serve-static-core';
-import { toTestDto } from '../mappers/to-test.dto';
+import { toTest } from '../mappers/to-test.dto';
+import type { ITestSchedulerResponse } from '../interfaces/http/scheduler-response.interface';
+import { TestSchedulerPeriodMapper } from '../mappers/http/test-scheduler.mapper';
+import type { ITestService } from '../interfaces/services/test.service.interface';
+import type { ITestSessionService } from '../interfaces/services/test-session.service.interface';
 
 @injectable()
 export class TestController extends BaseController {
 	constructor(
-		@inject(TM_TYPES.TEST_SERVICE) private readonly testService: TestService,
-		@inject(TE_TYPES.TEST_SESSION_SERVICE) private readonly testSessionService: TestSessionService,
+		@inject(TM_TYPES.TEST_SERVICE) private readonly testService: ITestService,
+		@inject(TM_TYPES.TEST_SESSION_SERVICE) private readonly testSessionService: ITestSessionService,
 		@inject(APP_TYPES.MIDDLEWARE_FACTORY) private readonly middlewareFactory: IMiddlewareFactory,
 	) {
 		super();
@@ -72,7 +72,7 @@ export class TestController extends BaseController {
 				],
 			},
 			{
-				url: '/:testId/settings/available-periods',
+				url: '/:testId/scheduler/periods',
 				method: 'patch',
 				handler: this.updateTestSchedulerPeriods,
 				middlewares: [
@@ -100,7 +100,7 @@ export class TestController extends BaseController {
 	}
 
 	async getTestById(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		const dto = toTestDto(req.test!);
+		const dto = toTest(req.test!);
 		const Test: ITestResponse = TestResponseMapper.toHttp(dto);
 
 		this.ok(res, Test);
@@ -121,41 +121,41 @@ export class TestController extends BaseController {
 	}
 
 	async updateTest(req: Request<object, object, TestUpdateDto>, res: Response, _next: NextFunction): Promise<void> {
-		const dto = await this.testService.update(req.test!, TestRequestMapper.toUpdateInput(req.test!, req.body));
+		const dto = await this.testService.update(TestRequestMapper.toUpdateInput(req.test!, req.body));
 		const updatedTest: ITestResponse = TestResponseMapper.toHttp(dto);
 
 		this.ok(res, updatedTest);
 	}
 
 	async deleteTest(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		await this.testService.delete(req.test!);
+		await this.testService.delete(TestRequestMapper.toDeleteInput(req.test!));
 
 		this.noContent(res);
 	}
 
 	async updateTestSettings(req: Request<any, object, TestSettingsUpdateDto>, res: Response, _next: NextFunction): Promise<void> {
-		const dto = await this.testService.updateSettings(req.test!, TestRequestMapper.toUpdateSettingsInput(req.test!, req.body));
+		const dto = await this.testService.updateSettings(TestRequestMapper.toUpdateSettingsInput(req.test!, req.body));
 		const updatedTest: ITestResponse = TestResponseMapper.toHttp(dto);
 
 		this.ok(res, updatedTest);
 	}
 
 	async updateTestSchedulerPeriods(req: Request<any, object, TestSchedulerPeriodsEditDto>, res: Response, _next: NextFunction): Promise<void> {
-		const dto = await this.testService.updateSchedulerPeriods(req.test!, TestRequestMapper.toUpdateSchedulerPeriodsInput(req.test!, req.body));
-		const updatedTest: ITestResponse = TestResponseMapper.toHttp(dto);
+		const dto = await this.testService.updateSchedulerPeriods(TestRequestMapper.toUpdateSchedulerPeriodsInput(req.test!, req.body));
+		const schedulerResponse: ITestSchedulerResponse = TestSchedulerPeriodMapper.toHttp(dto);
 
-		this.ok(res, updatedTest);
+		this.ok(res, schedulerResponse);
 	}
 
 	async startTest(req: Request<ParamsDictionary, any, TestStartDto>, res: Response, _next: NextFunction): Promise<void> {
-		const result = await this.testSessionService.startTest(TestRequestMapper.toStartCommand(req.test!, req.body));
+		await this.testSessionService.startTest(TestRequestMapper.toStartCommand(req.test!, req.body));
 
-		this.ok(res, ExecutionResponseMapper.toTestHttp(result));
+		this.ok(res, { message: 'Test started successfully' });
 	}
 
 	async finishTest(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		const result = await this.testSessionService.finishTest(TestRequestMapper.toFinishCommand(req.test!));
+		await this.testSessionService.finishTest(TestRequestMapper.toFinishCommand(req.test!));
 
-		this.ok(res, ExecutionResponseMapper.toTestHttp(result));
+		this.ok(res, { message: 'Test finished successfully' });
 	}
 }

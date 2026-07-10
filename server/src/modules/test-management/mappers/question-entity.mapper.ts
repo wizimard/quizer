@@ -1,15 +1,15 @@
 import { QuestionEntity } from '../entities/question.entity';
 import { createQuestionConfigFromPayload } from '../entities/question-configs/question-config.registry';
 import { QuestionId } from '../entities/value-object/question-id';
-import type { CreateQuestionInput, UpdateQuestionInput } from '../interfaces/input/question.input';
-import type { QuestionDto } from '../dto/entities/test.entity.dto';
 import { TestId } from '../entities/value-object/test-id';
-
-const NEW_QUESTION_ID = QuestionId.of('new');
+import type { CreateQuestionInput } from '../interfaces/services/input/create-question.input';
+import type { UpdateQuestionInput } from '../interfaces/services/input/update-question.input';
+import { QuestionConfigMapper } from './question-config.mapper';
+import type { IQuestion } from '../interfaces/entities/question.interface';
 
 export function buildQuestionFromCreateInput(input: CreateQuestionInput): QuestionEntity {
 	return new QuestionEntity(
-		NEW_QUESTION_ID,
+		QuestionId.generate(),
 		TestId.of(input.testId),
 		input.description,
 		input.sortKey,
@@ -27,12 +27,12 @@ export function buildQuestionFromUpdateInput(input: UpdateQuestionInput): Questi
 	);
 }
 
-export function toQuestionDto(question: QuestionEntity): QuestionDto {
+export function toQuestion(question: QuestionEntity): IQuestion {
 	return {
 		id: question.id.value,
 		testId: question.testId.value,
 		sortKey: question.sortKey,
 		description: question.description,
-		config: question.config.toObject(),
+		config: QuestionConfigMapper.toPlain(question.config),
 	};
 }

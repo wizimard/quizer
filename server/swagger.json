@@ -2,7 +2,7 @@
     "openapi": "3.0.4",
     "info": {
         "title": "Quiz API",
-        "description": "",
+        "description": "API documentation generated from src/modules controllers and DTOs.",
         "version": "0.0.1"
     },
     "servers": [
@@ -11,23 +11,25 @@
             "description": "Main api server"
         }
     ],
+    "tags": [
+        { "name": "auth", "description": "identity-access" },
+        { "name": "user", "description": "identity-access" },
+        { "name": "test", "description": "test-management" },
+        { "name": "question", "description": "test-management" },
+        { "name": "test-execute", "description": "test-execution" }
+    ],
     "paths": {
         "/auth/login": {
             "post": {
+                "tags": ["auth"],
                 "summary": "Login user",
-                "description": "Login user",
                 "requestBody": {
-                    "description": "Login request body",
                     "required": true,
                     "content": {
                         "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UserLoginRequestBody"
-                            },
+                            "schema": { "$ref": "#/components/schemas/UserLoginRequestBody" },
                             "examples": {
                                 "Login": {
-                                    "summary": "login example",
-                                    "description": "login example",
                                     "value": {
                                         "email": "user1@mail.com",
                                         "password": "password1"
@@ -39,554 +41,376 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Login success response",
+                        "description": "Login success",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserAuthResponse"
-                                }
+                                "schema": { "$ref": "#/components/schemas/UserAuthResponse" }
                             }
                         }
                     },
-                    "422": {
-                        "description": "Login validation failed"
-                    }
+                    "422": { "description": "Validation failed" }
                 }
             }
         },
         "/auth/register": {
             "post": {
+                "tags": ["auth"],
                 "summary": "Register user",
-                "description": "Register user",
                 "requestBody": {
-                    "description": "Register request body",
                     "required": true,
                     "content": {
                         "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UserLoginRequestBody"
-                            },
-                            "examples": {
-                                "Login": {
-                                    "summary": "register example",
-                                    "description": "register example",
-                                    "value": {
-                                        "email": "user1@mail.com",
-                                        "password": "password1"
-                                    }
-                                }
-                            }
+                            "schema": { "$ref": "#/components/schemas/UserRegisterRequestBody" }
                         }
                     }
                 },
                 "responses": {
                     "201": {
-                        "description": "Register success response",
+                        "description": "Register success",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserAuthResponse"
-                                }
+                                "schema": { "$ref": "#/components/schemas/UserAuthResponse" }
                             }
                         }
                     },
-                    "422": {
-                        "description": "Register validation failed"
-                    },
-                    "500": {
-                        "description": "Register failed"
-                    }
+                    "422": { "description": "Validation failed" },
+                    "500": { "description": "Register failed" }
                 }
             }
         },
         "/auth/refresh": {
             "post": {
+                "tags": ["auth"],
                 "summary": "Refresh token",
-                "description": "Refresh JWT access token using the refreshToken HTTP-only cookie set by login or register",
+                "description": "Refresh JWT access token using the refreshToken HTTP-only cookie set by login or register.",
                 "responses": {
                     "200": {
                         "description": "JWT token refreshed",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/RefreshTokenResponse"
-                                }
+                                "schema": { "$ref": "#/components/schemas/RefreshTokenResponse" }
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
+                    "401": { "description": "Unauthorized" }
                 }
             }
         },
         "/auth/logout": {
             "post": {
+                "tags": ["auth"],
                 "summary": "Logout",
-                "description": "Logout",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
+                "security": [{ "BearerAuth": [] }],
                 "responses": {
-                    "200": {
-                        "description": "Logout success"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
+                    "200": { "description": "Logout success" },
+                    "401": { "description": "Unauthorized" }
                 }
             }
         },
         "/user/me": {
             "get": {
+                "tags": ["user"],
                 "summary": "Get authorized user",
-                "description": "Get authorized user",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
+                "security": [{ "BearerAuth": [] }],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/UserResponse" }
+                            }
+                        }
+                    },
+                    "401": { "description": "Unauthorized" }
+                }
+            }
+        },
+        "/test": {
+            "get": {
+                "tags": ["test"],
+                "summary": "Get author's tests",
+                "security": [{ "BearerAuth": [] }],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/GetUserResponse"
+                                    "type": "array",
+                                    "items": { "$ref": "#/components/schemas/TestResponseBase" }
                                 }
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "401": { "description": "Unauthorized" }
+                }
+            },
+            "post": {
+                "tags": ["test"],
+                "summary": "Create test",
+                "security": [{ "BearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/TestCreateRequestBody" }
+                        }
                     }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Test created",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/TestResponse" }
+                            }
+                        }
+                    },
+                    "401": { "description": "Unauthorized" },
+                    "422": { "description": "Validation failed" }
                 }
             }
         },
-        "/quiz/{quizId}": {
+        "/test/{testId}": {
             "get": {
-                "summary": "Get quiz by id",
-                "description": "Get quiz by id",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
+                "tags": ["test"],
+                "summary": "Get test by id",
+                "security": [{ "BearerAuth": [] }],
                 "parameters": [
                     {
-                        "name": "quizId",
+                        "name": "testId",
                         "in": "path",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": { "type": "string" }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Quiz found",
+                        "description": "Test found",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/QuizResponse"
-                                }
+                                "schema": { "$ref": "#/components/schemas/TestResponse" }
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "403": {
-                        "description": "Don't have rights"
-                    }
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" },
+                    "404": { "description": "Not found" }
                 }
             },
             "patch": {
-                "summary": "Update quiz",
-                "description": "Update quiz title",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
+                "tags": ["test"],
+                "summary": "Update test",
+                "security": [{ "BearerAuth": [] }],
                 "parameters": [
                     {
-                        "name": "quizId",
+                        "name": "testId",
                         "in": "path",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": { "type": "string" }
                     }
                 ],
                 "requestBody": {
-                    "description": "Updating quiz request body",
                     "required": true,
                     "content": {
                         "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/QuizUpdateRequestBody"
-                            }
+                            "schema": { "$ref": "#/components/schemas/TestUpdateRequestBody" }
                         }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "Quiz updated success",
+                        "description": "Test updated",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/QuizResponse"
-                                }
+                                "schema": { "$ref": "#/components/schemas/TestResponse" }
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Don't have rights"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "422": {
-                        "description": "Validation failed"
-                    },
-                    "500": {
-                        "description": "Updating failed"
-                    }
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" },
+                    "404": { "description": "Not found" },
+                    "422": { "description": "Validation failed" }
                 }
             },
             "delete": {
-                "summary": "Delete quiz by id",
-                "description": "Delete quiz by id",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
+                "tags": ["test"],
+                "summary": "Delete test",
+                "security": [{ "BearerAuth": [] }],
                 "parameters": [
                     {
-                        "name": "quizId",
+                        "name": "testId",
                         "in": "path",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": { "type": "string" }
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No content"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "403": {
-                        "description": "Don't have rights"
-                    }
+                    "204": { "description": "No content" },
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" },
+                    "404": { "description": "Not found" }
                 }
             }
         },
-        "/quiz/{quizId}/settings": {
+        "/test/{testId}/settings": {
             "patch": {
-                "summary": "Update quiz settings",
-                "description": "Update quiz title and boolean settings (required fields and answer visibility). Availability periods are managed via PATCH /quiz/{quizId}/settings/available-periods.",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
+                "tags": ["test"],
+                "summary": "Update test settings",
+                "description": "Update test title and boolean settings. Availability periods are managed via PATCH /test/{testId}/scheduler/periods.",
+                "security": [{ "BearerAuth": [] }],
                 "parameters": [
                     {
-                        "name": "quizId",
+                        "name": "testId",
                         "in": "path",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": { "type": "string" }
                     }
                 ],
                 "requestBody": {
-                    "description": "Updating quiz settings request body",
                     "required": true,
                     "content": {
                         "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/QuizSettingsUpdateRequestBody"
-                            }
+                            "schema": { "$ref": "#/components/schemas/TestSettingsUpdateRequestBody" }
                         }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "Quiz settings updated success",
+                        "description": "Test settings updated",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/QuizResponse"
-                                }
+                                "schema": { "$ref": "#/components/schemas/TestResponse" }
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Don't have rights"
-                    },
-                    "422": {
-                        "description": "Validation failed"
-                    },
-                    "500": {
-                        "description": "Updating settings failed"
-                    }
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" },
+                    "422": { "description": "Validation failed" }
                 }
             }
         },
-        "/quiz/{quizId}/settings/available-periods": {
+        "/test/{testId}/scheduler/periods": {
             "patch": {
-                "summary": "Update quiz available periods",
-                "description": "Add, update or remove quiz availability periods",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
+                "tags": ["test"],
+                "summary": "Update test scheduler periods",
+                "description": "Add, update or remove test availability periods.",
+                "security": [{ "BearerAuth": [] }],
                 "parameters": [
                     {
-                        "name": "quizId",
+                        "name": "testId",
                         "in": "path",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": { "type": "string" }
                     }
                 ],
                 "requestBody": {
-                    "description": "Updating quiz available periods request body",
                     "required": true,
                     "content": {
                         "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/QuizAvailableEditRequestBody"
-                            }
+                            "schema": { "$ref": "#/components/schemas/TestSchedulerPeriodsEditRequestBody" }
                         }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "Quiz available periods updated success",
+                        "description": "Scheduler periods updated",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/QuizResponse"
-                                }
+                                "schema": { "$ref": "#/components/schemas/TestSchedulerResponse" }
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Don't have rights"
-                    },
-                    "422": {
-                        "description": "Validation failed"
-                    },
-                    "500": {
-                        "description": "Updating available periods failed"
-                    }
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" },
+                    "422": { "description": "Validation failed" }
                 }
             }
         },
-        "/quiz/{quizId}/settings/available-periods/{periodId}/close": {
-            "patch": {
-                "summary": "Close quiz available period",
-                "description": "Mark a quiz availability period as closed",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "quizId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "periodId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Available period closed",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/QuizResponse"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Don't have rights"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "422": {
-                        "description": "Validation failed"
-                    },
-                    "500": {
-                        "description": "Closing available period failed"
-                    }
-                }
-            }
-        },
-        "/quiz/{quizId}/start": {
+        "/test/{testId}/start": {
             "post": {
-                "summary": "Start quiz",
-                "description": "Open quiz for execution",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
+                "tags": ["test"],
+                "summary": "Start test",
+                "description": "Open test for execution.",
+                "security": [{ "BearerAuth": [] }],
                 "parameters": [
                     {
-                        "name": "quizId",
+                        "name": "testId",
                         "in": "path",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": { "type": "string" }
                     }
                 ],
                 "requestBody": {
-                    "description": "Optional quiz duration in seconds",
                     "required": false,
                     "content": {
                         "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/QuizStartRequestBody"
-                            }
+                            "schema": { "$ref": "#/components/schemas/TestStartRequestBody" }
                         }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "Quiz started",
+                        "description": "Test started",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/QuizExecuteResponse"
-                                }
+                                "schema": { "$ref": "#/components/schemas/MessageResponse" }
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Don't have rights"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    }
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" },
+                    "404": { "description": "Not found" }
                 }
             }
         },
-        "/quiz/{quizId}/finish": {
+        "/test/{testId}/finish": {
             "post": {
-                "summary": "Finish quiz",
-                "description": "Close quiz for execution",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
+                "tags": ["test"],
+                "summary": "Finish test",
+                "description": "Close test for execution.",
+                "security": [{ "BearerAuth": [] }],
                 "parameters": [
                     {
-                        "name": "quizId",
+                        "name": "testId",
                         "in": "path",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": { "type": "string" }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Quiz finished",
+                        "description": "Test finished",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/QuizExecuteResponse"
-                                }
+                                "schema": { "$ref": "#/components/schemas/MessageResponse" }
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Don't have rights"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    }
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" },
+                    "404": { "description": "Not found" }
                 }
             }
         },
-        "/question/{quizId}/questions": {
+        "/question/{testId}/questions": {
             "post": {
+                "tags": ["question"],
                 "summary": "Create question",
-                "description": "Add a question to a quiz",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
+                "security": [{ "BearerAuth": [] }],
                 "parameters": [
                     {
-                        "name": "quizId",
+                        "name": "testId",
                         "in": "path",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": { "type": "string" }
                     }
                 ],
                 "requestBody": {
-                    "description": "Create question request body",
                     "required": true,
                     "content": {
                         "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/QuestionCreateRequestBody"
-                            }
+                            "schema": { "$ref": "#/components/schemas/QuestionCreateRequestBody" }
                         }
                     }
                 },
@@ -595,180 +419,41 @@
                         "description": "Question created",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/QuestionResponse"
-                                }
+                                "schema": { "$ref": "#/components/schemas/QuestionResponse" }
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Don't have rights"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "422": {
-                        "description": "Validation failed"
-                    }
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" },
+                    "404": { "description": "Not found" },
+                    "422": { "description": "Validation failed" }
                 }
             }
         },
-        "/quiz-execute/{quizId}": {
-            "get": {
-                "summary": "Get quiz for execution",
-                "description": "Get quiz metadata for public execution (no authentication required)",
-                "parameters": [
-                    {
-                        "name": "quizId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Quiz found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/QuizExecuteResponse"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Quiz not found"
-                    }
-                }
-            }
-        },
-        "/quiz-execute/{quizId}/{questionId}": {
-            "get": {
-                "summary": "Get question for execution",
-                "description": "Get a quiz question without the correct answer (no authentication required)",
-                "parameters": [
-                    {
-                        "name": "quizId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "questionId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Question found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/QuestionExecuteResponse"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Quiz or question not found"
-                    }
-                }
-            },
-            "post": {
-                "summary": "Submit answer",
-                "description": "Evaluate a submitted answer for a quiz question (no authentication required)",
-                "parameters": [
-                    {
-                        "name": "quizId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "questionId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "description": "Submitted answer (format depends on question type)",
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/QuestionAnswerSubmitRequestBody"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Answer evaluated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AnswerEvaluationResponse"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Quiz or question not found"
-                    }
-                }
-            }
-        },
-        "/question/{quizId}/questions/{questionId}": {
+        "/question/{testId}/questions/{questionId}": {
             "patch": {
+                "tags": ["question"],
                 "summary": "Update question",
-                "description": "Update an existing quiz question",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
+                "security": [{ "BearerAuth": [] }],
                 "parameters": [
                     {
-                        "name": "quizId",
+                        "name": "testId",
                         "in": "path",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": { "type": "string" }
                     },
                     {
                         "name": "questionId",
                         "in": "path",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": { "type": "string" }
                     }
                 ],
                 "requestBody": {
-                    "description": "Update question request body",
                     "required": true,
                     "content": {
                         "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/QuestionUpdateRequestBody"
-                            }
+                            "schema": { "$ref": "#/components/schemas/QuestionUpdateRequestBody" }
                         }
                     }
                 },
@@ -777,103 +462,66 @@
                         "description": "Question updated",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/QuestionResponse"
-                                }
+                                "schema": { "$ref": "#/components/schemas/QuestionResponse" }
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Don't have rights"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "422": {
-                        "description": "Validation failed"
-                    }
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" },
+                    "404": { "description": "Not found" },
+                    "422": { "description": "Validation failed" }
                 }
             },
             "delete": {
+                "tags": ["question"],
                 "summary": "Delete question",
-                "description": "Delete a question from a quiz",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
+                "security": [{ "BearerAuth": [] }],
                 "parameters": [
                     {
-                        "name": "quizId",
+                        "name": "testId",
                         "in": "path",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": { "type": "string" }
                     },
                     {
                         "name": "questionId",
                         "in": "path",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": { "type": "string" }
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No content"
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Don't have rights"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    }
+                    "204": { "description": "No content" },
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" },
+                    "404": { "description": "Not found" }
                 }
             }
         },
-        "/question/{quizId}/questions/{questionId}/order": {
+        "/question/{testId}/questions/{questionId}/order": {
             "patch": {
+                "tags": ["question"],
                 "summary": "Change question order",
-                "description": "Change the position of a question within a quiz relative to neighboring questions",
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
+                "security": [{ "BearerAuth": [] }],
                 "parameters": [
                     {
-                        "name": "quizId",
+                        "name": "testId",
                         "in": "path",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": { "type": "string" }
                     },
                     {
                         "name": "questionId",
                         "in": "path",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "schema": { "type": "string" }
                     }
                 ],
                 "requestBody": {
-                    "description": "Change question order request body",
                     "required": true,
                     "content": {
                         "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/QuestionChangeOrderRequestBody"
-                            }
+                            "schema": { "$ref": "#/components/schemas/QuestionChangeOrderRequestBody" }
                         }
                     }
                 },
@@ -882,94 +530,110 @@
                         "description": "Question order changed",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/QuizResponse"
-                                }
+                                "schema": { "$ref": "#/components/schemas/TestResponse" }
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "403": {
-                        "description": "Don't have rights"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    },
-                    "422": {
-                        "description": "Validation failed"
-                    }
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" },
+                    "404": { "description": "Not found" },
+                    "422": { "description": "Validation failed" }
                 }
             }
         },
-        "/quiz": {
+        "/test-execute/{testId}": {
             "get": {
-                "summary": "Get user's quizes",
-                "description": "Get user's quizes",
-                "security": [
+                "tags": ["test-execute"],
+                "summary": "Get test for execution",
+                "description": "Public test metadata for execution (no authentication required).",
+                "parameters": [
                     {
-                        "BearerAuth": []
+                        "name": "testId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Test found",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/QuizResponseBase"
-                                    }
-                                }
+                                "schema": { "$ref": "#/components/schemas/TestExecuteResponse" }
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized"
+                    "404": { "description": "Test not found" }
+                }
+            }
+        },
+        "/test-execute/{testId}/{questionId}": {
+            "get": {
+                "tags": ["test-execute"],
+                "summary": "Get question for execution",
+                "description": "Get a test question without the correct answer (no authentication required).",
+                "parameters": [
+                    {
+                        "name": "testId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "questionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
                     }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Question found",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/QuestionExecuteResponse" }
+                            }
+                        }
+                    },
+                    "404": { "description": "Test or question not found" }
                 }
             },
             "post": {
-                "summary": "Create quiz",
-                "description": "Create quiz",
-                "security": [
+                "tags": ["test-execute"],
+                "summary": "Submit answer",
+                "description": "Evaluate a submitted answer for a test question (no authentication required).",
+                "parameters": [
                     {
-                        "BearerAuth": []
+                        "name": "testId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "questionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
                     }
                 ],
                 "requestBody": {
-                    "description": "Create quiz request body",
                     "required": true,
                     "content": {
                         "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/QuizCreateRequestBody"
-                            }
+                            "schema": { "$ref": "#/components/schemas/QuestionAnswerSubmitRequestBody" }
                         }
                     }
                 },
                 "responses": {
-                    "201": {
-                        "description": "Quiz created success",
+                    "200": {
+                        "description": "Answer evaluated",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/QuizResponse"
-                                }
+                                "schema": { "$ref": "#/components/schemas/AnswerEvaluationResponse" }
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "422": {
-                        "description": "Validation failed"
-                    },
-                    "500": {
-                        "description": "Creating failed"
-                    }
+                    "404": { "description": "Test or question not found" }
                 }
             }
         }
@@ -987,28 +651,28 @@
                 "type": "object",
                 "required": ["email", "password"],
                 "properties": {
-                    "email": {
-                        "type": "string"
-                    },
-                    "password": {
-                        "type": "string"
-                    }
+                    "email": { "type": "string", "format": "email" },
+                    "password": { "type": "string", "minLength": 8, "maxLength": 255 }
+                }
+            },
+            "UserRegisterRequestBody": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                    "email": { "type": "string", "format": "email" },
+                    "password": { "type": "string", "minLength": 8, "maxLength": 255 }
                 }
             },
             "UserAuthResponse": {
                 "type": "object",
                 "required": ["accessToken", "user"],
                 "properties": {
-                    "accessToken": {
-                        "type": "string"
-                    },
+                    "accessToken": { "type": "string" },
                     "user": {
                         "type": "object",
                         "required": ["email"],
                         "properties": {
-                            "email": {
-                                "type": "string"
-                            }
+                            "email": { "type": "string", "format": "email" }
                         }
                     }
                 }
@@ -1017,164 +681,109 @@
                 "type": "object",
                 "required": ["accessToken"],
                 "properties": {
-                    "accessToken": {
-                        "type": "string"
-                    }
+                    "accessToken": { "type": "string" }
                 }
             },
-            "GetUserResponse": {
+            "UserResponse": {
                 "type": "object",
                 "required": ["id", "email"],
                 "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "email": {
-                        "type": "string"
-                    }
+                    "id": { "type": "string" },
+                    "email": { "type": "string", "format": "email" }
+                }
+            },
+            "MessageResponse": {
+                "type": "object",
+                "required": ["message"],
+                "properties": {
+                    "message": { "type": "string" }
                 }
             },
             "QuestionConfigInput": {
                 "type": "object",
                 "required": ["answer", "ignore_case", "type"],
                 "properties": {
-                    "type": {
-                        "type": "string",
-                        "enum": ["input"]
-                    },
-                    "answer": {
-                        "type": "string"
-                    },
-                    "ignore_case": {
-                        "type": "boolean"
-                    }
+                    "type": { "type": "string", "enum": ["input"] },
+                    "answer": { "type": "string" },
+                    "ignore_case": { "type": "boolean" }
                 }
             },
             "QuestionConfigOption": {
                 "type": "object",
                 "required": ["id", "value"],
                 "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "value": {
-                        "type": "string"
-                    }
+                    "id": { "type": "string" },
+                    "value": { "type": "string" }
                 }
             },
             "QuestionConfigOptionArray": {
                 "type": "array",
-                "items": {
-                    "$ref": "#/components/schemas/QuestionConfigOption"
-                }
+                "items": { "$ref": "#/components/schemas/QuestionConfigOption" }
             },
             "QuestionConfigSingleChoise": {
                 "type": "object",
                 "required": ["answer", "options", "type"],
                 "properties": {
-                    "type": {
-                        "type": "string",
-                        "enum": ["single_choise"]
-                    },
-                    "answer": {
-                        "type": "string"
-                    },
-                    "options": {
-                        "$ref": "#/components/schemas/QuestionConfigOptionArray"
-                    }
+                    "type": { "type": "string", "enum": ["single_choise"] },
+                    "answer": { "type": "string" },
+                    "options": { "$ref": "#/components/schemas/QuestionConfigOptionArray" }
                 }
             },
             "QuestionConfigMultipleChoise": {
                 "type": "object",
                 "required": ["answer", "options", "type"],
                 "properties": {
-                    "type": {
-                        "type": "string",
-                        "enum": ["multiple_choise"]
-                    },
+                    "type": { "type": "string", "enum": ["multiple_choise"] },
                     "answer": {
                         "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
+                        "items": { "type": "string" }
                     },
-                    "options": {
-                        "$ref": "#/components/schemas/QuestionConfigOptionArray"
-                    }
+                    "options": { "$ref": "#/components/schemas/QuestionConfigOptionArray" }
                 }
             },
             "QuestionConfigOrderAnswerOption": {
                 "type": "object",
                 "required": ["optionId", "order"],
                 "properties": {
-                    "optionId": {
-                        "type": "string"
-                    },
-                    "order": {
-                        "type": "number"
-                    }
+                    "optionId": { "type": "string" },
+                    "order": { "type": "number" }
                 }
             },
             "QuestionConfigOrder": {
                 "type": "object",
                 "required": ["answer", "options", "type"],
                 "properties": {
-                    "type": {
-                        "type": "string",
-                        "enum": ["order"]
-                    },
+                    "type": { "type": "string", "enum": ["order"] },
                     "answer": {
                         "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/QuestionConfigOrderAnswerOption"
-                        }
+                        "items": { "$ref": "#/components/schemas/QuestionConfigOrderAnswerOption" }
                     },
-                    "options": {
-                        "$ref": "#/components/schemas/QuestionConfigOptionArray"
-                    }
+                    "options": { "$ref": "#/components/schemas/QuestionConfigOptionArray" }
                 }
             },
             "QuestionRequestConfig": {
                 "oneOf": [
-                        {
-                            "$ref": "#/components/schemas/QuestionConfigInput"
-                        },
-                        {
-                            "$ref": "#/components/schemas/QuestionConfigSingleChoise"
-                        },
-                        {
-                            "$ref": "#/components/schemas/QuestionConfigMultipleChoise"
-                        },
-                        {
-                            "$ref": "#/components/schemas/QuestionConfigOrder"
-                        }
-                    ],
-                "discriminator": {
-                    "propertyName": "type"
-                }
+                    { "$ref": "#/components/schemas/QuestionConfigInput" },
+                    { "$ref": "#/components/schemas/QuestionConfigSingleChoise" },
+                    { "$ref": "#/components/schemas/QuestionConfigMultipleChoise" },
+                    { "$ref": "#/components/schemas/QuestionConfigOrder" }
+                ],
+                "discriminator": { "propertyName": "type" }
             },
             "QuestionCreateRequestBody": {
                 "type": "object",
                 "required": ["description", "config"],
                 "properties": {
-                    "description": {
-                        "type": "string"
-                    },
-                    "config": {
-                        "$ref": "#/components/schemas/QuestionRequestConfig"
-                    }
+                    "description": { "type": "string" },
+                    "config": { "$ref": "#/components/schemas/QuestionRequestConfig" }
                 }
             },
             "QuestionUpdateRequestBody": {
                 "type": "object",
                 "required": ["description", "config"],
                 "properties": {
-                    "description": {
-                        "type": "string"
-                    },
-                    "config": {
-                        "$ref": "#/components/schemas/QuestionRequestConfig"
-                    }
+                    "description": { "type": "string" },
+                    "config": { "$ref": "#/components/schemas/QuestionRequestConfig" }
                 }
             },
             "QuestionChangeOrderRequestBody": {
@@ -1192,205 +801,134 @@
                     }
                 }
             },
-            "QuizAvailablePeriodBase": {
-                "type": "object",
-                "required": ["id", "quizSettingsId", "available_from", "status"],
-                "properties": {
-                    "id": {
-                        "type": "number"
-                    },
-                    "quizSettingsId": {
-                        "type": "string"
-                    },
-                    "available_from": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "available_to": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "status": {
-                        "type": "string",
-                        "enum": ["OPEN", "MANUALLY_CLOSED", "SCHEDULED", "EXPIRED"]
-                    }
-                }
-            },
             "QuestionResponse": {
                 "type": "object",
-                "required": ["id", "quizId", "sortKey", "description", "config"],
+                "required": ["id", "testId", "sortKey", "description", "config"],
                 "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "quizId": {
-                        "type": "string"
-                    },
-                    "sortKey": {
-                        "type": "number"
-                    },
-                    "description": {
-                        "type": "string"
-                    },
-                    "config": {
-                        "$ref": "#/components/schemas/QuestionRequestConfig"
-                    }
+                    "id": { "type": "string" },
+                    "testId": { "type": "string" },
+                    "sortKey": { "type": "number" },
+                    "description": { "type": "string" },
+                    "config": { "$ref": "#/components/schemas/QuestionRequestConfig" }
                 }
             },
-            "QuizSettingsBase": {
+            "TestSettings": {
                 "type": "object",
                 "required": [
-                    "availablePeriods",
                     "isRequiredEmail",
                     "isRequiredFirstName",
                     "isRequiredLastName",
                     "isShowAnswersAfterCompletion"
                 ],
                 "properties": {
-                    "availablePeriods": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/QuizAvailablePeriodBase"
-                        }
-                    },
-                    "isRequiredEmail": {
-                        "type": "boolean"
-                    },
-                    "isRequiredFirstName": {
-                        "type": "boolean"
-                    },
-                    "isRequiredLastName": {
-                        "type": "boolean"
-                    },
-                    "isShowAnswersAfterCompletion": {
-                        "type": "boolean"
-                    }
+                    "isRequiredEmail": { "type": "boolean" },
+                    "isRequiredFirstName": { "type": "boolean" },
+                    "isRequiredLastName": { "type": "boolean" },
+                    "isShowAnswersAfterCompletion": { "type": "boolean" }
                 }
             },
-            "QuizResponseBase": {
+            "TestResponseBase": {
                 "type": "object",
                 "required": ["id", "authorId", "status", "title", "updatedAt", "createdAt"],
                 "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "authorId": {
-                        "type": "string"
-                    },
+                    "id": { "type": "string" },
+                    "authorId": { "type": "string" },
                     "status": {
                         "type": "string",
-                        "enum": ["scheduler", "open_by_scheduler", "manual_open", "closed"]
+                        "enum": ["open", "open_by_scheduler", "closed"]
                     },
-                    "title": {
-                        "type": "string"
-                    },
-                    "updatedAt": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "createdAt": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
+                    "title": { "type": "string" },
+                    "updatedAt": { "type": "string", "format": "date-time" },
+                    "createdAt": { "type": "string", "format": "date-time" }
                 }
             },
-            "QuizResponse": {
+            "TestResponse": {
                 "type": "object",
                 "required": ["id", "authorId", "status", "title", "questions", "settings", "updatedAt", "createdAt"],
                 "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "authorId": {
-                        "type": "string"
-                    },
+                    "id": { "type": "string" },
+                    "authorId": { "type": "string" },
                     "status": {
                         "type": "string",
-                        "enum": ["scheduler", "open_by_scheduler", "manual_open", "closed"]
+                        "enum": ["open", "open_by_scheduler", "closed"]
                     },
-                    "title": {
-                        "type": "string"
-                    },
+                    "title": { "type": "string" },
                     "questions": {
                         "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/QuestionResponse"
-                        }
+                        "items": { "$ref": "#/components/schemas/QuestionResponse" }
                     },
-                    "settings": {
-                        "$ref": "#/components/schemas/QuizSettingsBase"
-                    },
-                    "updatedAt": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "createdAt": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
+                    "settings": { "$ref": "#/components/schemas/TestSettings" },
+                    "updatedAt": { "type": "string", "format": "date-time" },
+                    "createdAt": { "type": "string", "format": "date-time" }
                 }
             },
-            "QuizCreateRequestBody": {
+            "TestCreateRequestBody": {
                 "type": "object",
                 "required": ["title"],
                 "properties": {
-                    "title": {
-                        "type": "string"
-                    }
+                    "title": { "type": "string" }
                 }
             },
-            "QuizUpdateRequestBody": {
+            "TestUpdateRequestBody": {
                 "type": "object",
                 "properties": {
-                    "title": {
-                        "type": "string"
-                    }
+                    "title": { "type": "string" }
                 }
             },
-            "QuizAvailablePeriodEdit": {
+            "TestSchedulerPeriodDto": {
                 "type": "object",
                 "required": ["id", "available_from"],
                 "properties": {
-                    "id": {
-                        "type": "number"
-                    },
-                    "available_from": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "available_to": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
+                    "id": { "type": "number" },
+                    "available_from": { "type": "string", "format": "date-time" },
+                    "available_to": { "type": "string", "format": "date-time" }
                 }
             },
-            "QuizAvailableEditRequestBody": {
+            "TestSchedulerPeriodsEditRequestBody": {
                 "type": "object",
                 "properties": {
                     "add": {
                         "type": "array",
                         "description": "Periods to create",
-                        "items": {
-                            "$ref": "#/components/schemas/QuizAvailablePeriodEdit"
-                        }
+                        "items": { "$ref": "#/components/schemas/TestSchedulerPeriodDto" }
                     },
                     "update": {
                         "type": "array",
                         "description": "Existing periods to update",
-                        "items": {
-                            "$ref": "#/components/schemas/QuizAvailablePeriodEdit"
-                        }
+                        "items": { "$ref": "#/components/schemas/TestSchedulerPeriodDto" }
                     },
                     "remove": {
                         "type": "array",
                         "description": "IDs of periods to delete",
-                        "items": {
-                            "type": "number"
-                        }
+                        "items": { "type": "number" }
                     }
                 }
             },
-            "QuizSettingsUpdateRequestBody": {
+            "TestSchedulerPeriodResponse": {
+                "type": "object",
+                "required": ["id", "testId", "availableFrom"],
+                "properties": {
+                    "id": { "type": "number" },
+                    "testId": { "type": "string" },
+                    "availableFrom": { "type": "string", "format": "date-time" },
+                    "availableTo": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                }
+            },
+            "TestSchedulerResponse": {
+                "type": "object",
+                "required": ["periods"],
+                "properties": {
+                    "periods": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/TestSchedulerPeriodResponse" }
+                    }
+                }
+            },
+            "TestSettingsUpdateRequestBody": {
                 "type": "object",
                 "required": [
                     "title",
@@ -1400,141 +938,81 @@
                     "isShowAnswersAfterCompletion"
                 ],
                 "properties": {
-                    "title": {
-                        "type": "string",
-                        "minLength": 3
-                    },
-                    "isRequiredEmail": {
-                        "type": "boolean"
-                    },
-                    "isRequiredFirstName": {
-                        "type": "boolean"
-                    },
-                    "isRequiredLastName": {
-                        "type": "boolean"
-                    },
-                    "isShowAnswersAfterCompletion": {
-                        "type": "boolean"
-                    }
+                    "title": { "type": "string", "minLength": 3 },
+                    "isRequiredEmail": { "type": "boolean" },
+                    "isRequiredFirstName": { "type": "boolean" },
+                    "isRequiredLastName": { "type": "boolean" },
+                    "isShowAnswersAfterCompletion": { "type": "boolean" }
                 }
             },
-            "QuizStartRequestBody": {
+            "TestStartRequestBody": {
                 "type": "object",
                 "properties": {
                     "duration": {
                         "type": "number",
-                        "description": "Quiz duration in seconds"
+                        "description": "Test duration in seconds"
                     }
                 }
             },
-            "QuizExecuteResponse": {
+            "TestExecuteResponse": {
                 "type": "object",
                 "required": ["id", "authorId", "title", "isOpen"],
                 "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "authorId": {
-                        "type": "string"
-                    },
-                    "title": {
-                        "type": "string"
-                    },
-                    "isOpen": {
-                        "type": "boolean"
-                    }
+                    "id": { "type": "string" },
+                    "authorId": { "type": "string" },
+                    "title": { "type": "string" },
+                    "isOpen": { "type": "boolean" }
                 }
             },
             "QuestionExecuteConfigInput": {
                 "type": "object",
                 "required": ["type", "ignore_case"],
                 "properties": {
-                    "type": {
-                        "type": "string",
-                        "enum": ["input"]
-                    },
-                    "ignore_case": {
-                        "type": "boolean"
-                    }
+                    "type": { "type": "string", "enum": ["input"] },
+                    "ignore_case": { "type": "boolean" }
                 }
             },
             "QuestionExecuteConfigSingleChoise": {
                 "type": "object",
                 "required": ["type", "options"],
                 "properties": {
-                    "type": {
-                        "type": "string",
-                        "enum": ["single_choise"]
-                    },
-                    "options": {
-                        "$ref": "#/components/schemas/QuestionConfigOptionArray"
-                    }
+                    "type": { "type": "string", "enum": ["single_choise"] },
+                    "options": { "$ref": "#/components/schemas/QuestionConfigOptionArray" }
                 }
             },
             "QuestionExecuteConfigMultipleChoise": {
                 "type": "object",
                 "required": ["type", "options"],
                 "properties": {
-                    "type": {
-                        "type": "string",
-                        "enum": ["multiple_choise"]
-                    },
-                    "options": {
-                        "$ref": "#/components/schemas/QuestionConfigOptionArray"
-                    }
+                    "type": { "type": "string", "enum": ["multiple_choise"] },
+                    "options": { "$ref": "#/components/schemas/QuestionConfigOptionArray" }
                 }
             },
             "QuestionExecuteConfigOrder": {
                 "type": "object",
                 "required": ["type", "options"],
                 "properties": {
-                    "type": {
-                        "type": "string",
-                        "enum": ["order"]
-                    },
-                    "options": {
-                        "$ref": "#/components/schemas/QuestionConfigOptionArray"
-                    }
+                    "type": { "type": "string", "enum": ["order"] },
+                    "options": { "$ref": "#/components/schemas/QuestionConfigOptionArray" }
                 }
             },
             "QuestionExecuteConfig": {
                 "oneOf": [
-                    {
-                        "$ref": "#/components/schemas/QuestionExecuteConfigInput"
-                    },
-                    {
-                        "$ref": "#/components/schemas/QuestionExecuteConfigSingleChoise"
-                    },
-                    {
-                        "$ref": "#/components/schemas/QuestionExecuteConfigMultipleChoise"
-                    },
-                    {
-                        "$ref": "#/components/schemas/QuestionExecuteConfigOrder"
-                    }
+                    { "$ref": "#/components/schemas/QuestionExecuteConfigInput" },
+                    { "$ref": "#/components/schemas/QuestionExecuteConfigSingleChoise" },
+                    { "$ref": "#/components/schemas/QuestionExecuteConfigMultipleChoise" },
+                    { "$ref": "#/components/schemas/QuestionExecuteConfigOrder" }
                 ],
-                "discriminator": {
-                    "propertyName": "type"
-                }
+                "discriminator": { "propertyName": "type" }
             },
             "QuestionExecuteResponse": {
                 "type": "object",
-                "required": ["id", "quizId", "order", "description", "config"],
+                "required": ["id", "testId", "description", "config"],
                 "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "quizId": {
-                        "type": "string"
-                    },
-                    "order": {
-                        "type": "number"
-                    },
-                    "description": {
-                        "type": "string"
-                    },
-                    "config": {
-                        "$ref": "#/components/schemas/QuestionExecuteConfig"
-                    }
+                    "id": { "type": "string" },
+                    "testId": { "type": "string" },
+                    "description": { "type": "string" },
+                    "config": { "$ref": "#/components/schemas/QuestionExecuteConfig" }
                 }
             },
             "QuestionAnswerSubmitRequestBody": {
@@ -1549,16 +1027,12 @@
                             },
                             {
                                 "type": "array",
-                                "items": {
-                                    "type": "string"
-                                },
+                                "items": { "type": "string" },
                                 "description": "For multiple_choise question type"
                             },
                             {
                                 "type": "array",
-                                "items": {
-                                    "$ref": "#/components/schemas/QuestionConfigOrderAnswerOption"
-                                },
+                                "items": { "$ref": "#/components/schemas/QuestionConfigOrderAnswerOption" },
                                 "description": "For order question type"
                             }
                         ]
@@ -1569,9 +1043,7 @@
                 "type": "object",
                 "required": ["correct"],
                 "properties": {
-                    "correct": {
-                        "type": "boolean"
-                    }
+                    "correct": { "type": "boolean" }
                 }
             }
         }

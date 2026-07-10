@@ -1,21 +1,18 @@
+import type { ITestSettings } from '../interfaces/entities/test-settings.interface';
 import type { TestId } from './value-object/test-id';
-import type { ITestSettings, ITestSettingsBase } from '../interfaces/test-settings.interface';
 
 export class TestSettings implements ITestSettings {
-	constructor(
-		public readonly testId: TestId,
-		public isRequiredEmail: boolean,
-		public isRequiredFirstName: boolean,
-		public isRequiredLastName: boolean,
-		public isShowAnswersAfterCompletion: boolean = false,
-	) {}
+	public readonly testId: TestId;
+	public isRequiredEmail: boolean;
+	public isRequiredFirstName: boolean;
+	public isRequiredLastName: boolean;
+	public isShowAnswersAfterCompletion: boolean;
 
-	toObject(): ITestSettingsBase {
-		return {
-			isRequiredEmail: this.isRequiredEmail,
-			isRequiredFirstName: this.isRequiredFirstName,
-			isRequiredLastName: this.isRequiredLastName,
-			isShowAnswersAfterCompletion: this.isShowAnswersAfterCompletion,
-		};
+	constructor(testId: TestId, isRequiredEmail: boolean, isRequiredFirstName: boolean, isRequiredLastName: boolean, isShowAnswersAfterCompletion: boolean = false) {
+		this.testId = testId;
+		this.isRequiredEmail = isRequiredEmail;
+		this.isRequiredFirstName = isRequiredFirstName;
+		this.isRequiredLastName = isRequiredLastName;
+		this.isShowAnswersAfterCompletion = isShowAnswersAfterCompletion;
 	}
 }

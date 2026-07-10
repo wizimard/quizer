@@ -7,7 +7,6 @@ export interface IQuestionConfigBase {
 
 export interface IQuestionConfig<TData = unknown> extends IQuestionConfigBase {
 	validate(): IValidationError[];
-	toObject(): object;
 
 	update(data: TData): this;
 }

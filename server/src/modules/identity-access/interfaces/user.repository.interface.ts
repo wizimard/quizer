@@ -7,4 +7,5 @@ export interface UserRepository {
 	findByEmail(email: Email): Promise<User | null>;
 	findById(id: UserId): Promise<User | null>;
 	existsByEmail(email: Email): Promise<boolean>;
+	delete(id: UserId): Promise<boolean>;
 }

@@ -7,22 +7,24 @@ type BootResult = Awaited<ReturnType<typeof getBoot>>;
 let application: BootResult['app'];
 let container: BootResult['container'];
 
-const uniqueEmail = (): string => `user-${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`;
+const uniqueEmail = `user-${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`;
 const defaultPassword = 'password123';
 
-const registerUser = async (email: string = uniqueEmail(), password: string = defaultPassword): Promise<request.Response> => {
+const registerUser = async (email: string = uniqueEmail, password: string = defaultPassword): Promise<request.Response> => {
 	return request(application.app).post('/api/auth/register').send({ email, password });
 };
 
 const createAuthenticatedAgent = async (): Promise<{ agent: Agent; email: string; accessToken: string }> => {
-	const email = uniqueEmail();
 	const agent = request.agent(application.app);
 
-	const registerRes = await agent.post('/api/auth/register').send({ email, password: defaultPassword });
+	const registerRes = await agent.post('/api/auth/login').send({
+		email: uniqueEmail,
+		password: defaultPassword,
+	});
 
 	return {
 		agent,
-		email,
+		email: uniqueEmail,
 		accessToken: registerRes.body.accessToken,
 	};
 };
@@ -36,7 +38,7 @@ beforeAll(async () => {
 describe('Auth e2e', () => {
 	describe('POST /api/auth/register', () => {
 		it('returns 422 for invalid registration payload', async () => {
-			const res = await registerUser(uniqueEmail(), 'short');
+			const res = await registerUser(uniqueEmail, 'short');
 
 			expect(res.statusCode).toBe(422);
 			expect(res.body.message).toBe('validation_failed');
@@ -49,19 +51,8 @@ describe('Auth e2e', () => {
 			expect(res.body.message).toBe('validation_failed');
 		});
 
-		it('returns 422 when email is already taken', async () => {
-			const email = uniqueEmail();
-
-			await registerUser(email);
-
-			const res = await registerUser(email);
-
-			expect(res.statusCode).toBe(422);
-			expect(res.body.message).toBe('email is busy');
-		});
-
 		it('registers a new user', async () => {
-			const email = uniqueEmail();
+			const email = uniqueEmail;
 
 			const res = await registerUser(email);
 
@@ -70,12 +61,23 @@ describe('Auth e2e', () => {
 			expect(res.body.user).toEqual({ email });
 			expect(res.headers['set-cookie']).toEqual(expect.arrayContaining([expect.stringMatching(/^refreshToken=/)]));
 		});
+
+		it('returns 422 when email is already taken', async () => {
+			const email = uniqueEmail;
+
+			await registerUser(email);
+
+			const res = await registerUser(email);
+
+			expect(res.statusCode).toBe(422);
+			expect(res.body.message).toBe('email_already_taken');
+		});
 	});
 
 	describe('POST /api/auth/login', () => {
 		it('returns 422 for invalid login payload', async () => {
 			const res = await request(application.app).post('/api/auth/login').send({
-				email: uniqueEmail(),
+				email: uniqueEmail,
 				password: 'short',
 			});
 
@@ -90,11 +92,11 @@ describe('Auth e2e', () => {
 			});
 
 			expect(res.statusCode).toBe(422);
-			expect(res.body.message).toBe('wrong email or password');
+			expect(res.body.message).toBe('invalid_credentials');
 		});
 
 		it('returns 422 for wrong password', async () => {
-			const email = uniqueEmail();
+			const email = uniqueEmail;
 
 			await registerUser(email);
 
@@ -104,11 +106,11 @@ describe('Auth e2e', () => {
 			});
 
 			expect(res.statusCode).toBe(422);
-			expect(res.body.message).toBe('wrong email or password');
+			expect(res.body.message).toBe('invalid_credentials');
 		});
 
 		it('logs in', async () => {
-			const email = uniqueEmail();
+			const email = uniqueEmail;
 
 			await registerUser(email);
 
@@ -197,6 +199,10 @@ describe('Auth e2e', () => {
 });
 
 afterAll(async () => {
+	const { agent, accessToken } = await createAuthenticatedAgent();
+
+	await agent.delete('/api/user').set('Authorization', `Bearer ${accessToken}`);
+
 	await Bootstrap.stop(application, container);
 	resetBoot();
 });

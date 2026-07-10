@@ -34,12 +34,4 @@ export class QuestionConfigInputValue extends QuestionConfigBase<IQuestionInputV
 
 		return errors;
 	}
-
-	public toObject(): object {
-		return {
-			type: this.type,
-			answer: this.answer,
-			ignore_case: this.ignore_case,
-		};
-	}
 }

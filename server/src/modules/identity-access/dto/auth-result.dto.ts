@@ -1,4 +1,4 @@
-import type { ITokenPair, ITokenPayload } from '../interfaces/token.service.interface';
+import type { ITokenPair, ITokenPayload } from '../interfaces/services/token.service.interface';
 import type { User } from '../entities/user.entity';
 import { toTokenPayload } from '../mappers/token-payload.mapper';
 

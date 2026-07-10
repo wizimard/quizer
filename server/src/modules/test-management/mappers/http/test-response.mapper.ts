@@ -1,8 +1,8 @@
 import type { ITestResponse, ITestResponseBase } from '../../interfaces/http/test-response.interface';
-import type { TestDto } from '../../dto/entities/test.entity.dto';
+import type { ITest } from '../../interfaces/entities/test.interface';
 
 export class TestResponseMapper {
-	static toHttp(dto: TestDto): ITestResponse {
+	static toHttp(dto: ITest): ITestResponse {
 		return {
 			id: dto.id,
 			authorId: dto.authorId,
@@ -15,7 +15,7 @@ export class TestResponseMapper {
 		};
 	}
 
-	static toHttpList(dtos: TestDto[]): ITestResponseBase[] {
+	static toHttpList(dtos: ITest[]): ITestResponseBase[] {
 		return dtos.map((dto) => ({
 			id: dto.id,
 			authorId: dto.authorId,

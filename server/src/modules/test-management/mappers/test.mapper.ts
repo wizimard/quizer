@@ -1,4 +1,4 @@
-import type { TestSchedulerPeriodModel, TestModel, TestQuestionModel, TestSessionModel, TestSessionStatus } from '@prisma/client';
+import type { TestSchedulerPeriodModel, TestModel, TestQuestionModel, TestSessionModel } from '@prisma/client';
 import { UserId } from '@modules/identity-access';
 import { TestSchedulerPeriod } from '../entities/test-scheduler-period';
 import { TestEntity } from '../entities/test.entity';
@@ -21,16 +21,16 @@ export const TestMapper = {
 
 		const sessions =
 			'test_sessions' in testModel
-				? testModel.test_sessions.map((session: TestSessionModel) => new TestSessionEntity(session.id, testId, session.started_at, session.finished_at, session.status as TestSessionStatus))
+				? testModel.test_sessions.map((session: TestSessionModel) => new TestSessionEntity(session.id, testId, session.started_at, session.finished_at, session.status, session.start_by))
 				: [];
 
 		const schedulerPeriods =
 			'scheduler_periods' in testModel
-				? testModel.scheduler_periods.map((period: TestSchedulerPeriodModel) => new TestSchedulerPeriod(Number(period.id), period.test_id, period.available_from, period.available_to))
+				? testModel.scheduler_periods.map((period: TestSchedulerPeriodModel) => new TestSchedulerPeriod(Number(period.id), testId, period.available_from, period.available_to))
 				: [];
 
 		if (!('test_settings' in testModel) || !testModel.test_settings) {
-			return new TestEntity(testId, testModel.title, UserId.of(testModel.author_id), questions, null, schedulerPeriods, testModel.updated_at, testModel.created_at, sessions);
+			return new TestEntity(testId, UserId.of(testModel.author_id), testModel.title, questions, null, schedulerPeriods, sessions, testModel.updated_at, testModel.created_at);
 		}
 
 		const settings = new TestSettings(
@@ -41,6 +41,6 @@ export const TestMapper = {
 			testModel.test_settings.show_answers_after_completion,
 		);
 
-		return new TestEntity(testId, testModel.title, UserId.of(testModel.author_id), questions, settings, schedulerPeriods, testModel.updated_at, testModel.created_at, sessions);
+		return new TestEntity(testId, UserId.of(testModel.author_id), testModel.title, questions, settings, schedulerPeriods, sessions, testModel.updated_at, testModel.created_at);
 	},
 };

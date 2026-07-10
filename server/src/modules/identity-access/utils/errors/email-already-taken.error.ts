@@ -1,6 +1,7 @@
-export class EmailAlreadyTakenError extends Error {
+import { HttpError } from '@shared/error';
+
+export class EmailAlreadyTakenError extends HttpError {
 	constructor() {
-		super('email_already_taken');
-		this.name = 'EmailAlreadyTakenError';
+		super(422, 'email_already_taken', 'EmailAlreadyTakenError');
 	}
 }
