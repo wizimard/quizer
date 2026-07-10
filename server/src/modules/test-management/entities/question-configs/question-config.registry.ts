@@ -10,8 +10,8 @@ type QuestionConfigConstructor = new (data: unknown) => QuestionConfigBase;
 
 const constructors: Record<QuestionType, QuestionConfigConstructor> = {
 	input: QuestionConfigInputValue as QuestionConfigConstructor,
-	single_choise: QuestionConfigSingleChoise as QuestionConfigConstructor,
-	multiple_choise: QuestionConfigMultipleChoise as QuestionConfigConstructor,
+	single_choice: QuestionConfigSingleChoise as QuestionConfigConstructor,
+	multiple_choice: QuestionConfigMultipleChoise as QuestionConfigConstructor,
 	order: QuestionConfigOrderValues as QuestionConfigConstructor,
 };
 

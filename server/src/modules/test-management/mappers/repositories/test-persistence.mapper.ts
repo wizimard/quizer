@@ -8,8 +8,7 @@ import type {
 } from '@prisma/models';
 import type { TestEntity } from '../../entities/test.entity';
 import type { ITestUpdateSchedulerPeriodsData, ITestUpdateSettingsData } from '../../interfaces/repository/test.repository.interface';
-import type { TestId } from '@modules/test-management';
-import type { ITestSchedulerPeriod } from '@modules/test-management/interfaces/entities/test-scheduler-period.interface';
+import type { TestSchedulerPeriod } from '@modules/test-management/entities/test-scheduler-period';
 
 export interface ITestPersistenceUpdate {
 	createData: Array<TestSchedulerPeriodModelCreateManyInput>;
@@ -60,7 +59,7 @@ export const TestPersistenceMapper = {
 		if (addPeriods?.length) {
 			createData.push(
 				...addPeriods.map(
-					(period: ITestSchedulerPeriod): TestSchedulerPeriodModelCreateManyInput => ({
+					(period: TestSchedulerPeriod): TestSchedulerPeriodModelCreateManyInput => ({
 						test_id: testId,
 						available_from: period.availableFrom,
 						available_to: period.availableTo ?? null,
@@ -74,7 +73,7 @@ export const TestPersistenceMapper = {
 		if (updatePeriods?.length) {
 			updateData.push(
 				...updatePeriods.map(
-					(period: ITestSchedulerPeriod): TestSchedulerPeriodModelUpdateArgs => ({
+					(period: TestSchedulerPeriod): TestSchedulerPeriodModelUpdateArgs => ({
 						where: { id: period.id, available_from: { gt: now } },
 						data: { available_from: period.availableFrom, available_to: period.availableTo ?? null },
 					}),

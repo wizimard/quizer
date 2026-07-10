@@ -17,7 +17,7 @@ export class TestSchedulerPeriodEditDto extends TestSchedulerPeriodAddDto {
 	id: number;
 }
 
-export class TestSchedulerPeriodsEditDto {
+export class TestSchedulerPeriodsEditRequestDto {
 	@IsOptional()
 	@IsArray()
 	@ValidateNested({ each: true })

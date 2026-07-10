@@ -3,10 +3,10 @@ import type { QuestionConfigBase } from '@modules/test-management/entities/quest
 import type { AnswerEvaluator } from '../answer-evaluator.interface';
 
 export class SingleChoiseAnswerEvaluator implements AnswerEvaluator {
-	readonly type = 'single_choise' as const;
+	readonly type = 'single_choice' as const;
 
 	evaluate(config: QuestionConfigBase, submittedAnswer: unknown): boolean {
-		if (config.type !== 'single_choise') {
+		if (config.type !== 'single_choice') {
 			return false;
 		}
 

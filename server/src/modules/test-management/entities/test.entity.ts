@@ -2,44 +2,31 @@ import { UserId } from '@modules/identity-access';
 import { TestNotOwnedError } from '../utils/errors/test-not-owned.error';
 import { TestId } from './value-object/test-id';
 import type { TestSessionEntity } from './test-session.entity';
-import type { ITestSettings } from '../interfaces/entities/test-settings.interface';
-import type { ITestSchedulerPeriod } from '../interfaces/entities/test-scheduler-period.interface';
 import type { QuestionEntity } from '..';
+import type { TestSettings } from './test-settings';
+import type { TestSchedulerPeriod } from './test-scheduler-period';
 
 export type TestStatus = 'open' | 'open_by_scheduler' | 'closed';
 
 export class TestEntity {
-	public status: TestStatus;
+	public status: TestStatus = 'closed';
 
 	public readonly id: TestId;
 	public readonly authorId: UserId;
 	public title: string;
-	public questions: Array<QuestionEntity>;
-	public settings: ITestSettings | null;
-	public schedulerPeriods: Array<ITestSchedulerPeriod>;
-	public updatedAt: Date;
-	public createdAt: Date;
+
+	public questions: Array<QuestionEntity> = [];
+	public settings: TestSettings | null = null;
+	public schedulerPeriods: Array<TestSchedulerPeriod> = [];
 	public sessions: Array<TestSessionEntity> = [];
 
-	constructor(
-		id: TestId,
-		authorId: UserId,
-		title: string,
-		questions: Array<QuestionEntity>,
-		settings: ITestSettings | null,
-		schedulerPeriods: Array<ITestSchedulerPeriod>,
-		sessions: Array<TestSessionEntity>,
-		updatedAt: Date,
-		createdAt: Date,
-	) {
+	public updatedAt: Date;
+	public createdAt: Date;
+
+	constructor(id: TestId, authorId: UserId, title: string, updatedAt: Date, createdAt: Date) {
 		this.id = id;
 		this.authorId = authorId;
 		this.title = title;
-
-		this.questions = questions;
-		this.settings = settings;
-		this.schedulerPeriods = schedulerPeriods;
-		this.sessions = sessions;
 
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
@@ -47,7 +34,7 @@ export class TestEntity {
 		this.setStatus();
 	}
 
-	get availablePeriods(): Array<ITestSchedulerPeriod> {
+	get availablePeriods(): Array<TestSchedulerPeriod> {
 		return this.schedulerPeriods;
 	}
 

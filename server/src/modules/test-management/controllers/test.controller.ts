@@ -1,24 +1,25 @@
 import { BaseController } from '@shared/http/controller.base';
 import { inject, injectable } from 'inversify';
 import type { Request, Response, NextFunction } from 'express';
-import { TestCreateDto } from '../dto/http/test-create.dto';
-import { TestUpdateDto } from '../dto/http/test-update.dto';
-import type { ITestResponse, ITestResponseBase } from '../interfaces/http/test-response.interface';
+import { TestCreateRequestDto } from '../dto/http/request/test-create.request-dto';
+import { TestUpdateRequestDto } from '../dto/http/request/test-update.request-dto';
 import type { IRoute } from '@shared/http/route.interface';
 import { APP_TYPES } from '@app/app.types';
 import type { IMiddlewareFactory } from '@shared/http/middleware.factory.interface';
-import { TestSettingsUpdateDto } from '../dto/http/test-settings-update.dto';
-import { TestSchedulerPeriodsEditDto } from '../dto/http/test-scheduler-periods-edit.dto';
+import { TestSettingsUpdateRequestDto } from '../dto/http/request/test-settings-update.request-dto';
+import { TestSchedulerPeriodsEditRequestDto } from '../dto/http/request/test-scheduler-periods-edit.request-dto';
 import { TM_TYPES } from '../test-management.types';
-import { TestRequestMapper } from '../mappers/http/test-request.mapper';
-import { TestResponseMapper } from '../mappers/http/test-response.mapper';
-import { TestStartDto } from '../dto/http/test-start.dto';
+import { TestStartRequestDto } from '../dto/http/request/test-start.request-dto';
 import type { ParamsDictionary } from 'express-serve-static-core';
-import { toTest } from '../mappers/to-test.dto';
-import type { ITestSchedulerResponse } from '../interfaces/http/scheduler-response.interface';
-import { TestSchedulerPeriodMapper } from '../mappers/http/test-scheduler.mapper';
 import type { ITestService } from '../interfaces/services/test.service.interface';
 import type { ITestSessionService } from '../interfaces/services/test-session.service.interface';
+import type { TestResponse } from '../dto/http/response/test.response-dto';
+import type { TestFullResponse } from '../dto/http/response/test-full.response-dto';
+import { TestMapper } from '../mappers/test.mapper';
+import type { TestResult } from '../interfaces/services/results/test.result';
+import { TestInputMapper } from '../mappers/input/test-input.mapper';
+import type { TestSchedulerResponse } from '../dto/http/response/test-scheduler.response-dto';
+import { SchedulerMapper } from '../mappers/scheduler.mapper';
 
 @injectable()
 export class TestController extends BaseController {
@@ -46,13 +47,18 @@ export class TestController extends BaseController {
 				url: '/',
 				method: 'post',
 				handler: this.createTest,
-				middlewares: [this.middlewareFactory.authGuard(), this.middlewareFactory.validate(TestCreateDto)],
+				middlewares: [this.middlewareFactory.authGuard(), this.middlewareFactory.validate(TestCreateRequestDto)],
 			},
 			{
 				url: '/:testId',
 				method: 'patch',
 				handler: this.updateTest,
-				middlewares: [this.middlewareFactory.authGuard(), this.middlewareFactory.testMiddleware(), this.middlewareFactory.testOwnershipGuard(), this.middlewareFactory.validate(TestUpdateDto)],
+				middlewares: [
+					this.middlewareFactory.authGuard(),
+					this.middlewareFactory.testMiddleware(),
+					this.middlewareFactory.testOwnershipGuard(),
+					this.middlewareFactory.validate(TestUpdateRequestDto),
+				],
 			},
 			{
 				url: '/:testId',
@@ -68,7 +74,7 @@ export class TestController extends BaseController {
 					this.middlewareFactory.authGuard(),
 					this.middlewareFactory.testMiddleware(),
 					this.middlewareFactory.testOwnershipGuard(),
-					this.middlewareFactory.validate(TestSettingsUpdateDto),
+					this.middlewareFactory.validate(TestSettingsUpdateRequestDto),
 				],
 			},
 			{
@@ -79,14 +85,19 @@ export class TestController extends BaseController {
 					this.middlewareFactory.authGuard(),
 					this.middlewareFactory.testMiddleware(),
 					this.middlewareFactory.testOwnershipGuard(),
-					this.middlewareFactory.validate(TestSchedulerPeriodsEditDto),
+					this.middlewareFactory.validate(TestSchedulerPeriodsEditRequestDto),
 				],
 			},
 			{
 				url: '/:testId/start',
 				method: 'post',
 				handler: this.startTest,
-				middlewares: [this.middlewareFactory.authGuard(), this.middlewareFactory.testMiddleware(), this.middlewareFactory.testOwnershipGuard(), this.middlewareFactory.validate(TestStartDto)],
+				middlewares: [
+					this.middlewareFactory.authGuard(),
+					this.middlewareFactory.testMiddleware(),
+					this.middlewareFactory.testOwnershipGuard(),
+					this.middlewareFactory.validate(TestStartRequestDto),
+				],
 			},
 			{
 				url: '/:testId/finish',
@@ -100,61 +111,61 @@ export class TestController extends BaseController {
 	}
 
 	async getTestById(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		const dto = toTest(req.test!);
-		const Test: ITestResponse = TestResponseMapper.toHttp(dto);
+		const dto = TestMapper.toFullResult(req.test!);
+		const Test: TestFullResponse = TestMapper.toFullResponse(dto);
 
 		this.ok(res, Test);
 	}
 
 	async getUserTest(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		const dtos = await this.testService.getByAuthor({ authorId: req.user!.id });
-		const Testes: ITestResponseBase[] = TestResponseMapper.toHttpList(dtos);
+		const dtos = await this.testService.getByAuthor(TestInputMapper.toGetByAuthorInput(req.user!.id));
+		const Testes: TestResponse[] = dtos.map((dto: TestResult) => TestMapper.toResponse(dto));
 
 		this.ok(res, Testes);
 	}
 
-	async createTest(req: Request<object, object, TestCreateDto>, res: Response, _next: NextFunction): Promise<void> {
-		const dto = await this.testService.create(TestRequestMapper.toCreateInput(req.body, req.user!.id));
-		const createdTest: ITestResponse = TestResponseMapper.toHttp(dto);
+	async createTest(req: Request<object, object, TestCreateRequestDto>, res: Response, _next: NextFunction): Promise<void> {
+		const dto = await this.testService.create(TestInputMapper.toCreateInput(req.body, req.user!.id));
+		const createdTest: TestFullResponse = TestMapper.toFullResponse(dto);
 
 		this.created(res, createdTest);
 	}
 
-	async updateTest(req: Request<object, object, TestUpdateDto>, res: Response, _next: NextFunction): Promise<void> {
-		const dto = await this.testService.update(TestRequestMapper.toUpdateInput(req.test!, req.body));
-		const updatedTest: ITestResponse = TestResponseMapper.toHttp(dto);
+	async updateTest(req: Request<object, object, TestUpdateRequestDto>, res: Response, _next: NextFunction): Promise<void> {
+		const dto = await this.testService.update(TestInputMapper.toUpdateInput(req.test!, req.body));
+		const updatedTest: TestFullResponse = TestMapper.toFullResponse(dto);
 
 		this.ok(res, updatedTest);
 	}
 
 	async deleteTest(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		await this.testService.delete(TestRequestMapper.toDeleteInput(req.test!));
+		await this.testService.delete(TestInputMapper.toDeleteInput(req.test!));
 
 		this.noContent(res);
 	}
 
-	async updateTestSettings(req: Request<any, object, TestSettingsUpdateDto>, res: Response, _next: NextFunction): Promise<void> {
-		const dto = await this.testService.updateSettings(TestRequestMapper.toUpdateSettingsInput(req.test!, req.body));
-		const updatedTest: ITestResponse = TestResponseMapper.toHttp(dto);
+	async updateTestSettings(req: Request<any, object, TestSettingsUpdateRequestDto>, res: Response, _next: NextFunction): Promise<void> {
+		const dto = await this.testService.updateSettings(TestInputMapper.toUpdateSettingsInput(req.test!, req.body));
+		const updatedTest: TestFullResponse = TestMapper.toFullResponse(dto);
 
 		this.ok(res, updatedTest);
 	}
 
-	async updateTestSchedulerPeriods(req: Request<any, object, TestSchedulerPeriodsEditDto>, res: Response, _next: NextFunction): Promise<void> {
-		const dto = await this.testService.updateSchedulerPeriods(TestRequestMapper.toUpdateSchedulerPeriodsInput(req.test!, req.body));
-		const schedulerResponse: ITestSchedulerResponse = TestSchedulerPeriodMapper.toHttp(dto);
+	async updateTestSchedulerPeriods(req: Request<any, object, TestSchedulerPeriodsEditRequestDto>, res: Response, _next: NextFunction): Promise<void> {
+		const dto = await this.testService.updateSchedulerPeriods(TestInputMapper.toUpdateSchedulerPeriodsInput(req.test!, req.body));
+		const schedulerResponse: TestSchedulerResponse = SchedulerMapper.toResponse(dto);
 
 		this.ok(res, schedulerResponse);
 	}
 
-	async startTest(req: Request<ParamsDictionary, any, TestStartDto>, res: Response, _next: NextFunction): Promise<void> {
-		const isStarted: boolean = await this.testSessionService.startTest(TestRequestMapper.toStartCommand(req.test!, req.body));
+	async startTest(req: Request<ParamsDictionary, any, TestStartRequestDto>, res: Response, _next: NextFunction): Promise<void> {
+		const isStarted: boolean = await this.testSessionService.startTest(TestInputMapper.toStartInput(req.test!, req.body));
 
 		this.ok(res, { message: isStarted ? 'Test started successfully' : 'Test not started' });
 	}
 
 	async finishTest(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		const isFinished: boolean = await this.testSessionService.finishTest(TestRequestMapper.toFinishCommand(req.test!));
+		const isFinished: boolean = await this.testSessionService.finishTest(TestInputMapper.toFinishInput(req.test!));
 
 		this.ok(res, { message: isFinished ? 'Test finished successfully' : 'Test not finished' });
 	}

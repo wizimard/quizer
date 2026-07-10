@@ -3,10 +3,10 @@ import type { QuestionConfigBase } from '@modules/test-management/entities/quest
 import type { AnswerEvaluator } from '../answer-evaluator.interface';
 
 export class MultipleChoiseAnswerEvaluator implements AnswerEvaluator {
-	readonly type = 'multiple_choise' as const;
+	readonly type = 'multiple_choice' as const;
 
 	evaluate(config: QuestionConfigBase, submittedAnswer: unknown): boolean {
-		if (config.type !== 'multiple_choise') {
+		if (config.type !== 'multiple_choice') {
 			return false;
 		}
 

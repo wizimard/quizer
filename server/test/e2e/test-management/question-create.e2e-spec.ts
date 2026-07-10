@@ -154,8 +154,8 @@ describe('POST /api/question/:testId/questions', () => {
 
 		expect(res.statusCode).toBe(201);
 		expect(res.body).toMatchObject({
-			testId: createRes.body.id,
-			sortKey: 1000,
+			test_id: createRes.body.id,
+			sort_key: 1000,
 			description,
 			config: {
 				type: 'input',
@@ -180,7 +180,7 @@ describe('POST /api/question/:testId/questions', () => {
 		expect(res.body.description).toBe(description);
 	});
 
-	it('assigns incrementing sortKey for subsequent questions', async () => {
+	it('assigns incrementing sort_key for subsequent questions', async () => {
 		const createRes = await testUtils.createTest('Original title');
 		const { accessToken } = await authUtils.login();
 
@@ -196,8 +196,8 @@ describe('POST /api/question/:testId/questions', () => {
 
 		expect(firstRes.statusCode).toBe(201);
 		expect(secondRes.statusCode).toBe(201);
-		expect(firstRes.body.sortKey).toBe(1000);
-		expect(secondRes.body.sortKey).toBe(2000);
+		expect(firstRes.body.sort_key).toBe(1000);
+		expect(secondRes.body.sort_key).toBe(2000);
 	});
 });
 

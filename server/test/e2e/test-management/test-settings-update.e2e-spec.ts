@@ -16,17 +16,17 @@ let testUtils: TestUtils;
 const settingsPayload = (
 	title: string,
 	overrides: Partial<{
-		isRequiredEmail: boolean;
-		isRequiredFirstName: boolean;
-		isRequiredLastName: boolean;
-		isShowAnswersAfterCompletion: boolean;
+		required_email: boolean;
+		required_first_name: boolean;
+		required_last_name: boolean;
+		show_answers_after_completion: boolean;
 	}> = {},
 ) => ({
 	title,
-	isRequiredEmail: false,
-	isRequiredFirstName: false,
-	isRequiredLastName: false,
-	isShowAnswersAfterCompletion: false,
+	required_email: false,
+	required_first_name: false,
+	required_last_name: false,
+	show_answers_after_completion: false,
 	...overrides,
 });
 
@@ -127,29 +127,33 @@ describe('PATCH /api/test/:testId/settings', () => {
 			.set('Authorization', `Bearer ${accessToken}`)
 			.send(
 				settingsPayload(updatedTitle, {
-					isRequiredEmail: true,
-					isRequiredFirstName: true,
-					isRequiredLastName: false,
-					isShowAnswersAfterCompletion: true,
+					required_email: true,
+					required_first_name: true,
+					required_last_name: false,
+					show_answers_after_completion: true,
 				}),
 			);
 
 		expect(res.statusCode).toBe(200);
-		expect(res.body).toMatchObject({
+		expect(res.body).toEqual({
 			id: createRes.body.id,
-			authorId: authUtils.userId,
+			author_id: authUtils.userId,
 			title: updatedTitle,
+			status: createRes.body.status,
 			questions: [],
 			settings: {
-				isRequiredEmail: true,
-				isRequiredFirstName: true,
-				isRequiredLastName: false,
-				isShowAnswersAfterCompletion: true,
+				is_required_email: true,
+				is_required_first_name: true,
+				is_required_last_name: false,
+				is_show_answers_after_completion: true,
 			},
-			createdAt: createRes.body.createdAt,
+			scheduler: {
+				periods: [],
+			},
+			updated_at: expect.any(String),
+			created_at: createRes.body.created_at,
 		});
-		expect(res.body.updatedAt).toEqual(expect.any(String));
-		expect(new Date(res.body.updatedAt).getTime()).toBeGreaterThanOrEqual(new Date(createRes.body.updatedAt).getTime());
+		expect(new Date(res.body.updated_at).getTime()).toBeGreaterThanOrEqual(new Date(createRes.body.updated_at).getTime());
 	});
 
 	it('trims title before updating test settings', async () => {

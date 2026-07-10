@@ -40,6 +40,14 @@ const deleteQuestion = async (testId: string, questionId: string): Promise<Respo
 	return request(application.app).delete(`/api/question/${testId}/questions/${questionId}`).set('Authorization', `Bearer ${accessToken}`);
 };
 
+type QuestionResponseBody = {
+	id: string;
+	test_id: string;
+	sort_key: number;
+	description: string;
+	config: object;
+};
+
 beforeAll(async () => {
 	const bootResult = await getBoot();
 	application = bootResult.app;
@@ -125,6 +133,36 @@ describe('DELETE /api/question/:testId/questions/:questionId', () => {
 
 		expect(getRes.statusCode).toBe(200);
 		expect(getRes.body.questions).toEqual([]);
+	});
+
+	it('removes only the deleted question when test has multiple questions', async () => {
+		const createRes = await testUtils.createTest('Original title');
+		const firstQuestionRes = await createQuestion(createRes.body.id, `First question ${Date.now()}`);
+		const secondQuestionRes = await createQuestion(createRes.body.id, `Second question ${Date.now()}`);
+		const { accessToken } = await authUtils.login();
+
+		const deleteRes = await deleteQuestion(createRes.body.id, firstQuestionRes.body.id);
+
+		expect(deleteRes.statusCode).toBe(204);
+
+		const getRes = await request(application.app).get(`/api/test/${createRes.body.id}`).set('Authorization', `Bearer ${accessToken}`);
+
+		expect(getRes.statusCode).toBe(200);
+		expect(getRes.body.questions).toHaveLength(1);
+
+		const remainingQuestion = getRes.body.questions[0] as QuestionResponseBody;
+
+		expect(remainingQuestion).toMatchObject({
+			id: secondQuestionRes.body.id,
+			test_id: createRes.body.id,
+			sort_key: secondQuestionRes.body.sort_key,
+			description: secondQuestionRes.body.description,
+			config: {
+				type: 'input',
+				answer: '4',
+				ignore_case: true,
+			},
+		});
 	});
 
 	it('returns 404 when deleting an already deleted question', async () => {

@@ -1,27 +1,23 @@
 import { HttpValidationError } from '@shared/error/http-validation.error';
 import { inject, injectable } from 'inversify';
-import type { ITest } from '../interfaces/entities/test.interface';
 import type { QuestionRepository } from '../interfaces/repository/question.repository.interface';
-import { buildQuestionFromCreateInput, buildQuestionFromUpdateInput, toQuestion } from '../mappers/question-entity.mapper';
-import { QuestionId } from '../entities/value-object/question-id';
-import { TestId } from '../entities/value-object/test-id';
 import { TM_TYPES } from '../test-management.types';
 import { HttpError } from '@shared/error';
 import type { QuestionEntity } from '../entities/question.entity';
-import { toTest } from '../mappers/to-test.dto';
 import type { CreateQuestionInput } from '../interfaces/services/input/create-question.input';
 import type { DeleteQuestionInput } from '../interfaces/services/input/delete-question.input';
 import type { ChangeQuestionOrderInput } from '../interfaces/services/input/update-question-order.input';
 import type { UpdateQuestionInput } from '../interfaces/services/input/update-question.input';
-import type { IQuestion } from '../interfaces/entities/question.interface';
 import type { IQuestionService } from '../interfaces/services/question.service.interface';
+import { QuestionMapper } from '../mappers/question.mapper';
+import type { QuestionResult } from '../interfaces/services/results/question.result';
 
 @injectable()
 export class QuestionService implements IQuestionService {
 	constructor(@inject(TM_TYPES.QUESTION_REPOSITORY) private readonly questionRepository: QuestionRepository) {}
 
-	async create(input: CreateQuestionInput): Promise<IQuestion> {
-		const questionEntity = buildQuestionFromCreateInput(input);
+	async create(input: CreateQuestionInput): Promise<QuestionResult> {
+		const questionEntity = QuestionMapper.buildQuestionFromCreateInput(input);
 		const errors = questionEntity.validate();
 
 		if (errors.errors.length) {
@@ -29,11 +25,11 @@ export class QuestionService implements IQuestionService {
 		}
 
 		const createdQuestion = await this.questionRepository.create(questionEntity);
-		return toQuestion(createdQuestion);
+		return QuestionMapper.toResult(createdQuestion);
 	}
 
-	async update(input: UpdateQuestionInput): Promise<IQuestion> {
-		const questionEntity = buildQuestionFromUpdateInput(input);
+	async update(input: UpdateQuestionInput): Promise<QuestionResult> {
+		const questionEntity = QuestionMapper.buildQuestionFromUpdateInput(input);
 		const errors = questionEntity.validate();
 
 		if (errors.errors.length) {
@@ -42,22 +38,22 @@ export class QuestionService implements IQuestionService {
 
 		const updatedQuestion = await this.questionRepository.update(questionEntity);
 
-		return toQuestion(updatedQuestion);
+		return QuestionMapper.toResult(updatedQuestion);
 	}
 
 	async delete(input: DeleteQuestionInput): Promise<void> {
-		const isDeleted = await this.questionRepository.delete(QuestionId.of(input.id), TestId.of(input.testId));
+		const isDeleted = await this.questionRepository.delete(input.id.value, input.testId.value);
 
 		if (!isDeleted) {
 			throw new HttpError(404, 'question_not_found', 'QuestionService.delete');
 		}
 	}
 
-	async changeOrder(input: ChangeQuestionOrderInput): Promise<ITest> {
+	async changeOrder(input: ChangeQuestionOrderInput): Promise<QuestionResult[]> {
 		const { test, questionId, previousQuestionId, nextQuestionId } = input;
 
 		if (!previousQuestionId && !nextQuestionId) {
-			return toTest(test);
+			return test.questions.map(QuestionMapper.toResult);
 		}
 
 		let newSortKey: number = 0;
@@ -82,7 +78,7 @@ export class QuestionService implements IQuestionService {
 
 		newSortKey = Math.round(newSortKey);
 
-		const question: QuestionEntity = test.questions.find((question) => question.id.value === questionId)!;
+		const question: QuestionEntity = test.questions.find((question) => questionId.equals(question.id))!;
 
 		question.sortKey = newSortKey;
 
@@ -99,7 +95,7 @@ export class QuestionService implements IQuestionService {
 
 		if (!isNeedChangeOrders) {
 			await this.questionRepository.updateQuestionsOrders([question]);
-			return toTest(test);
+			return test.questions.map(QuestionMapper.toResult);
 		}
 
 		for (let i = 0; i < test.questions.length; i++) {
@@ -108,6 +104,6 @@ export class QuestionService implements IQuestionService {
 
 		await this.questionRepository.updateQuestionsOrders(test.questions);
 
-		return toTest(test);
+		return test.questions.map(QuestionMapper.toResult);
 	}
 }

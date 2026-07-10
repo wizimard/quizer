@@ -9,8 +9,8 @@ import { SingleChoiseAnswerEvaluator } from './evaluators/single-choise.evaluato
 
 const evaluators: Record<QuestionType, AnswerEvaluator> = {
 	input: new InputValueAnswerEvaluator(),
-	single_choise: new SingleChoiseAnswerEvaluator(),
-	multiple_choise: new MultipleChoiseAnswerEvaluator(),
+	single_choice: new SingleChoiseAnswerEvaluator(),
+	multiple_choice: new MultipleChoiseAnswerEvaluator(),
 	order: new OrderValuesAnswerEvaluator(),
 };
 

@@ -4,17 +4,17 @@ import { inject, injectable } from 'inversify';
 import type { QuestionService } from '../services/question.service';
 import type { NextFunction, Request, Response } from 'express';
 import type { ParamsDictionary } from 'express-serve-static-core';
-import { QuestionCreateDto } from '../dto/http/question-create.dto';
-import type { IQuestionResponse } from '../interfaces/http/question-response.interface';
-import { QuestionRequestMapper } from '../mappers/http/question-request.mapper';
-import { QuestionResponseMapper } from '../mappers/http/question-response.mapper';
-import { QuestionUpdateDto } from '../dto/http/question-update.dto';
+import { QuestionCreateRequestDto } from '../dto/http/request/question-create.request-dto';
+import { QuestionUpdateRequestDto } from '../dto/http/request/question-update.request-dto';
 import { parseIdParam } from '@shared/http/utils/parse-id-param';
 import { APP_TYPES } from '@app/app.types';
 import type { IMiddlewareFactory } from '@shared/http/middleware.factory.interface';
 import { QuestionExistsGuard } from '../middlewares/question-exists.guard';
-import { TestResponseMapper } from '../mappers/http/test-response.mapper';
-import type { QuestionChangeOrderDto } from '../dto/http/question-change-order.dto';
+import type { QuestionChangeOrderRequestDto } from '../dto/http/request/question-change-order.request-dto';
+import { QuestionInputMapper } from '../mappers/input/question-input.mapper';
+import type { QuestionResponse } from '../dto/http/response/question.response-dto';
+import { QuestionMapper } from '../mappers/question.mapper';
+import type { QuestionResult } from '../interfaces/services/results/question.result';
 
 @injectable()
 export class QuestionController extends BaseController {
@@ -33,7 +33,7 @@ export class QuestionController extends BaseController {
 					this.middlewareFactory.authGuard(),
 					this.middlewareFactory.testMiddleware(),
 					this.middlewareFactory.testOwnershipGuard(),
-					this.middlewareFactory.validate(QuestionCreateDto),
+					this.middlewareFactory.validate(QuestionCreateRequestDto),
 				],
 				handler: this.createQuestion.bind(this),
 			},
@@ -45,7 +45,7 @@ export class QuestionController extends BaseController {
 					this.middlewareFactory.testMiddleware(),
 					this.middlewareFactory.testOwnershipGuard(),
 					this.questionExistsGuard,
-					this.middlewareFactory.validate(QuestionUpdateDto),
+					this.middlewareFactory.validate(QuestionUpdateRequestDto),
 				],
 				handler: this.updateQuestion.bind(this),
 			},
@@ -64,20 +64,20 @@ export class QuestionController extends BaseController {
 		]);
 	}
 
-	async createQuestion(req: Request<ParamsDictionary, unknown, QuestionCreateDto>, res: Response, _next: NextFunction): Promise<void> {
-		const dto = await this.questionService.create(QuestionRequestMapper.toCreateInput(req.body, req.test!));
+	async createQuestion(req: Request<ParamsDictionary, unknown, QuestionCreateRequestDto>, res: Response, _next: NextFunction): Promise<void> {
+		const result: QuestionResult = await this.questionService.create(QuestionInputMapper.toCreateInput(req.body, req.test!));
 
-		const createdQuestion: IQuestionResponse = QuestionResponseMapper.toHttp(dto);
+		const createdQuestion: QuestionResponse = QuestionMapper.toResponse(result);
 
 		this.created(res, createdQuestion);
 	}
 
-	async updateQuestion(req: Request<ParamsDictionary, unknown, QuestionUpdateDto>, res: Response, _next: NextFunction): Promise<void> {
+	async updateQuestion(req: Request<ParamsDictionary, unknown, QuestionUpdateRequestDto>, res: Response, _next: NextFunction): Promise<void> {
 		const questionId = parseIdParam(req, 'questionId');
 
-		const dto = await this.questionService.update(QuestionRequestMapper.toUpdateInput(req.body, req.test!.id.value, questionId));
+		const result: QuestionResult = await this.questionService.update(QuestionInputMapper.toUpdateInput(req.body, req.test!.id.value, questionId));
 
-		const updatedQuestion: IQuestionResponse = QuestionResponseMapper.toHttp(dto);
+		const updatedQuestion: QuestionResponse = QuestionMapper.toResponse(result);
 
 		this.ok(res, updatedQuestion);
 	}
@@ -86,16 +86,16 @@ export class QuestionController extends BaseController {
 		const testId = parseIdParam(req, 'testId');
 		const questionId = parseIdParam(req, 'questionId');
 
-		await this.questionService.delete(QuestionRequestMapper.toDeleteInput(questionId, testId));
+		await this.questionService.delete(QuestionInputMapper.toDeleteInput(questionId, testId));
 
 		this.noContent(res);
 	}
 
-	async changeQuestionOrder(req: Request<ParamsDictionary, unknown, QuestionChangeOrderDto>, res: Response, _next: NextFunction): Promise<void> {
+	async changeQuestionOrder(req: Request<ParamsDictionary, unknown, QuestionChangeOrderRequestDto>, res: Response, _next: NextFunction): Promise<void> {
 		const questionId = parseIdParam(req, 'questionId');
 
-		const dto = await this.questionService.changeOrder(QuestionRequestMapper.toChangeOrderInput(req.body, req.test!, questionId));
+		const result: QuestionResult[] = await this.questionService.changeOrder(QuestionInputMapper.toChangeOrderInput(req.body, req.test!, questionId));
 
-		this.ok(res, TestResponseMapper.toHttp(dto));
+		this.ok(res, result.map(QuestionMapper.toResponse));
 	}
 }

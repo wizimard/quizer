@@ -1,15 +1,15 @@
 import type { IValidationError } from '../../interfaces/error/validation-object.error.interface';
 import { QuestionConfigBase } from './question-config.base';
-import { QuestionConfigOption, type IQuestionConfigOption } from './question-config-option';
+import { QuestionConfigOption, type IQuestionConfigOption, type IQuestionConfigOptionBase } from './question-config-option';
 import { validateQuestionOptions } from './validate-question-options';
 
 export interface IQuestionSingleChoiseConfig {
-	options: IQuestionConfigOption[];
+	options: IQuestionConfigOptionBase[];
 	answer: string;
 }
 
 export class QuestionConfigSingleChoise extends QuestionConfigBase<IQuestionSingleChoiseConfig> implements IQuestionSingleChoiseConfig {
-	public readonly type: string = 'single_choise';
+	public readonly type: string = 'single_choice';
 	options: IQuestionConfigOption[] = [];
 	answer: string;
 

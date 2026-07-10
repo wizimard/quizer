@@ -1,7 +1,7 @@
 import { Trim } from '@shared/http/trim.decorator';
 import { IsBoolean, IsDefined, IsString, MinLength } from 'class-validator';
 
-export class TestSettingsUpdateDto {
+export class TestSettingsUpdateRequestDto {
 	@IsDefined()
 	@IsString()
 	@Trim()
@@ -10,17 +10,17 @@ export class TestSettingsUpdateDto {
 
 	@IsDefined()
 	@IsBoolean()
-	isRequiredEmail: boolean;
+	required_email: boolean;
 
 	@IsDefined()
 	@IsBoolean()
-	isRequiredFirstName: boolean;
+	required_first_name: boolean;
 
 	@IsDefined()
 	@IsBoolean()
-	isRequiredLastName: boolean;
+	required_last_name: boolean;
 
 	@IsDefined()
 	@IsBoolean()
-	isShowAnswersAfterCompletion: boolean;
+	show_answers_after_completion: boolean;
 }

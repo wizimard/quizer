@@ -1,7 +1,7 @@
 import type { TestEntity } from '../../entities/test.entity';
-import type { ITestSchedulerPeriod } from '../entities/test-scheduler-period.interface';
 import type { TestModelGetPayload, TestSettingsModelGetPayload } from '@prisma/models';
 import type { TestModel, TestSchedulerPeriodModel, TestSettingsModel } from '@prisma/client';
+import type { TestSchedulerPeriod } from '@modules/test-management/entities/test-scheduler-period';
 
 export type TTestSettingsModelAll = TestSettingsModel &
 	TestSettingsModelGetPayload<{ select: { show_answers_after_completion: true; required_email: true; required_first_name: true; required_last_name: true } }>;
@@ -29,8 +29,8 @@ export interface ITestUpdateSettingsData {
 }
 
 export interface ITestUpdateSchedulerPeriodsData {
-	add?: Array<ITestSchedulerPeriod>;
-	update?: Array<ITestSchedulerPeriod>;
+	add?: Array<TestSchedulerPeriod>;
+	update?: Array<TestSchedulerPeriod>;
 	remove?: Array<number>;
 }
 

@@ -1,7 +1,7 @@
 import { Trim } from '@shared/http/trim.decorator';
 import { IsDefined, IsString } from 'class-validator';
 
-export class TestCreateDto {
+export class TestCreateRequestDto {
 	@IsDefined()
 	@IsString()
 	@Trim()

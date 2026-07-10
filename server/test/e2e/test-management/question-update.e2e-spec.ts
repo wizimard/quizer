@@ -199,8 +199,8 @@ describe('PATCH /api/question/:testId/questions/:questionId', () => {
 		expect(res.statusCode).toBe(200);
 		expect(res.body).toMatchObject({
 			id: questionRes.body.id,
-			testId: createRes.body.id,
-			sortKey: questionRes.body.sortKey,
+			test_id: createRes.body.id,
+			sort_key: questionRes.body.sort_key,
 			description: updatedDescription,
 			config: {
 				type: 'input',

@@ -84,19 +84,23 @@ describe('PATCH /api/test/:testId', () => {
 		expect(res.statusCode).toBe(200);
 		expect(res.body).toEqual({
 			id: createRes.body.id,
-			authorId: authUtils.userId,
+			author_id: authUtils.userId,
 			title: updatedTitle,
+			status: createRes.body.status,
 			questions: [],
 			settings: {
-				isRequiredEmail: false,
-				isRequiredFirstName: true,
-				isRequiredLastName: true,
-				isShowAnswersAfterCompletion: false,
+				is_required_email: false,
+				is_required_first_name: true,
+				is_required_last_name: true,
+				is_show_answers_after_completion: false,
 			},
-			updatedAt: expect.any(String),
-			createdAt: createRes.body.createdAt,
+			scheduler: {
+				periods: [],
+			},
+			updated_at: expect.any(String),
+			created_at: createRes.body.created_at,
 		});
-		expect(new Date(res.body.updatedAt).getTime()).toBeGreaterThanOrEqual(new Date(createRes.body.updatedAt).getTime());
+		expect(new Date(res.body.updated_at).getTime()).toBeGreaterThanOrEqual(new Date(createRes.body.updated_at).getTime());
 	});
 
 	it('trims title before updating a test', async () => {

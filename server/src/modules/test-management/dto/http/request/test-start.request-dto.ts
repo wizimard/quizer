@@ -1,6 +1,6 @@
 import { IsNumber, IsOptional } from 'class-validator';
 
-export class TestStartDto {
+export class TestStartRequestDto {
 	@IsOptional()
 	@IsNumber()
 	duration?: number;

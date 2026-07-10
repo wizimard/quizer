@@ -8,7 +8,7 @@ export const QuestionPersistenceMapper = {
 		return {
 			test_id: entity.testId.value,
 			description: entity.description,
-			config: QuestionConfigMapper.toPlain(entity.config) as JsonObject,
+			config: QuestionConfigMapper.toHttp(entity.config) as JsonObject,
 			sort_key: entity.sortKey,
 		};
 	},
@@ -16,7 +16,7 @@ export const QuestionPersistenceMapper = {
 	toUpdateData(entity: QuestionEntity): TestQuestionModelUpdateInput {
 		return {
 			description: entity.description,
-			config: QuestionConfigMapper.toPlain(entity.config) as JsonObject,
+			config: QuestionConfigMapper.toHttp(entity.config) as JsonObject,
 		};
 	},
 

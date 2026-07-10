@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import request from 'supertest';
+import request, { type Response } from 'supertest';
 import { getBoot, resetBoot } from '../../../src/main';
 import { Bootstrap } from '../../../src/app/bootstrap';
 import { AuthUtils } from '../common/auth.util';
@@ -12,6 +12,12 @@ let container: BootResult['container'];
 
 let authUtils: AuthUtils;
 let testUtils: TestUtils;
+
+const deleteTest = async (testId: string): Promise<Response> => {
+	const { accessToken } = await authUtils.login();
+
+	return request(application.app).delete(`/api/test/${testId}`).set('Authorization', `Bearer ${accessToken}`);
+};
 
 beforeAll(async () => {
 	const bootResult = await getBoot();
@@ -66,9 +72,8 @@ describe('DELETE /api/test/:testId', () => {
 
 	it('deletes a test', async () => {
 		const createRes = await testUtils.createTest('Test to delete');
-		const { accessToken } = await authUtils.login();
 
-		const res = await request(application.app).delete(`/api/test/${createRes.body.id}`).set('Authorization', `Bearer ${accessToken}`);
+		const res = await deleteTest(createRes.body.id);
 
 		expect(res.statusCode).toBe(204);
 		expect(res.body).toEqual({});
@@ -78,7 +83,7 @@ describe('DELETE /api/test/:testId', () => {
 		const createRes = await testUtils.createTest('Test to delete and verify');
 		const { accessToken } = await authUtils.login();
 
-		const deleteRes = await request(application.app).delete(`/api/test/${createRes.body.id}`).set('Authorization', `Bearer ${accessToken}`);
+		const deleteRes = await deleteTest(createRes.body.id);
 
 		expect(deleteRes.statusCode).toBe(204);
 
@@ -86,6 +91,33 @@ describe('DELETE /api/test/:testId', () => {
 
 		expect(getRes.statusCode).toBe(404);
 		expect(getRes.body.message).toBe('error.test_not_found');
+	});
+
+	it('does not return deleted test in list', async () => {
+		const createRes = await testUtils.createTest('Test to delete from list');
+		const { accessToken } = await authUtils.login();
+
+		const deleteRes = await deleteTest(createRes.body.id);
+
+		expect(deleteRes.statusCode).toBe(204);
+
+		const listRes = await request(application.app).get('/api/test').set('Authorization', `Bearer ${accessToken}`);
+
+		expect(listRes.statusCode).toBe(200);
+		expect(listRes.body.find((test: { id: string }) => test.id === createRes.body.id)).toBeUndefined();
+	});
+
+	it('returns 404 when deleting an already deleted test', async () => {
+		const createRes = await testUtils.createTest('Test to delete twice');
+
+		const firstDeleteRes = await deleteTest(createRes.body.id);
+
+		expect(firstDeleteRes.statusCode).toBe(204);
+
+		const secondDeleteRes = await deleteTest(createRes.body.id);
+
+		expect(secondDeleteRes.statusCode).toBe(404);
+		expect(secondDeleteRes.body.message).toBe('error.test_not_found');
 	});
 });
 

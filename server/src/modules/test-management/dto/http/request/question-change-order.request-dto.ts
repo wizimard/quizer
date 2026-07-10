@@ -1,16 +1,16 @@
 import { Trim } from '@shared/http/trim.decorator';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class QuestionChangeOrderDto {
+export class QuestionChangeOrderRequestDto {
 	@IsOptional()
 	@IsString()
 	@Trim()
 	@IsNotEmpty()
-	previousQuestionId: string | null;
+	previous_question_id: string | null;
 
 	@IsOptional()
 	@IsString()
 	@Trim()
 	@IsNotEmpty()
-	nextQuestionId: string | null;
+	next_question_id: string | null;
 }

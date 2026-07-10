@@ -2,7 +2,7 @@
     "openapi": "3.0.4",
     "info": {
         "title": "Quiz API",
-        "description": "API documentation generated from src/modules controllers and DTOs.",
+        "description": "API documentation generated from src/modules controllers and DTOs (test-management and identity-access).",
         "version": "0.0.1"
     },
     "servers": [
@@ -15,8 +15,7 @@
         { "name": "auth", "description": "identity-access" },
         { "name": "user", "description": "identity-access" },
         { "name": "test", "description": "test-management" },
-        { "name": "question", "description": "test-management" },
-        { "name": "test-execute", "description": "test-execution" }
+        { "name": "question", "description": "test-management" }
     ],
     "paths": {
         "/auth/login": {
@@ -121,6 +120,17 @@
                             }
                         }
                     },
+                    "401": { "description": "Unauthorized" }
+                }
+            }
+        },
+        "/user": {
+            "delete": {
+                "tags": ["user"],
+                "summary": "Delete authorized user",
+                "security": [{ "BearerAuth": [] }],
+                "responses": {
+                    "204": { "description": "No content" },
                     "401": { "description": "Unauthorized" }
                 }
             }
@@ -518,7 +528,7 @@
                     }
                 ],
                 "requestBody": {
-                    "required": true,
+                    "required": false,
                     "content": {
                         "application/json": {
                             "schema": { "$ref": "#/components/schemas/QuestionChangeOrderRequestBody" }
@@ -530,7 +540,10 @@
                         "description": "Question order changed",
                         "content": {
                             "application/json": {
-                                "schema": { "$ref": "#/components/schemas/TestResponse" }
+                                "schema": {
+                                    "type": "array",
+                                    "items": { "$ref": "#/components/schemas/QuestionResponse" }
+                                }
                             }
                         }
                     },
@@ -538,102 +551,6 @@
                     "403": { "description": "Forbidden" },
                     "404": { "description": "Not found" },
                     "422": { "description": "Validation failed" }
-                }
-            }
-        },
-        "/test-execute/{testId}": {
-            "get": {
-                "tags": ["test-execute"],
-                "summary": "Get test for execution",
-                "description": "Public test metadata for execution (no authentication required).",
-                "parameters": [
-                    {
-                        "name": "testId",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Test found",
-                        "content": {
-                            "application/json": {
-                                "schema": { "$ref": "#/components/schemas/TestExecuteResponse" }
-                            }
-                        }
-                    },
-                    "404": { "description": "Test not found" }
-                }
-            }
-        },
-        "/test-execute/{testId}/{questionId}": {
-            "get": {
-                "tags": ["test-execute"],
-                "summary": "Get question for execution",
-                "description": "Get a test question without the correct answer (no authentication required).",
-                "parameters": [
-                    {
-                        "name": "testId",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "questionId",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Question found",
-                        "content": {
-                            "application/json": {
-                                "schema": { "$ref": "#/components/schemas/QuestionExecuteResponse" }
-                            }
-                        }
-                    },
-                    "404": { "description": "Test or question not found" }
-                }
-            },
-            "post": {
-                "tags": ["test-execute"],
-                "summary": "Submit answer",
-                "description": "Evaluate a submitted answer for a test question (no authentication required).",
-                "parameters": [
-                    {
-                        "name": "testId",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    },
-                    {
-                        "name": "questionId",
-                        "in": "path",
-                        "required": true,
-                        "schema": { "type": "string" }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": { "$ref": "#/components/schemas/QuestionAnswerSubmitRequestBody" }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Answer evaluated",
-                        "content": {
-                            "application/json": {
-                                "schema": { "$ref": "#/components/schemas/AnswerEvaluationResponse" }
-                            }
-                        }
-                    },
-                    "404": { "description": "Test or question not found" }
                 }
             }
         }
@@ -670,7 +587,7 @@
                     "accessToken": { "type": "string" },
                     "user": {
                         "type": "object",
-                        "required": ["id","email"],
+                        "required": ["id", "email"],
                         "properties": {
                             "id": { "type": "string" },
                             "email": { "type": "string", "format": "email" }
@@ -700,15 +617,6 @@
                     "message": { "type": "string" }
                 }
             },
-            "QuestionConfigInput": {
-                "type": "object",
-                "required": ["answer", "ignore_case", "type"],
-                "properties": {
-                    "type": { "type": "string", "enum": ["input"] },
-                    "answer": { "type": "string" },
-                    "ignore_case": { "type": "boolean" }
-                }
-            },
             "QuestionConfigOption": {
                 "type": "object",
                 "required": ["id", "value"],
@@ -721,20 +629,29 @@
                 "type": "array",
                 "items": { "$ref": "#/components/schemas/QuestionConfigOption" }
             },
-            "QuestionConfigSingleChoise": {
+            "QuestionConfigInput": {
+                "type": "object",
+                "required": ["answer", "ignore_case", "type"],
+                "properties": {
+                    "type": { "type": "string", "enum": ["input"] },
+                    "answer": { "type": "string" },
+                    "ignore_case": { "type": "boolean" }
+                }
+            },
+            "QuestionConfigSingleChoice": {
                 "type": "object",
                 "required": ["answer", "options", "type"],
                 "properties": {
-                    "type": { "type": "string", "enum": ["single_choise"] },
+                    "type": { "type": "string", "enum": ["single_choice"] },
                     "answer": { "type": "string" },
                     "options": { "$ref": "#/components/schemas/QuestionConfigOptionArray" }
                 }
             },
-            "QuestionConfigMultipleChoise": {
+            "QuestionConfigMultipleChoice": {
                 "type": "object",
                 "required": ["answer", "options", "type"],
                 "properties": {
-                    "type": { "type": "string", "enum": ["multiple_choise"] },
+                    "type": { "type": "string", "enum": ["multiple_choice"] },
                     "answer": {
                         "type": "array",
                         "items": { "type": "string" }
@@ -765,8 +682,8 @@
             "QuestionRequestConfig": {
                 "oneOf": [
                     { "$ref": "#/components/schemas/QuestionConfigInput" },
-                    { "$ref": "#/components/schemas/QuestionConfigSingleChoise" },
-                    { "$ref": "#/components/schemas/QuestionConfigMultipleChoise" },
+                    { "$ref": "#/components/schemas/QuestionConfigSingleChoice" },
+                    { "$ref": "#/components/schemas/QuestionConfigMultipleChoice" },
                     { "$ref": "#/components/schemas/QuestionConfigOrder" }
                 ],
                 "discriminator": { "propertyName": "type" }
@@ -790,12 +707,12 @@
             "QuestionChangeOrderRequestBody": {
                 "type": "object",
                 "properties": {
-                    "previousQuestionId": {
+                    "previous_question_id": {
                         "type": "string",
                         "nullable": true,
                         "description": "ID of the question that should appear immediately before the moved question"
                     },
-                    "nextQuestionId": {
+                    "next_question_id": {
                         "type": "string",
                         "nullable": true,
                         "description": "ID of the question that should appear immediately after the moved question"
@@ -804,11 +721,11 @@
             },
             "QuestionResponse": {
                 "type": "object",
-                "required": ["id", "testId", "sortKey", "description", "config"],
+                "required": ["id", "test_id", "sort_key", "description", "config"],
                 "properties": {
                     "id": { "type": "string" },
-                    "testId": { "type": "string" },
-                    "sortKey": { "type": "number" },
+                    "test_id": { "type": "string" },
+                    "sort_key": { "type": "number" },
                     "description": { "type": "string" },
                     "config": { "$ref": "#/components/schemas/QuestionRequestConfig" }
                 }
@@ -816,39 +733,39 @@
             "TestSettings": {
                 "type": "object",
                 "required": [
-                    "isRequiredEmail",
-                    "isRequiredFirstName",
-                    "isRequiredLastName",
-                    "isShowAnswersAfterCompletion"
+                    "is_required_email",
+                    "is_required_first_name",
+                    "is_required_last_name",
+                    "is_show_answers_after_completion"
                 ],
                 "properties": {
-                    "isRequiredEmail": { "type": "boolean" },
-                    "isRequiredFirstName": { "type": "boolean" },
-                    "isRequiredLastName": { "type": "boolean" },
-                    "isShowAnswersAfterCompletion": { "type": "boolean" }
+                    "is_required_email": { "type": "boolean" },
+                    "is_required_first_name": { "type": "boolean" },
+                    "is_required_last_name": { "type": "boolean" },
+                    "is_show_answers_after_completion": { "type": "boolean" }
                 }
             },
             "TestResponseBase": {
                 "type": "object",
-                "required": ["id", "authorId", "status", "title", "updatedAt", "createdAt"],
+                "required": ["id", "author_id", "status", "title", "updated_at", "created_at"],
                 "properties": {
                     "id": { "type": "string" },
-                    "authorId": { "type": "string" },
+                    "author_id": { "type": "string" },
                     "status": {
                         "type": "string",
                         "enum": ["open", "open_by_scheduler", "closed"]
                     },
                     "title": { "type": "string" },
-                    "updatedAt": { "type": "string", "format": "date-time" },
-                    "createdAt": { "type": "string", "format": "date-time" }
+                    "updated_at": { "type": "string", "format": "date-time" },
+                    "created_at": { "type": "string", "format": "date-time" }
                 }
             },
             "TestResponse": {
                 "type": "object",
-                "required": ["id", "authorId", "status", "title", "questions", "settings", "updatedAt", "createdAt"],
+                "required": ["id", "author_id", "status", "title", "questions", "settings", "scheduler", "updated_at", "created_at"],
                 "properties": {
                     "id": { "type": "string" },
-                    "authorId": { "type": "string" },
+                    "author_id": { "type": "string" },
                     "status": {
                         "type": "string",
                         "enum": ["open", "open_by_scheduler", "closed"]
@@ -859,8 +776,9 @@
                         "items": { "$ref": "#/components/schemas/QuestionResponse" }
                     },
                     "settings": { "$ref": "#/components/schemas/TestSettings" },
-                    "updatedAt": { "type": "string", "format": "date-time" },
-                    "createdAt": { "type": "string", "format": "date-time" }
+                    "scheduler": { "$ref": "#/components/schemas/TestSchedulerResponse" },
+                    "updated_at": { "type": "string", "format": "date-time" },
+                    "created_at": { "type": "string", "format": "date-time" }
                 }
             },
             "TestCreateRequestBody": {
@@ -876,7 +794,15 @@
                     "title": { "type": "string" }
                 }
             },
-            "TestSchedulerPeriodDto": {
+            "TestSchedulerPeriodAddDto": {
+                "type": "object",
+                "required": ["available_from"],
+                "properties": {
+                    "available_from": { "type": "string", "format": "date-time" },
+                    "available_to": { "type": "string", "format": "date-time" }
+                }
+            },
+            "TestSchedulerPeriodEditDto": {
                 "type": "object",
                 "required": ["id", "available_from"],
                 "properties": {
@@ -891,12 +817,12 @@
                     "add": {
                         "type": "array",
                         "description": "Periods to create",
-                        "items": { "$ref": "#/components/schemas/TestSchedulerPeriodDto" }
+                        "items": { "$ref": "#/components/schemas/TestSchedulerPeriodAddDto" }
                     },
                     "update": {
                         "type": "array",
                         "description": "Existing periods to update",
-                        "items": { "$ref": "#/components/schemas/TestSchedulerPeriodDto" }
+                        "items": { "$ref": "#/components/schemas/TestSchedulerPeriodEditDto" }
                     },
                     "remove": {
                         "type": "array",
@@ -907,12 +833,12 @@
             },
             "TestSchedulerPeriodResponse": {
                 "type": "object",
-                "required": ["id", "testId", "availableFrom"],
+                "required": ["id", "test_id", "available_from"],
                 "properties": {
                     "id": { "type": "number" },
-                    "testId": { "type": "string" },
-                    "availableFrom": { "type": "string", "format": "date-time" },
-                    "availableTo": {
+                    "test_id": { "type": "string" },
+                    "available_from": { "type": "string", "format": "date-time" },
+                    "available_to": {
                         "type": "string",
                         "format": "date-time",
                         "nullable": true
@@ -933,17 +859,17 @@
                 "type": "object",
                 "required": [
                     "title",
-                    "isRequiredEmail",
-                    "isRequiredFirstName",
-                    "isRequiredLastName",
-                    "isShowAnswersAfterCompletion"
+                    "required_email",
+                    "required_first_name",
+                    "required_last_name",
+                    "show_answers_after_completion"
                 ],
                 "properties": {
                     "title": { "type": "string", "minLength": 3 },
-                    "isRequiredEmail": { "type": "boolean" },
-                    "isRequiredFirstName": { "type": "boolean" },
-                    "isRequiredLastName": { "type": "boolean" },
-                    "isShowAnswersAfterCompletion": { "type": "boolean" }
+                    "required_email": { "type": "boolean" },
+                    "required_first_name": { "type": "boolean" },
+                    "required_last_name": { "type": "boolean" },
+                    "show_answers_after_completion": { "type": "boolean" }
                 }
             },
             "TestStartRequestBody": {
@@ -953,98 +879,6 @@
                         "type": "number",
                         "description": "Test duration in seconds"
                     }
-                }
-            },
-            "TestExecuteResponse": {
-                "type": "object",
-                "required": ["id", "authorId", "title", "isOpen"],
-                "properties": {
-                    "id": { "type": "string" },
-                    "authorId": { "type": "string" },
-                    "title": { "type": "string" },
-                    "isOpen": { "type": "boolean" }
-                }
-            },
-            "QuestionExecuteConfigInput": {
-                "type": "object",
-                "required": ["type", "ignore_case"],
-                "properties": {
-                    "type": { "type": "string", "enum": ["input"] },
-                    "ignore_case": { "type": "boolean" }
-                }
-            },
-            "QuestionExecuteConfigSingleChoise": {
-                "type": "object",
-                "required": ["type", "options"],
-                "properties": {
-                    "type": { "type": "string", "enum": ["single_choise"] },
-                    "options": { "$ref": "#/components/schemas/QuestionConfigOptionArray" }
-                }
-            },
-            "QuestionExecuteConfigMultipleChoise": {
-                "type": "object",
-                "required": ["type", "options"],
-                "properties": {
-                    "type": { "type": "string", "enum": ["multiple_choise"] },
-                    "options": { "$ref": "#/components/schemas/QuestionConfigOptionArray" }
-                }
-            },
-            "QuestionExecuteConfigOrder": {
-                "type": "object",
-                "required": ["type", "options"],
-                "properties": {
-                    "type": { "type": "string", "enum": ["order"] },
-                    "options": { "$ref": "#/components/schemas/QuestionConfigOptionArray" }
-                }
-            },
-            "QuestionExecuteConfig": {
-                "oneOf": [
-                    { "$ref": "#/components/schemas/QuestionExecuteConfigInput" },
-                    { "$ref": "#/components/schemas/QuestionExecuteConfigSingleChoise" },
-                    { "$ref": "#/components/schemas/QuestionExecuteConfigMultipleChoise" },
-                    { "$ref": "#/components/schemas/QuestionExecuteConfigOrder" }
-                ],
-                "discriminator": { "propertyName": "type" }
-            },
-            "QuestionExecuteResponse": {
-                "type": "object",
-                "required": ["id", "testId", "description", "config"],
-                "properties": {
-                    "id": { "type": "string" },
-                    "testId": { "type": "string" },
-                    "description": { "type": "string" },
-                    "config": { "$ref": "#/components/schemas/QuestionExecuteConfig" }
-                }
-            },
-            "QuestionAnswerSubmitRequestBody": {
-                "type": "object",
-                "required": ["answer"],
-                "properties": {
-                    "answer": {
-                        "oneOf": [
-                            {
-                                "type": "string",
-                                "description": "For input and single_choise question types"
-                            },
-                            {
-                                "type": "array",
-                                "items": { "type": "string" },
-                                "description": "For multiple_choise question type"
-                            },
-                            {
-                                "type": "array",
-                                "items": { "$ref": "#/components/schemas/QuestionConfigOrderAnswerOption" },
-                                "description": "For order question type"
-                            }
-                        ]
-                    }
-                }
-            },
-            "AnswerEvaluationResponse": {
-                "type": "object",
-                "required": ["correct"],
-                "properties": {
-                    "correct": { "type": "boolean" }
                 }
             }
         }

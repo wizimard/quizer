@@ -89,17 +89,21 @@ describe('POST /api/test', () => {
 		expect(res.statusCode).toBe(201);
 		expect(res.body).toEqual({
 			id: expect.any(String),
-			authorId: authUtils.userId,
+			author_id: authUtils.userId,
 			title,
+			status: 'closed',
 			questions: [],
 			settings: {
-				isRequiredEmail: false,
-				isRequiredFirstName: true,
-				isRequiredLastName: true,
-				isShowAnswersAfterCompletion: false,
+				is_required_email: false,
+				is_required_first_name: true,
+				is_required_last_name: true,
+				is_show_answers_after_completion: false,
 			},
-			updatedAt: expect.any(String),
-			createdAt: expect.any(String),
+			scheduler: {
+				periods: [],
+			},
+			updated_at: expect.any(String),
+			created_at: expect.any(String),
 		});
 	});
 

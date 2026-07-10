@@ -134,12 +134,12 @@ describe('PATCH /api/test/:testId/scheduler/periods', () => {
 		expect(res.body.periods).toHaveLength(1);
 		expect(res.body.periods[0]).toMatchObject({
 			id: expect.any(Number),
-			testId: createRes.body.id,
-			availableFrom: expect.any(String),
-			availableTo: expect.any(String),
+			test_id: createRes.body.id,
+			available_from: expect.any(String),
+			available_to: expect.any(String),
 		});
-		expect(new Date(res.body.periods[0].availableFrom).toISOString()).toBe(new Date(availableFrom).toISOString());
-		expect(new Date(res.body.periods[0].availableTo).toISOString()).toBe(new Date(availableTo).toISOString());
+		expect(new Date(res.body.periods[0].available_from).toISOString()).toBe(new Date(availableFrom).toISOString());
+		expect(new Date(res.body.periods[0].available_to).toISOString()).toBe(new Date(availableTo).toISOString());
 	});
 
 	it('updates scheduler periods', async () => {
@@ -166,12 +166,12 @@ describe('PATCH /api/test/:testId/scheduler/periods', () => {
 		expect(res.body.periods).toHaveLength(1);
 		expect(res.body.periods[0]).toMatchObject({
 			id: periodId,
-			testId: createRes.body.id,
-			availableFrom: expect.any(String),
-			availableTo: expect.any(String),
+			test_id: createRes.body.id,
+			available_from: expect.any(String),
+			available_to: expect.any(String),
 		});
-		expect(new Date(res.body.periods[0].availableFrom).toISOString()).toBe(new Date(updatedFrom).toISOString());
-		expect(new Date(res.body.periods[0].availableTo).toISOString()).toBe(new Date(updatedTo).toISOString());
+		expect(new Date(res.body.periods[0].available_from).toISOString()).toBe(new Date(updatedFrom).toISOString());
+		expect(new Date(res.body.periods[0].available_to).toISOString()).toBe(new Date(updatedTo).toISOString());
 	});
 
 	it('removes scheduler periods', async () => {

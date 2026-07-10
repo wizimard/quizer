@@ -1,7 +1,6 @@
-import type { ITestSettings } from '../interfaces/entities/test-settings.interface';
 import type { TestId } from './value-object/test-id';
 
-export class TestSettings implements ITestSettings {
+export class TestSettings {
 	public readonly testId: TestId;
 	public isRequiredEmail: boolean;
 	public isRequiredFirstName: boolean;

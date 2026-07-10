@@ -7,8 +7,6 @@ import type { IPrismaService } from '@shared/persistence/prisma.service.interfac
 import { inject, injectable } from 'inversify';
 import { QuestionMapper } from '../mappers/question.mapper';
 import { QuestionPersistenceMapper } from '../mappers/repositories/question-persistence.mapper';
-import type { QuestionId } from '@modules/test-management/entities/value-object/question-id';
-import { TestId } from '@modules/test-management/entities/value-object/test-id';
 
 @injectable()
 export class PrismaQuestionRepository implements QuestionRepository {
@@ -44,11 +42,11 @@ export class PrismaQuestionRepository implements QuestionRepository {
 		return QuestionMapper.toDomain(row);
 	}
 
-	async delete(id: QuestionId, testId: TestId): Promise<boolean> {
+	async delete(id: string, testId: string): Promise<boolean> {
 		const rows = await repositoryCall(
 			() =>
 				this.prismaService.client.testQuestionModel.deleteMany({
-					where: { id: id.value, test_id: testId.value },
+					where: { id, test_id: testId },
 				}),
 			'PrismaQuestionRepository.delete',
 			this.logger,
@@ -57,13 +55,13 @@ export class PrismaQuestionRepository implements QuestionRepository {
 		return rows.count > 0;
 	}
 
-	async findById(id: QuestionId): Promise<QuestionEntity | null> {
-		const row = await repositoryCall(() => this.prismaService.client.testQuestionModel.findUnique({ where: { id: id.value } }), 'PrismaQuestionRepository.findById', this.logger);
+	async findById(id: string): Promise<QuestionEntity | null> {
+		const row = await repositoryCall(() => this.prismaService.client.testQuestionModel.findUnique({ where: { id } }), 'PrismaQuestionRepository.findById', this.logger);
 		return row ? QuestionMapper.toDomain(row) : null;
 	}
 
-	async findByTestId(testId: TestId): Promise<QuestionEntity[]> {
-		const rows = await repositoryCall(() => this.prismaService.client.testQuestionModel.findMany({ where: { test_id: testId.value } }), 'PrismaQuestionRepository.findByTestId', this.logger);
+	async findByTestId(testId: string): Promise<QuestionEntity[]> {
+		const rows = await repositoryCall(() => this.prismaService.client.testQuestionModel.findMany({ where: { test_id: testId } }), 'PrismaQuestionRepository.findByTestId', this.logger);
 		return rows.map((row) => QuestionMapper.toDomain(row));
 	}
 

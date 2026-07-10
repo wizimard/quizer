@@ -34,14 +34,22 @@ const createQuestion = async (testId: string, description: string): Promise<Resp
 	return request(application.app).post(`/api/question/${testId}/questions`).set('Authorization', `Bearer ${accessToken}`).send(questionPayload(description));
 };
 
-const changeQuestionOrder = async (testId: string, questionId: string, body: { previousQuestionId?: string | null; nextQuestionId?: string | null } = {}): Promise<Response> => {
+const changeQuestionOrder = async (testId: string, questionId: string, body: { previous_question_id?: string | null; next_question_id?: string | null } = {}): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
 	return request(application.app).patch(`/api/question/${testId}/questions/${questionId}/order`).set('Authorization', `Bearer ${accessToken}`).send(body);
 };
 
-const sortedQuestionIds = (questions: { id: string; sortKey: number }[]): string[] => {
-	return [...questions].sort((a, b) => a.sortKey - b.sortKey).map((question) => question.id);
+type QuestionResponseBody = {
+	id: string;
+	test_id: string;
+	sort_key: number;
+	description: string;
+	config: object;
+};
+
+const sortedQuestionIds = (questions: { id: string; sort_key: number }[]): string[] => {
+	return [...questions].sort((a, b) => a.sort_key - b.sort_key).map((question) => question.id);
 };
 
 beforeAll(async () => {
@@ -58,7 +66,7 @@ beforeAll(async () => {
 
 describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 	it('returns 401 without authorization', async () => {
-		const res = await request(application.app).patch(`/api/question/${randomUUID()}/questions/${randomUUID()}/order`).send({ previousQuestionId: randomUUID() });
+		const res = await request(application.app).patch(`/api/question/${randomUUID()}/questions/${randomUUID()}/order`).send({ previous_question_id: randomUUID() });
 
 		expect(res.statusCode).toBe(401);
 		expect(res.body.message).toBe('unauthorized');
@@ -68,7 +76,7 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 		const res = await request(application.app)
 			.patch(`/api/question/${randomUUID()}/questions/${randomUUID()}/order`)
 			.set('Authorization', 'Bearer invalid-token')
-			.send({ previousQuestionId: randomUUID() });
+			.send({ previous_question_id: randomUUID() });
 
 		expect(res.statusCode).toBe(401);
 		expect(res.body.message).toBe('unauthorized');
@@ -80,7 +88,7 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 		const res = await request(application.app)
 			.patch(`/api/question/${randomUUID()}/questions/${randomUUID()}/order`)
 			.set('Authorization', `Bearer ${accessToken}`)
-			.send({ previousQuestionId: randomUUID() });
+			.send({ previous_question_id: randomUUID() });
 
 		expect(res.statusCode).toBe(404);
 		expect(res.body.message).toBe('error.test_not_found');
@@ -97,7 +105,7 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 		const res = await request(application.app)
 			.patch(`/api/question/${createRes.body.id}/questions/${questionRes.body.id}/order`)
 			.set('Authorization', `Bearer ${accessToken}`)
-			.send({ previousQuestionId: questionRes.body.id });
+			.send({ previous_question_id: questionRes.body.id });
 
 		expect(res.statusCode).toBe(403);
 		expect(res.body.message).toBe('error.test_not_author');
@@ -112,7 +120,7 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 		const res = await request(application.app)
 			.patch(`/api/question/${createRes.body.id}/questions/${randomUUID()}/order`)
 			.set('Authorization', `Bearer ${accessToken}`)
-			.send({ previousQuestionId: randomUUID() });
+			.send({ previous_question_id: randomUUID() });
 
 		expect(res.statusCode).toBe(404);
 		expect(res.body.message).toBe('errors.question_not_found');
@@ -122,7 +130,7 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 		const createRes = await testUtils.createTest('Original title');
 		const questionRes = await createQuestion(createRes.body.id, 'Original question');
 
-		const res = await changeQuestionOrder(createRes.body.id, questionRes.body.id, { previousQuestionId: randomUUID() });
+		const res = await changeQuestionOrder(createRes.body.id, questionRes.body.id, { previous_question_id: randomUUID() });
 
 		expect(res.statusCode).toBe(422);
 		expect(res.body.message).toBe('previous_question_not_found');
@@ -132,13 +140,13 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 		const createRes = await testUtils.createTest('Original title');
 		const questionRes = await createQuestion(createRes.body.id, 'Original question');
 
-		const res = await changeQuestionOrder(createRes.body.id, questionRes.body.id, { nextQuestionId: randomUUID() });
+		const res = await changeQuestionOrder(createRes.body.id, questionRes.body.id, { next_question_id: randomUUID() });
 
 		expect(res.statusCode).toBe(422);
 		expect(res.body.message).toBe('next_question_not_found');
 	});
 
-	it('returns test unchanged when order payload is empty', async () => {
+	it('returns questions unchanged when order payload is empty', async () => {
 		const createRes = await testUtils.createTest('Original title');
 		const firstQuestionRes = await createQuestion(createRes.body.id, `First question ${Date.now()}`);
 		const secondQuestionRes = await createQuestion(createRes.body.id, `Second question ${Date.now()}`);
@@ -146,54 +154,50 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 		const res = await changeQuestionOrder(createRes.body.id, secondQuestionRes.body.id, {});
 
 		expect(res.statusCode).toBe(200);
-		expect(res.body.id).toBe(createRes.body.id);
-		expect(sortedQuestionIds(res.body.questions)).toEqual([firstQuestionRes.body.id, secondQuestionRes.body.id]);
+		expect(Array.isArray(res.body)).toBe(true);
+		expect(res.body).toHaveLength(2);
+		expect(sortedQuestionIds(res.body)).toEqual([firstQuestionRes.body.id, secondQuestionRes.body.id]);
 	});
 
-	it('changes question sortKey using nextQuestionId', async () => {
+	it('changes question sort_key using next question id', async () => {
 		const createRes = await testUtils.createTest('Original title');
 		const firstQuestionRes = await createQuestion(createRes.body.id, `First question ${Date.now()}`);
 		await createQuestion(createRes.body.id, `Second question ${Date.now()}`);
 		const thirdQuestionRes = await createQuestion(createRes.body.id, `Third question ${Date.now()}`);
 
 		const res = await changeQuestionOrder(createRes.body.id, firstQuestionRes.body.id, {
-			nextQuestionId: thirdQuestionRes.body.id,
+			next_question_id: thirdQuestionRes.body.id,
 		});
 
 		expect(res.statusCode).toBe(200);
-		expect(res.body.id).toBe(createRes.body.id);
+		expect(Array.isArray(res.body)).toBe(true);
+		expect(res.body).toHaveLength(3);
 
-		const movedQuestion = res.body.questions.find((question: { id: string }) => question.id === firstQuestionRes.body.id);
+		const movedQuestion = res.body.find((question: QuestionResponseBody) => question.id === firstQuestionRes.body.id);
 
-		expect(movedQuestion.sortKey).toBe(0);
-		expect(sortedQuestionIds(res.body.questions)).toEqual([
-			firstQuestionRes.body.id,
-			res.body.questions.find((question: { sortKey: number }) => question.sortKey === 2000)!.id,
-			thirdQuestionRes.body.id,
-		]);
+		expect(movedQuestion.sort_key).toBe(0);
+		expect(sortedQuestionIds(res.body)).toEqual([firstQuestionRes.body.id, res.body.find((question: QuestionResponseBody) => question.sort_key === 2000)!.id, thirdQuestionRes.body.id]);
 	});
 
-	it('returns updated test when changing order with previousQuestionId', async () => {
+	it('returns updated questions when changing order with previous question id', async () => {
 		const createRes = await testUtils.createTest('Original title');
 		const firstQuestionRes = await createQuestion(createRes.body.id, `First question ${Date.now()}`);
 		const secondQuestionRes = await createQuestion(createRes.body.id, `Second question ${Date.now()}`);
 		const thirdQuestionRes = await createQuestion(createRes.body.id, `Third question ${Date.now()}`);
 
 		const res = await changeQuestionOrder(createRes.body.id, thirdQuestionRes.body.id, {
-			previousQuestionId: firstQuestionRes.body.id,
+			previous_question_id: firstQuestionRes.body.id,
 		});
 
 		expect(res.statusCode).toBe(200);
-		expect(res.body).toMatchObject({
-			id: createRes.body.id,
-			title: createRes.body.title,
-		});
-		expect(res.body.questions).toHaveLength(3);
-		expect(res.body.questions.map((question: { sortKey: number }) => question.sortKey)).toEqual([1000, 2000, 3000]);
-		expect(sortedQuestionIds(res.body.questions)).toEqual([firstQuestionRes.body.id, secondQuestionRes.body.id, thirdQuestionRes.body.id]);
+		expect(Array.isArray(res.body)).toBe(true);
+		expect(res.body).toHaveLength(3);
+		expect(res.body.map((question: QuestionResponseBody) => question.test_id)).toEqual([createRes.body.id, createRes.body.id, createRes.body.id]);
+		expect(res.body.map((question: QuestionResponseBody) => question.sort_key)).toEqual([1000, 2000, 3000]);
+		expect(sortedQuestionIds(res.body)).toEqual([firstQuestionRes.body.id, secondQuestionRes.body.id, thirdQuestionRes.body.id]);
 	});
 
-	it('normalizes question sortKeys when gaps get too close', async () => {
+	it('normalizes question sort_keys when gaps get too close', async () => {
 		const createRes = await testUtils.createTest('Original title');
 		const questions: Response[] = [];
 
@@ -202,15 +206,16 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 		}
 
 		const res = await changeQuestionOrder(createRes.body.id, questions[4]!.body.id, {
-			previousQuestionId: questions[1]!.body.id,
+			previous_question_id: questions[1]!.body.id,
 		});
 
 		expect(res.statusCode).toBe(200);
-		expect(res.body.questions.map((question: { sortKey: number }) => question.sortKey)).toEqual([1000, 2000, 3000, 4000, 5000]);
-		expect(sortedQuestionIds(res.body.questions)).toEqual(questions.map((question) => question.body.id));
+		expect(Array.isArray(res.body)).toBe(true);
+		expect(res.body.map((question: QuestionResponseBody) => question.sort_key)).toEqual([1000, 2000, 3000, 4000, 5000]);
+		expect(sortedQuestionIds(res.body)).toEqual(questions.map((question) => question.body.id));
 	});
 
-	it('persists updated question sortKey', async () => {
+	it('persists updated question sort_key', async () => {
 		const createRes = await testUtils.createTest('Original title');
 		const firstQuestionRes = await createQuestion(createRes.body.id, `First question ${Date.now()}`);
 		await createQuestion(createRes.body.id, `Second question ${Date.now()}`);
@@ -218,7 +223,7 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 		const { accessToken } = await authUtils.login();
 
 		const changeRes = await changeQuestionOrder(createRes.body.id, firstQuestionRes.body.id, {
-			nextQuestionId: thirdQuestionRes.body.id,
+			next_question_id: thirdQuestionRes.body.id,
 		});
 
 		expect(changeRes.statusCode).toBe(200);
@@ -226,7 +231,7 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 		const getRes = await request(application.app).get(`/api/test/${createRes.body.id}`).set('Authorization', `Bearer ${accessToken}`);
 
 		expect(getRes.statusCode).toBe(200);
-		expect(getRes.body.questions.find((question: { id: string }) => question.id === firstQuestionRes.body.id).sortKey).toBe(0);
+		expect(getRes.body.questions.find((question: { id: string }) => question.id === firstQuestionRes.body.id).sort_key).toBe(0);
 	});
 });
 

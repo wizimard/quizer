@@ -73,17 +73,21 @@ describe('GET /api/test/:testId', () => {
 		expect(res.statusCode).toBe(200);
 		expect(res.body).toEqual({
 			id: createRes.body.id,
-			authorId: authUtils.userId,
+			author_id: authUtils.userId,
 			title: createRes.body.title,
+			status: createRes.body.status,
 			questions: [],
 			settings: {
-				isRequiredEmail: false,
-				isRequiredFirstName: true,
-				isRequiredLastName: true,
-				isShowAnswersAfterCompletion: false,
+				is_required_email: false,
+				is_required_first_name: true,
+				is_required_last_name: true,
+				is_show_answers_after_completion: false,
 			},
-			updatedAt: createRes.body.updatedAt,
-			createdAt: createRes.body.createdAt,
+			scheduler: {
+				periods: [],
+			},
+			updated_at: createRes.body.updated_at,
+			created_at: createRes.body.created_at,
 		});
 	});
 });
@@ -134,21 +138,23 @@ describe('GET /api/test', () => {
 			expect.arrayContaining([
 				{
 					id: firstTest.body.id,
-					authorId: authUtils.userId,
+					author_id: authUtils.userId,
 					title: firstTest.body.title,
-					updatedAt: firstTest.body.updatedAt,
-					createdAt: firstTest.body.createdAt,
+					status: firstTest.body.status,
+					updated_at: firstTest.body.updated_at,
+					created_at: firstTest.body.created_at,
 				},
 				{
 					id: secondTest.body.id,
-					authorId: authUtils.userId,
+					author_id: authUtils.userId,
 					title: secondTest.body.title,
-					updatedAt: secondTest.body.updatedAt,
-					createdAt: secondTest.body.createdAt,
+					status: secondTest.body.status,
+					updated_at: secondTest.body.updated_at,
+					created_at: secondTest.body.created_at,
 				},
 			]),
 		);
-		expect(res.body.every((test: { authorId: string }) => test.authorId === authUtils.userId)).toBe(true);
+		expect(res.body.every((test: { author_id: string }) => test.author_id === authUtils.userId)).toBe(true);
 
 		await testUtils.deleteTests();
 		await authUtils.deleteUser();

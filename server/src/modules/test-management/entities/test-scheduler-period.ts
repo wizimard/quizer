@@ -1,7 +1,6 @@
-import type { ITestSchedulerPeriod } from '../interfaces/entities/test-scheduler-period.interface';
 import type { TestId } from './value-object/test-id';
 
-export class TestSchedulerPeriod implements ITestSchedulerPeriod {
+export class TestSchedulerPeriod {
 	public readonly id: number;
 	public readonly testId: TestId;
 	public availableFrom: Date;

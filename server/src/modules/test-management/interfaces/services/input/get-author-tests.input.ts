@@ -1,3 +1,5 @@
+import type { UserId } from '@modules/identity-access';
+
 export interface GetAuthorTestsInput {
-	authorId: string;
+	authorId: UserId;
 }

@@ -1,12 +1,10 @@
-import type { QuestionEntity } from '../../entities/question.entity';
-import type { QuestionId } from '../../entities/value-object/question-id';
-import type { TestId } from '../../entities/value-object/test-id';
+import type { QuestionEntity } from '@modules/test-management/entities/question.entity';
 
 export interface QuestionRepository {
 	create(data: QuestionEntity): Promise<QuestionEntity>;
 	update(data: QuestionEntity): Promise<QuestionEntity>;
-	delete(id: QuestionId, testId: TestId): Promise<boolean>;
-	findById(id: QuestionId): Promise<QuestionEntity | null>;
-	findByTestId(testId: TestId): Promise<QuestionEntity[]>;
+	delete(id: string, testId: string): Promise<boolean>;
+	findById(id: string): Promise<QuestionEntity | null>;
+	findByTestId(testId: string): Promise<QuestionEntity[]>;
 	updateQuestionsOrders(questions: QuestionEntity[]): Promise<boolean>;
 }

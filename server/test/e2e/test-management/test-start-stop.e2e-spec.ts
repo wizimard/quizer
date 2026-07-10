@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import request from 'supertest';
+import request, { type Response } from 'supertest';
 import { getBoot, resetBoot } from '../../../src/main';
 import { Bootstrap } from '../../../src/app/bootstrap';
 import { AuthUtils } from '../common/auth.util';
@@ -18,6 +18,18 @@ type StartPayload = Partial<{ duration: number }>;
 const startPayload = (overrides: StartPayload = {}): StartPayload => ({
 	...overrides,
 });
+
+const startTest = async (testId: string, payload: StartPayload = {}): Promise<Response> => {
+	const { accessToken } = await authUtils.login();
+
+	return request(application.app).post(`/api/test/${testId}/start`).set('Authorization', `Bearer ${accessToken}`).send(startPayload(payload));
+};
+
+const finishTest = async (testId: string): Promise<Response> => {
+	const { accessToken } = await authUtils.login();
+
+	return request(application.app).post(`/api/test/${testId}/finish`).set('Authorization', `Bearer ${accessToken}`);
+};
 
 beforeAll(async () => {
 	const bootResult = await getBoot();
@@ -85,9 +97,8 @@ describe('POST /api/test/:testId/start', () => {
 
 	it('starts test without duration', async () => {
 		const createRes = await testUtils.createTest('Start test');
-		const { accessToken } = await authUtils.login();
 
-		const res = await request(application.app).post(`/api/test/${createRes.body.id}/start`).set('Authorization', `Bearer ${accessToken}`).send(startPayload());
+		const res = await startTest(createRes.body.id);
 
 		expect(res.statusCode).toBe(200);
 		expect(res.body).toEqual({ message: 'Test started successfully' });
@@ -95,12 +106,8 @@ describe('POST /api/test/:testId/start', () => {
 
 	it('starts test with duration', async () => {
 		const createRes = await testUtils.createTest('Start test with duration');
-		const { accessToken } = await authUtils.login();
 
-		const res = await request(application.app)
-			.post(`/api/test/${createRes.body.id}/start`)
-			.set('Authorization', `Bearer ${accessToken}`)
-			.send(startPayload({ duration: 3600 }));
+		const res = await startTest(createRes.body.id, { duration: 3600 });
 
 		expect(res.statusCode).toBe(200);
 		expect(res.body).toEqual({ message: 'Test started successfully' });
@@ -148,9 +155,8 @@ describe('POST /api/test/:testId/finish', () => {
 
 	it('returns not finished when test has no active session', async () => {
 		const createRes = await testUtils.createTest('Finish without start');
-		const { accessToken } = await authUtils.login();
 
-		const res = await request(application.app).post(`/api/test/${createRes.body.id}/finish`).set('Authorization', `Bearer ${accessToken}`);
+		const res = await finishTest(createRes.body.id);
 
 		expect(res.statusCode).toBe(200);
 		expect(res.body).toEqual({ message: 'Test not finished' });
@@ -158,14 +164,13 @@ describe('POST /api/test/:testId/finish', () => {
 
 	it('finishes an active test session', async () => {
 		const createRes = await testUtils.createTest('Finish active session');
-		const { accessToken } = await authUtils.login();
 
-		const startRes = await request(application.app).post(`/api/test/${createRes.body.id}/start`).set('Authorization', `Bearer ${accessToken}`).send(startPayload());
+		const startRes = await startTest(createRes.body.id);
 
 		expect(startRes.statusCode).toBe(200);
 		expect(startRes.body).toEqual({ message: 'Test started successfully' });
 
-		const finishRes = await request(application.app).post(`/api/test/${createRes.body.id}/finish`).set('Authorization', `Bearer ${accessToken}`);
+		const finishRes = await finishTest(createRes.body.id);
 
 		expect(finishRes.statusCode).toBe(200);
 		expect(finishRes.body).toEqual({ message: 'Test finished successfully' });
@@ -173,16 +178,15 @@ describe('POST /api/test/:testId/finish', () => {
 
 	it('returns not finished when finishing an already finished session', async () => {
 		const createRes = await testUtils.createTest('Finish twice');
-		const { accessToken } = await authUtils.login();
 
-		await request(application.app).post(`/api/test/${createRes.body.id}/start`).set('Authorization', `Bearer ${accessToken}`).send(startPayload());
+		await startTest(createRes.body.id);
 
-		const firstFinishRes = await request(application.app).post(`/api/test/${createRes.body.id}/finish`).set('Authorization', `Bearer ${accessToken}`);
+		const firstFinishRes = await finishTest(createRes.body.id);
 
 		expect(firstFinishRes.statusCode).toBe(200);
 		expect(firstFinishRes.body).toEqual({ message: 'Test finished successfully' });
 
-		const secondFinishRes = await request(application.app).post(`/api/test/${createRes.body.id}/finish`).set('Authorization', `Bearer ${accessToken}`);
+		const secondFinishRes = await finishTest(createRes.body.id);
 
 		expect(secondFinishRes.statusCode).toBe(200);
 		expect(secondFinishRes.body).toEqual({ message: 'Test not finished' });

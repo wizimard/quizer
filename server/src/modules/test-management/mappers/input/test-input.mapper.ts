@@ -1,8 +1,8 @@
-import type { TestCreateDto } from '../../dto/http/test-create.dto';
-import type { TestSettingsUpdateDto } from '../../dto/http/test-settings-update.dto';
-import type { TestSchedulerPeriodsEditDto } from '../../dto/http/test-scheduler-periods-edit.dto';
-import type { TestUpdateDto } from '../../dto/http/test-update.dto';
-import type { TestStartDto } from '../../dto/http/test-start.dto';
+import type { TestCreateRequestDto } from '../../dto/http/request/test-create.request-dto';
+import type { TestSettingsUpdateRequestDto } from '../../dto/http/request/test-settings-update.request-dto';
+import type { TestSchedulerPeriodsEditRequestDto } from '../../dto/http/request/test-scheduler-periods-edit.request-dto';
+import type { TestUpdateRequestDto } from '../../dto/http/request/test-update.request-dto';
+import type { TestStartRequestDto } from '../../dto/http/request/test-start.request-dto';
 import type { TestEntity } from '../../entities/test.entity';
 import type { FinishTestInput } from '@modules/test-execution/types/finish-test.input';
 import type { StartTestInput } from '@modules/test-execution/types/start-test.input';
@@ -11,16 +11,33 @@ import type { UpdateTestSchedulerInput } from '@modules/test-management/interfac
 import type { UpdateTestSettingsInput } from '@modules/test-management/interfaces/services/input/update-test-settings.input';
 import type { UpdateTestInput } from '@modules/test-management/interfaces/services/input/update-test.input';
 import type { DeleteTestInput } from '@modules/test-management/interfaces/services/input/delete-test.input';
+import type { GetTestByIdInput } from '@modules/test-management/interfaces/services/input/get-test-by-id.input';
+import type { GetAuthorTestsInput } from '@modules/test-management/interfaces/services/input/get-author-tests.input';
+import { TestId } from '@modules/test-management';
+import { UserId } from '@modules/identity-access';
 
-export class TestRequestMapper {
-	static toCreateInput(dto: TestCreateDto, authorId: string): CreateTestInput {
+export class TestInputMapper {
+	static toGetByIdInput(testId: string, userId: string): GetTestByIdInput {
 		return {
-			title: dto.title,
-			authorId,
+			testId: TestId.of(testId),
+			userId: UserId.of(userId),
 		};
 	}
 
-	static toUpdateInput(test: TestEntity, dto: TestUpdateDto): UpdateTestInput {
+	static toGetByAuthorInput(authorId: string): GetAuthorTestsInput {
+		return {
+			authorId: UserId.of(authorId),
+		};
+	}
+
+	static toCreateInput(dto: TestCreateRequestDto, authorId: string): CreateTestInput {
+		return {
+			title: dto.title,
+			authorId: UserId.of(authorId),
+		};
+	}
+
+	static toUpdateInput(test: TestEntity, dto: TestUpdateRequestDto): UpdateTestInput {
 		const input: UpdateTestInput = {
 			test,
 			changes: {},
@@ -35,23 +52,23 @@ export class TestRequestMapper {
 
 	static toDeleteInput(test: TestEntity): DeleteTestInput {
 		return {
-			testId: test.id.value,
-			authorId: test.authorId.value,
+			testId: test.id,
+			authorId: test.authorId,
 		};
 	}
 
-	static toUpdateSettingsInput(test: TestEntity, dto: TestSettingsUpdateDto): UpdateTestSettingsInput {
+	static toUpdateSettingsInput(test: TestEntity, dto: TestSettingsUpdateRequestDto): UpdateTestSettingsInput {
 		return {
 			test,
 			title: dto.title,
-			isRequiredEmail: dto.isRequiredEmail,
-			isRequiredFirstName: dto.isRequiredFirstName,
-			isRequiredLastName: dto.isRequiredLastName,
-			isShowAnswersAfterCompletion: dto.isShowAnswersAfterCompletion,
+			isRequiredEmail: dto.required_email,
+			isRequiredFirstName: dto.required_first_name,
+			isRequiredLastName: dto.required_last_name,
+			isShowAnswersAfterCompletion: dto.show_answers_after_completion,
 		};
 	}
 
-	static toUpdateSchedulerPeriodsInput(test: TestEntity, dto: TestSchedulerPeriodsEditDto): UpdateTestSchedulerInput {
+	static toUpdateSchedulerPeriodsInput(test: TestEntity, dto: TestSchedulerPeriodsEditRequestDto): UpdateTestSchedulerInput {
 		const input: UpdateTestSchedulerInput = {
 			test,
 			schedulerPeriods: {},
@@ -87,19 +104,19 @@ export class TestRequestMapper {
 		return input;
 	}
 
-	static toStartCommand(test: TestEntity, dto: TestStartDto): StartTestInput {
-		const command: StartTestInput = {
+	static toStartInput(test: TestEntity, dto: TestStartRequestDto): StartTestInput {
+		const startInput: StartTestInput = {
 			test,
 		};
 
 		if (dto.duration) {
-			command.finishedAt = new Date(Date.now() + dto.duration * 1000);
+			startInput.finishedAt = new Date(Date.now() + dto.duration * 1000);
 		}
 
-		return command;
+		return startInput;
 	}
 
-	static toFinishCommand(test: TestEntity): FinishTestInput {
+	static toFinishInput(test: TestEntity): FinishTestInput {
 		return {
 			test,
 		};
