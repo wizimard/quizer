@@ -1,128 +1,122 @@
-// import request from 'supertest';
-// import { getBoot, resetBoot } from '../../../src/main';
-// import { Bootstrap } from '../../../src/app/bootstrap';
+import request from 'supertest';
+import { getBoot, resetBoot } from '../../../src/main';
+import { Bootstrap } from '../../../src/app/bootstrap';
+import { AuthUtils } from '../common/auth.util';
+import { TestUtils } from '../common/test.util';
 
-// type BootResult = Awaited<ReturnType<typeof getBoot>>;
+type BootResult = Awaited<ReturnType<typeof getBoot>>;
 
-// let application: BootResult['app'];
-// let container: BootResult['container'];
+let application: BootResult['app'];
+let container: BootResult['container'];
 
-// const uniqueEmail = (): string => `user-${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`;
-// const defaultPassword = 'password123';
+let authUtils: AuthUtils;
 
-// const createAuthenticatedUser = async (): Promise<{ accessToken: string; userId: string }> => {
-// 	const email = uniqueEmail();
+let testUtils: TestUtils;
 
-// 	const registerRes = await request(application.app).post('/api/auth/register').send({ email, password: defaultPassword });
+beforeAll(async () => {
+	const bootResult = await getBoot();
+	application = bootResult.app;
+	container = bootResult.container;
 
-// 	const meRes = await request(application.app).get('/api/user/me').set('Authorization', `Bearer ${registerRes.body.accessToken}`);
+	authUtils = new AuthUtils(application);
 
-// 	return {
-// 		accessToken: registerRes.body.accessToken,
-// 		userId: meRes.body.id,
-// 	};
-// };
+	await authUtils.register();
 
-// beforeAll(async () => {
-// 	const bootResult = await getBoot();
-// 	application = bootResult.app;
-// 	container = bootResult.container;
-// });
+	testUtils = new TestUtils(application, authUtils);
+});
 
-// describe('POST /api/test', () => {
-// 	it('returns 401 without authorization', async () => {
-// 		const res = await request(application.app).post('/api/test').send({ title: 'My test' });
+describe('POST /api/test', () => {
+	it('returns 401 without authorization', async () => {
+		const res = await request(application.app).post('/api/test').send({ title: 'My test' });
 
-// 		expect(res.statusCode).toBe(401);
-// 		expect(res.body.message).toBe('unauthorized');
-// 	});
+		expect(res.statusCode).toBe(401);
+		expect(res.body.message).toBe('unauthorized');
+	});
 
-// 	it('returns 401 with invalid access token', async () => {
-// 		const res = await request(application.app).post('/api/test').set('Authorization', 'Bearer invalid-token').send({ title: 'My test' });
+	it('returns 401 with invalid access token', async () => {
+		const res = await request(application.app).post('/api/test').set('Authorization', 'Bearer invalid-token').send({ title: 'My test' });
 
-// 		expect(res.statusCode).toBe(401);
-// 		expect(res.body.message).toBe('unauthorized');
-// 	});
+		expect(res.statusCode).toBe(401);
+		expect(res.body.message).toBe('unauthorized');
+	});
 
-// 	it('returns 422 for missing title', async () => {
-// 		const { accessToken } = await createAuthenticatedUser();
+	it('returns 422 for missing title', async () => {
+		const { accessToken } = await authUtils.login();
 
-// 		const res = await request(application.app).post('/api/test').set('Authorization', `Bearer ${accessToken}`).send({});
+		const res = await request(application.app).post('/api/test').set('Authorization', `Bearer ${accessToken}`).send({});
 
-// 		expect(res.statusCode).toBe(422);
-// 		expect(res.body.message).toBe('validation_failed');
-// 	});
+		expect(res.statusCode).toBe(422);
+		expect(res.body.message).toBe('validation_failed');
+	});
 
-// 	it('returns 422 for invalid title type', async () => {
-// 		const { accessToken } = await createAuthenticatedUser();
+	it('returns 422 for invalid title type', async () => {
+		const { accessToken } = await authUtils.login();
 
-// 		const res = await request(application.app).post('/api/test').set('Authorization', `Bearer ${accessToken}`).send({ title: 123 });
+		const res = await request(application.app).post('/api/test').set('Authorization', `Bearer ${accessToken}`).send({ title: 123 });
 
-// 		expect(res.statusCode).toBe(422);
-// 		expect(res.body.message).toBe('validation_failed');
-// 	});
+		expect(res.statusCode).toBe(422);
+		expect(res.body.message).toBe('validation_failed');
+	});
 
-// 	it('returns 422 for empty title', async () => {
-// 		const { accessToken } = await createAuthenticatedUser();
+	it('returns 422 for empty title', async () => {
+		const { accessToken } = await authUtils.login();
 
-// 		const res = await request(application.app).post('/api/test').set('Authorization', `Bearer ${accessToken}`).send({ title: '' });
+		const res = await request(application.app).post('/api/test').set('Authorization', `Bearer ${accessToken}`).send({ title: '' });
 
-// 		expect(res.statusCode).toBe(422);
-// 		expect(res.body.message).toBe('error.test_validation_failed');
-// 		expect(res.body.errors).toEqual(
-// 			expect.objectContaining({
-// 				errors: expect.arrayContaining([expect.objectContaining({ path: 'title', message: 'empty_title' })]),
-// 			}),
-// 		);
-// 	});
+		expect(res.statusCode).toBe(422);
+		expect(res.body.message).toBe('error.test_validation_failed');
+		expect(res.body.errors).toEqual(
+			expect.objectContaining({
+				errors: expect.arrayContaining([expect.objectContaining({ path: 'title', message: 'empty_title' })]),
+			}),
+		);
+	});
 
-// 	it('returns 422 for whitespace-only title', async () => {
-// 		const { accessToken } = await createAuthenticatedUser();
+	it('returns 422 for whitespace-only title', async () => {
+		const { accessToken } = await authUtils.login();
 
-// 		const res = await request(application.app).post('/api/test').set('Authorization', `Bearer ${accessToken}`).send({ title: '   ' });
+		const res = await request(application.app).post('/api/test').set('Authorization', `Bearer ${accessToken}`).send({ title: '   ' });
 
-// 		expect(res.statusCode).toBe(422);
-// 		expect(res.body.message).toBe('error.test_validation_failed');
-// 	});
+		expect(res.statusCode).toBe(422);
+		expect(res.body.message).toBe('error.test_validation_failed');
+	});
 
-// 	it('creates a test', async () => {
-// 		const { accessToken, userId } = await createAuthenticatedUser();
-// 		const title = `Test ${Date.now()}`;
+	it('creates a test', async () => {
+		const title = `Test ${Date.now()}`;
 
-// 		const res = await request(application.app).post('/api/test').set('Authorization', `Bearer ${accessToken}`).send({ title });
+		const res = await testUtils.createTest(title);
 
-// 		expect(res.statusCode).toBe(201);
-// 		expect(res.body).toEqual({
-// 			id: expect.any(String),
-// 			authorId: userId,
-// 			title,
-// 			questions: [],
-// 			settings: {
-// 				isRequiredEmail: false,
-// 				isRequiredFirstName: false,
-// 				isRequiredLastName: false,
-// 				isShowAnswersAfterCompletion: false,
-// 			},
-// 			updatedAt: expect.any(String),
-// 			createdAt: expect.any(String),
-// 		});
-// 	});
+		expect(res.statusCode).toBe(201);
+		expect(res.body).toEqual({
+			id: expect.any(String),
+			authorId: authUtils.userId,
+			title,
+			questions: [],
+			settings: {
+				isRequiredEmail: false,
+				isRequiredFirstName: true,
+				isRequiredLastName: true,
+				isShowAnswersAfterCompletion: false,
+			},
+			updatedAt: expect.any(String),
+			createdAt: expect.any(String),
+		});
+	});
 
-// 	it('trims title before creating a test', async () => {
-// 		const { accessToken } = await createAuthenticatedUser();
-// 		const title = `Trimmed test ${Date.now()}`;
+	it('trims title before creating a test', async () => {
+		const title = `Trimmed test ${Date.now()}`;
 
-// 		const res = await request(application.app)
-// 			.post('/api/test')
-// 			.set('Authorization', `Bearer ${accessToken}`)
-// 			.send({ title: `  ${title}  ` });
+		const res = await testUtils.createTest(`  ${title}  `);
 
-// 		expect(res.statusCode).toBe(201);
-// 		expect(res.body.title).toBe(title);
-// 	});
-// });
+		expect(res.statusCode).toBe(201);
+		expect(res.body.title).toBe(title);
+	});
+});
 
-// afterAll(async () => {
-// 	await Bootstrap.stop(application, container);
-// 	resetBoot();
-// });
+afterAll(async () => {
+	await testUtils.deleteTests();
+	await authUtils.deleteUser();
+
+	await Bootstrap.stop(application, container);
+	resetBoot();
+});

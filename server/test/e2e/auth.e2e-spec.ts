@@ -58,7 +58,7 @@ describe('Auth e2e', () => {
 
 			expect(res.statusCode).toBe(201);
 			expect(res.body.accessToken).toEqual(expect.any(String));
-			expect(res.body.user).toEqual({ email });
+			expect(res.body.user).toEqual({ id: expect.any(String), email });
 			expect(res.headers['set-cookie']).toEqual(expect.arrayContaining([expect.stringMatching(/^refreshToken=/)]));
 		});
 
@@ -118,7 +118,7 @@ describe('Auth e2e', () => {
 
 			expect(res.statusCode).toBe(200);
 			expect(res.body.accessToken).toEqual(expect.any(String));
-			expect(res.body.user).toEqual({ email });
+			expect(res.body.user).toEqual({ id: expect.any(String), email });
 			expect(res.headers['set-cookie']).toEqual(expect.arrayContaining([expect.stringMatching(/^refreshToken=/)]));
 		});
 	});
