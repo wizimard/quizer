@@ -1,6 +1,6 @@
 import type { IQuestionResponse } from './question-response.interface';
-import type { ITestSettings } from '../../interfaces/entities/test-settings.interface';
 import type { TestStatus } from '@modules/test-management/entities/test.entity';
+import type { ITestSettingsResponse } from './test-settings-response.interface';
 
 export interface ITestResponseBase {
 	id: string;
@@ -13,5 +13,5 @@ export interface ITestResponseBase {
 
 export interface ITestResponse extends ITestResponseBase {
 	questions: Array<IQuestionResponse>;
-	settings: ITestSettings;
+	settings: ITestSettingsResponse;
 }

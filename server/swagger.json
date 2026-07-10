@@ -670,8 +670,9 @@
                     "accessToken": { "type": "string" },
                     "user": {
                         "type": "object",
-                        "required": ["email"],
+                        "required": ["id","email"],
                         "properties": {
+                            "id": { "type": "string" },
                             "email": { "type": "string", "format": "email" }
                         }
                     }

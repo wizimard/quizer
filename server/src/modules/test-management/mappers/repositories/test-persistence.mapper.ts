@@ -22,7 +22,9 @@ export const TestPersistenceMapper = {
 		return {
 			title: entity.title,
 			author_id: entity.authorId.value,
-			test_settings: {},
+			test_settings: {
+				create: {},
+			},
 		};
 	},
 
@@ -33,15 +35,17 @@ export const TestPersistenceMapper = {
 	},
 
 	toSettingsUpdateInput(updateSettingsData: ITestUpdateSettingsData): TestModelUpdateArgs['data'] {
+		const settingsData = {
+			show_answers_after_completion: updateSettingsData.isShowAnswersAfterCompletion,
+			required_email: updateSettingsData.isRequiredEmail,
+			required_first_name: updateSettingsData.isRequiredFirstName,
+			required_last_name: updateSettingsData.isRequiredLastName,
+		};
+
 		return {
 			title: updateSettingsData.title,
 			test_settings: {
-				update: {
-					show_answers_after_completion: updateSettingsData.isShowAnswersAfterCompletion,
-					required_email: updateSettingsData.isRequiredEmail,
-					required_first_name: updateSettingsData.isRequiredFirstName,
-					required_last_name: updateSettingsData.isRequiredLastName,
-				},
+				update: settingsData,
 			},
 		};
 	},

@@ -9,7 +9,12 @@ export class TestResponseMapper {
 			status: dto.status,
 			title: dto.title,
 			questions: dto.questions,
-			settings: dto.settings,
+			settings: {
+				isRequiredEmail: dto.settings.isRequiredEmail,
+				isRequiredFirstName: dto.settings.isRequiredFirstName,
+				isRequiredLastName: dto.settings.isRequiredLastName,
+				isShowAnswersAfterCompletion: dto.settings.isShowAnswersAfterCompletion,
+			},
 			updatedAt: dto.updatedAt,
 			createdAt: dto.createdAt,
 		};

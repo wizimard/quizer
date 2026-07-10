@@ -14,7 +14,7 @@ export class PrismaTestExecutionRepository implements TestExecutionRepository {
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
 	) {}
 
-	async startTest(testId: string, finishedAt?: Date): Promise<TestSessionModel> {
+	async startTest(testId: string, finishedAt?: Date): Promise<TestSessionModel | null> {
 		const row: TestSessionModel | null = await repositoryCall(
 			() =>
 				this.prismaService.client.testSessionModel.create({

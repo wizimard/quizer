@@ -148,14 +148,14 @@ export class TestController extends BaseController {
 	}
 
 	async startTest(req: Request<ParamsDictionary, any, TestStartDto>, res: Response, _next: NextFunction): Promise<void> {
-		await this.testSessionService.startTest(TestRequestMapper.toStartCommand(req.test!, req.body));
+		const isStarted: boolean = await this.testSessionService.startTest(TestRequestMapper.toStartCommand(req.test!, req.body));
 
-		this.ok(res, { message: 'Test started successfully' });
+		this.ok(res, { message: isStarted ? 'Test started successfully' : 'Test not started' });
 	}
 
 	async finishTest(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		await this.testSessionService.finishTest(TestRequestMapper.toFinishCommand(req.test!));
+		const isFinished: boolean = await this.testSessionService.finishTest(TestRequestMapper.toFinishCommand(req.test!));
 
-		this.ok(res, { message: 'Test finished successfully' });
+		this.ok(res, { message: isFinished ? 'Test finished successfully' : 'Test not finished' });
 	}
 }
