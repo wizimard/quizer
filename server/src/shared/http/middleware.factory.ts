@@ -6,6 +6,7 @@ import type { IMiddleware } from './middleware.interface';
 import type { IMiddlewareFactory } from './middleware.factory.interface';
 import { ValidateMiddleware } from './validate.middleware';
 
+// TODO: review
 @injectable()
 export class MiddlewareFactory implements IMiddlewareFactory {
 	constructor(

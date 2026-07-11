@@ -55,11 +55,11 @@
 			}
 		}
 	},
-	"quiz_list": {
+	"test_list": {
 		"title": "Ваши тесты",
 		"add_button": "Добавить тест"
 	},
-	"quiz": {
+	"test": {
 		"title": "Тест:",
 		"questions": "Вопросы",
 		"add_question_button": "Добавить вопрос",
@@ -83,7 +83,7 @@
 		"single_choise": "Выбор единственного значения",
 		"multiple_choise": "Выбор множества значений"
 	},
-	"quiz_scheduler_form": {
+	"test_scheduler_form": {
 		"title": "Периоды доступности теста",
 		"period": {
 			"title": "Период",
@@ -100,7 +100,7 @@
 		},
 		"button_add": "Добавить период"
 	},
-	"quiz_general_settings_form": {
+	"test_general_settings_form": {
 		"title": {
 			"label": "Название теста",
 			"placeholder": "Введите название теста"
@@ -128,7 +128,7 @@
 			"title_min_length": "Название теста должно быть не менее 3 символов"
 		}
 	},
-	"quiz_delete": {
+	"test_delete": {
 		"button": "Удалить тест"
 	},
 	"question_delete": {
@@ -176,7 +176,12 @@
 	"errors": {
 		"unknown_error": "Произошла неизвестная ошибка",
 		"question_not_found": "Вопрос не найден",
-		"quiz_not_found": "Тест не найден"
+		"test_not_found": "Тест не найден",
+		"scheduler_update_periods_time": "Запрещено менять периоды, запланированные на ближайшее время",
+		"scheduler.period_not_found": "Период не найден",
+		"test_not_author": "Вам запрещено в доступе к тесту",
+		"test_validation_failed": "Ошибка валидации",
+		"unknown_question_type": "Неподерживаемый тип вопроса"
 	},
 	"not_found": {
 		"title": "Страница не найдена",

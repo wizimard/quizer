@@ -30,7 +30,7 @@ export const appRoutes: IAppRoutes = {
 	],
 	private: [
 		{
-			path: "/quiz/:id",
+			path: "/test/:id",
 			element: TestPage,
 		},
 		{

@@ -42,5 +42,6 @@ export interface TestRepository {
 	findFullById(id: string): Promise<TestEntity | null>;
 	findByAuthor(authorId: string): Promise<TestEntity[]>;
 	updateSettings(testId: string, updateSettingsData: ITestUpdateSettingsData): Promise<TestEntity>;
+	getScheduler(testId: string): Promise<Array<TestSchedulerPeriodModel>>;
 	updateSchedulerPeriods(testId: string, updateData: ITestUpdateSchedulerPeriodsData): Promise<Array<TestSchedulerPeriodModel>>;
 }

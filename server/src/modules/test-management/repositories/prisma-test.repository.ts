@@ -136,6 +136,19 @@ export class PrismaTestRepository implements TestRepository {
 		return TestMapper.toDomain(row);
 	}
 
+	async getScheduler(testId: string): Promise<Array<TestSchedulerPeriodModel>> {
+		const rows: Array<TestSchedulerPeriodModel> = await repositoryCall(
+			() =>
+				this.prismaService.client.testSchedulerPeriodModel.findMany({
+					where: { test_id: testId },
+				}),
+			'PrismaTestRepository.getScheduler',
+			this.logger,
+		);
+
+		return rows;
+	}
+
 	async updateSchedulerPeriods(testId: string, data: ITestUpdateSchedulerPeriodsData): Promise<Array<TestSchedulerPeriodModel>> {
 		const rows = await repositoryCall(
 			() => {

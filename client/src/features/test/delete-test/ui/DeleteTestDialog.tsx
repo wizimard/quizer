@@ -22,7 +22,7 @@ export const DeleteTestDialog = ({ testId, isOpen, handleClose }: DeleteTestDial
 
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-	const quizDeleteMutation = useMutation({
+	const testDeleteMutation = useMutation({
 		mutationFn: (testId: string) => testApi.testTestIdDelete(testId),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["tests"] });
@@ -41,14 +41,14 @@ export const DeleteTestDialog = ({ testId, isOpen, handleClose }: DeleteTestDial
 	const handleRemove = async () => {
 		setErrorMessage(null);
 
-		quizDeleteMutation.mutate(testId);
+		testDeleteMutation.mutate(testId);
 	};
 
 	return (
 		<Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
 			<DialogContent showCloseButton={false} className="h-[300px] flex flex-col items-center gap-2.5">
-				<Text className="text-[150%]">{t("quiz.delete_modal.title")}</Text>
-				<img src="/quiz_card_img.png" alt="quiz image" className="w-[150px] shrink-0" />
+				<Text className="text-[150%]">{t("test.delete_modal.title")}</Text>
+				<img src="/test_card_img.png" alt="test image" className="w-[150px] shrink-0" />
 
 				{errorMessage && <Text color="error">{t(errorMessage)}</Text>}
 
@@ -56,7 +56,7 @@ export const DeleteTestDialog = ({ testId, isOpen, handleClose }: DeleteTestDial
 					<DefaultButton variant="outline" onClick={handleClose}>
 						{t("common.button_cancel")}
 					</DefaultButton>
-					<DefaultButton variant="destructive" onClick={handleRemove} isLoading={quizDeleteMutation.isPending}>
+					<DefaultButton variant="destructive" onClick={handleRemove} isLoading={testDeleteMutation.isPending}>
 						{t("common.button_delete")}
 					</DefaultButton>
 				</DialogFooter>

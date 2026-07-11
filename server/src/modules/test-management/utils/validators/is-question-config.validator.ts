@@ -14,8 +14,4 @@ export class IsQuestionConfigConstraint implements ValidatorConstraintInterface 
 
 		return typeof config.type === 'string' && isQuestionType(config.type);
 	}
-
-	defaultMessage(): string {
-		return 'invalid question config';
-	}
 }

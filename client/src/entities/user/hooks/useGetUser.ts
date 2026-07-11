@@ -9,7 +9,7 @@ export const useGetUser = () => {
 	const storeUser = useUser((state) => state.user);
 	const setUser = useUser((state) => state.setUser);
 	const clearUser = useUser((state) => state.clearUser);
-	const hasAccessToken = !!localStorage.getItem(ACCESS_TOKEN_KEY);
+	const hasAccessToken: boolean = !!localStorage.getItem(ACCESS_TOKEN_KEY);
 
 	const {
 		data: userResponse,
@@ -23,7 +23,6 @@ export const useGetUser = () => {
 			return response.data;
 		},
 		enabled: hasAccessToken,
-		refetchOnMount: false,
 	});
 
 	useEffect(() => {

@@ -25,7 +25,7 @@ export const QuestionsList = ({ questions }: IQuestionsListProps) => {
 			queryClient.setQueryData(["test", response.data[0].test_id], (oldData: TestFull) => {
 				return {
 					...oldData,
-					questions: response.data.map(normalizeQuestion),
+					questions: response.data.map(normalizeQuestion).toSorted((a, b) => a.sortKey - b.sortKey),
 				};
 			});
 		},
@@ -45,13 +45,13 @@ export const QuestionsList = ({ questions }: IQuestionsListProps) => {
 	const handleClickUp = (question: Question) => {
 		const prevQuestion = questions[questions.findIndex((q) => q.id === question.id) - 1];
 
-		questionOrderChagenMutation.mutate({ question, previous_question_id: prevQuestion.id });
+		questionOrderChagenMutation.mutate({ question, next_question_id: prevQuestion.id });
 	};
 
 	const handleClickDown = (question: Question) => {
 		const nextQuestion = questions[questions.findIndex((q) => q.id === question.id) + 1];
 
-		questionOrderChagenMutation.mutate({ question, next_question_id: nextQuestion.id });
+		questionOrderChagenMutation.mutate({ question, previous_question_id: nextQuestion.id });
 	};
 
 	return (

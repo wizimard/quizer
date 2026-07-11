@@ -19,6 +19,9 @@ import type { TestResult } from '../interfaces/services/results/test.result';
 import type { TestSchedulerResultPeriod } from '../interfaces/services/results/test-scheduler.result';
 import { TestMapper } from '../mappers/test.mapper';
 import type { GetTestByIdInput } from '../interfaces/services/input/get-test-by-id.input';
+import { SchedulerEditPeriodsValidationFailedError } from '../utils/errors/scheduler-edit-periods-validation-failed.error';
+import type { TestSchedulerPeriod } from '../entities/test-scheduler-period';
+import { SchedulerPeriodNotFoundError } from '../utils/errors/scheduler-period-not-found.error';
 
 @injectable()
 export class TestService implements ITestService {
@@ -68,11 +71,40 @@ export class TestService implements ITestService {
 	}
 
 	async updateSchedulerPeriods(input: UpdateTestSchedulerInput): Promise<Array<TestSchedulerResultPeriod>> {
+		const schedulerPeriods: Array<TestSchedulerPeriod> = (await this.testRepository.getScheduler(input.test.id.value)).map(SchedulerPeriodMapper.toDomain);
+
+		const checkDate = new Date();
+		checkDate.setTime(checkDate.getTime() + 5 * 60 * 1000);
+
+		for (const period of input.schedulerPeriods.update ?? []) {
+			const currentPeriod = schedulerPeriods.find((p) => p.id === period.id);
+
+			if (!currentPeriod) {
+				throw new SchedulerPeriodNotFoundError('TestService.updateSchedulerPeriods');
+			}
+
+			if (currentPeriod.availableFrom <= checkDate) {
+				throw new SchedulerEditPeriodsValidationFailedError('errors.scheduler_update_periods_time');
+			}
+		}
+
+		for (const deletePeriodId of input.schedulerPeriods.remove ?? []) {
+			const currentPeriod = schedulerPeriods.find((p) => p.id === deletePeriodId);
+
+			if (!currentPeriod) {
+				throw new SchedulerPeriodNotFoundError('TestService.updateSchedulerPeriods');
+			}
+
+			if (currentPeriod.availableFrom <= checkDate) {
+				throw new SchedulerEditPeriodsValidationFailedError('errors.scheduler_update_periods_time');
+			}
+		}
+
 		const test: TestEntity = input.test;
 
-		const schedulerPeriods: Array<TestSchedulerPeriodModel> = await this.testRepository.updateSchedulerPeriods(test.id.value, SchedulerPeriodMapper.toRepositoryUpdateData(test.id, input));
+		const updatedSchedulerPeriods: Array<TestSchedulerPeriodModel> = await this.testRepository.updateSchedulerPeriods(test.id.value, SchedulerPeriodMapper.toRepositoryUpdateData(test.id, input));
 
-		return schedulerPeriods.map(SchedulerPeriodMapper.toDomain).map(SchedulerPeriodMapper.toResult);
+		return updatedSchedulerPeriods.map(SchedulerPeriodMapper.toDomain).map(SchedulerPeriodMapper.toResult);
 	}
 
 	async getFullById(input: GetTestByIdInput): Promise<TestFullResult> {

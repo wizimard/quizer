@@ -11,6 +11,7 @@ import type { UpdateQuestionInput } from '../interfaces/services/input/update-qu
 import type { IQuestionService } from '../interfaces/services/question.service.interface';
 import { QuestionMapper } from '../mappers/question.mapper';
 import type { QuestionResult } from '../interfaces/services/results/question.result';
+import { QuestionNotFoundError } from '../utils/errors/question-not-found.error';
 
 @injectable()
 export class QuestionService implements IQuestionService {
@@ -45,7 +46,7 @@ export class QuestionService implements IQuestionService {
 		const isDeleted = await this.questionRepository.delete(input.id.value, input.testId.value);
 
 		if (!isDeleted) {
-			throw new HttpError(404, 'question_not_found', 'QuestionService.delete');
+			throw new QuestionNotFoundError('QuestionService.delete');
 		}
 	}
 
@@ -65,7 +66,10 @@ export class QuestionService implements IQuestionService {
 				throw new HttpError(422, 'previous_question_not_found', 'QuestionService.changeOrder');
 			}
 
-			newSortKey = ((test.questions[previousQuestionIndex - 1]?.sortKey ?? (previousQuestionIndex + 1) * 1000) - test.questions[previousQuestionIndex]!.sortKey) / 2;
+			const prevSortKey = test.questions[previousQuestionIndex]!.sortKey;
+			const nextSortKey = test.questions[previousQuestionIndex + 1]?.sortKey ?? (previousQuestionIndex + 1) * 1000;
+
+			newSortKey = nextSortKey - (nextSortKey - prevSortKey) / 2;
 		} else if (nextQuestionId) {
 			const nextQuestionIndex = test.questions.findIndex((question) => question.id.value === nextQuestionId);
 
@@ -73,7 +77,7 @@ export class QuestionService implements IQuestionService {
 				throw new HttpError(422, 'next_question_not_found', 'QuestionService.changeOrder');
 			}
 
-			newSortKey = (test.questions[nextQuestionIndex]!.sortKey - (test.questions[nextQuestionIndex + 1]?.sortKey ?? (nextQuestionIndex + 1) * 1000)) / 2;
+			newSortKey = test.questions[nextQuestionIndex]!.sortKey - (test.questions[nextQuestionIndex]!.sortKey - (test.questions[nextQuestionIndex - 1]?.sortKey ?? 0)) / 2;
 		}
 
 		newSortKey = Math.round(newSortKey);
@@ -87,7 +91,7 @@ export class QuestionService implements IQuestionService {
 		let isNeedChangeOrders = false;
 
 		for (let i = 0; i < test.questions.length - 1; i++) {
-			if (test.questions[i + 1]!.sortKey - test.questions[i]!.sortKey < 100) {
+			if (Math.abs(test.questions[i + 1]!.sortKey - test.questions[i]!.sortKey) < 100) {
 				isNeedChangeOrders = true;
 				break;
 			}

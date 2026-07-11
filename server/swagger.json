@@ -147,7 +147,7 @@
                             "application/json": {
                                 "schema": {
                                     "type": "array",
-                                    "items": { "$ref": "#/components/schemas/TestResponseBase" }
+                                    "items": { "$ref": "#/components/schemas/TestResponse" }
                                 }
                             }
                         }
@@ -172,7 +172,7 @@
                         "description": "Test created",
                         "content": {
                             "application/json": {
-                                "schema": { "$ref": "#/components/schemas/TestResponse" }
+                                "schema": { "$ref": "#/components/schemas/TestFullResponse" }
                             }
                         }
                     },
@@ -199,7 +199,7 @@
                         "description": "Test found",
                         "content": {
                             "application/json": {
-                                "schema": { "$ref": "#/components/schemas/TestResponse" }
+                                "schema": { "$ref": "#/components/schemas/TestFullResponse" }
                             }
                         }
                     },
@@ -233,7 +233,7 @@
                         "description": "Test updated",
                         "content": {
                             "application/json": {
-                                "schema": { "$ref": "#/components/schemas/TestResponse" }
+                                "schema": { "$ref": "#/components/schemas/TestFullResponse" }
                             }
                         }
                     },
@@ -290,7 +290,7 @@
                         "description": "Test settings updated",
                         "content": {
                             "application/json": {
-                                "schema": { "$ref": "#/components/schemas/TestResponse" }
+                                "schema": { "$ref": "#/components/schemas/TestFullResponse" }
                             }
                         }
                     },
@@ -745,7 +745,7 @@
                     "is_show_answers_after_completion": { "type": "boolean" }
                 }
             },
-            "TestResponseBase": {
+            "TestResponse": {
                 "type": "object",
                 "required": ["id", "author_id", "status", "title", "updated_at", "created_at"],
                 "properties": {
@@ -760,7 +760,7 @@
                     "created_at": { "type": "string", "format": "date-time" }
                 }
             },
-            "TestResponse": {
+            "TestFullResponse": {
                 "type": "object",
                 "required": ["id", "author_id", "status", "title", "questions", "settings", "scheduler", "updated_at", "created_at"],
                 "properties": {

@@ -7,12 +7,16 @@ type LogLevel = 'info' | 'error' | 'warn' | 'success';
 export class LoggerService implements ILogger {
 	private write(level: LogLevel, message: string): void {
 		console.log(
-			JSON.stringify({
-				pid: process.pid,
-				level,
-				message,
-				timestamp: new Date().toISOString(),
-			}),
+			JSON.stringify(
+				{
+					pid: process.pid,
+					level,
+					message,
+					timestamp: new Date().toISOString(),
+				},
+				null,
+				4,
+			),
 		);
 	}
 

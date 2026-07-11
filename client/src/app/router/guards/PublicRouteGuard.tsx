@@ -7,12 +7,17 @@ export interface IPublicRouteGuardProps {
 }
 
 export const PublicRouteGuard = ({ children }: IPublicRouteGuardProps) => {
-	const { user } = useGetUser();
+	const { user, isLoading } = useGetUser();
 	const isAuthed = !!user;
 
-	if (isAuthed) {
+	if (!isLoading && isAuthed) {
 		return <Navigate to="/" />;
 	}
 
-	return children;
+	return (
+		<>
+			{children}
+			{isLoading && <div>Loading...</div>}
+		</>
+	);
 };

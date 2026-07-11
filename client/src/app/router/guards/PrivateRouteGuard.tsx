@@ -8,12 +8,17 @@ export interface IPrivateRouteGuardProps {
 }
 
 export const PrivateRouteGuard = ({ children }: IPrivateRouteGuardProps) => {
-	const { user } = useGetUser();
+	const { user, isLoading } = useGetUser();
 	const isAuthed = !!user;
 
-	if (!isAuthed) {
+	if (!isLoading && !isAuthed) {
 		return <Navigate to="/login" />;
 	}
 
-	return <AuthedLayout>{children}</AuthedLayout>;
+	return (
+		<>
+			<AuthedLayout>{children}</AuthedLayout>
+			{isLoading && <div>Loading...</div>}
+		</>
+	);
 };

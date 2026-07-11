@@ -17,6 +17,7 @@ export class UserService implements IUserService {
 		if (!user) {
 			throw new HttpError(404, 'User not found');
 		}
+
 		return user;
 	}
 
