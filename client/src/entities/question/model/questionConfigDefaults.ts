@@ -17,18 +17,18 @@ export function createDefaultQuestionConfig(type: string): QuestionRequestConfig
 				ignore_case: true,
 			};
 		}
-		case QUESTION_TYPES.SIGNLE_CHOISE: {
+		case QUESTION_TYPES.SIGNLE_CHOICE: {
 			const options = generateOptions();
 
 			return {
-				type: "single_choise",
+				type: "single_choice",
 				answer: options[0].id,
 				options: options,
 			};
 		}
-		case QUESTION_TYPES.MULTIPLE_CHOISE: {
+		case QUESTION_TYPES.MULTIPLE_CHOICE: {
 			return {
-				type: "multiple_choise",
+				type: "multiple_choice",
 				answer: [],
 				options: generateOptions(),
 			};

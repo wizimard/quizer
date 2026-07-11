@@ -5,7 +5,7 @@ import { Dialog } from "@shared/ui/kit/dialog";
 export const DialogWithContext = ({ children, onOpenChange, ...props }: React.ComponentProps<typeof Dialog>) => {
 	const { isLocked } = useContext(dialogContext);
 
-	const handleOpenChange = (open?: boolean) => {
+	const handleOpenChange = (open: boolean) => {
 		if (isLocked) return;
 		onOpenChange?.(open);
 	};

@@ -1,9 +1,9 @@
 import { useWatch } from "react-hook-form";
 import type { QuestionConfigInput } from "@shared/api/generated";
 import { FormCheckboxLabelField, FormTextField } from "@shared/ui/form";
-import type { TQuestionFormComponentProps } from "@features/question/question-insert/model/question-form";
+import type { QuestionFormComponentProps } from "@features/question/question-insert/model/question-form";
 
-export const InputConfig = ({ control }: TQuestionFormComponentProps<QuestionConfigInput>) => {
+export const InputConfig = ({ control }: QuestionFormComponentProps<QuestionConfigInput>) => {
 	const ignoreCase = useWatch({ control, name: `config.ignore_case` });
 
 	return (

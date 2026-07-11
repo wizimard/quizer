@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 import { cn } from "@shared/lib/utils";
 
-interface IQuestionListItemContainer {
+interface QuestionListItemContainerProps {
 	children: ReactNode;
 	isError?: boolean;
 }
 
-export const QuestionListItemContainer = ({ children, isError }: IQuestionListItemContainer) => {
+export const QuestionListItemContainer = ({ children, isError }: QuestionListItemContainerProps) => {
 	return (
 		<div
 			className={cn(

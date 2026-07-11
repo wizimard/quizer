@@ -2,13 +2,13 @@ import type { QuestionConfigOption } from "@shared/api/generated";
 import { cn } from "@shared/lib/utils";
 import { Text } from "@shared/ui/text";
 
-export interface IQuestionOptionProps extends QuestionConfigOption {
+export interface QuestionOptionProps extends QuestionConfigOption {
 	checked?: boolean;
 	disabled?: boolean;
 	onClick?: (id: string) => void;
 }
 
-export const QuestionOption = ({ id, value, checked, disabled, onClick }: IQuestionOptionProps) => {
+export const QuestionOption = ({ id, value, checked, disabled, onClick }: QuestionOptionProps) => {
 	const handleClick = () => {
 		if (!onClick) {
 			return;

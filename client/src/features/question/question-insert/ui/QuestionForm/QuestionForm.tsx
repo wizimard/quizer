@@ -3,15 +3,15 @@ import { useQuestionForm } from "../../hooks/useQuestionForm";
 import { QUESTION_TYPES_OPTIONS } from "../../model/question-type-options";
 import { QuestionConfig } from "./ui/QuestionEditConfig";
 import { FormSelectField, FormTextField } from "@shared/ui/form";
-import type { QuestionResponse } from "@shared/api/generated";
+import type { Question } from "@entities/question";
 import { DefaultButton } from "@shared/ui/button";
 import { Text } from "@shared/ui/text";
 
-export interface IQuestionFormProps {
-	question: QuestionResponse;
+export interface QuestionFormProps {
+	question: Question;
 }
 
-export const QuestionForm = ({ question }: IQuestionFormProps) => {
+export const QuestionForm = ({ question }: QuestionFormProps) => {
 	const { t } = useTranslation();
 
 	const { control, handleSubmit, isLoading, isDirty, resetForm, formError } = useQuestionForm(question);

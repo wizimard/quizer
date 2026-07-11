@@ -1,8 +1,9 @@
 import type { TQuestionForm } from "../model/question-form";
-import { api } from "@shared/api";
-import type { QuestionResponse, QuestionCreateRequestBody } from "@shared/api/generated";
+import type { QuestionCreateRequestBody } from "@shared/api/generated";
+import { questionApi } from "@shared/api";
+import type { Question } from "@entities/question";
 
-export function createQuestion(question: QuestionResponse, data: TQuestionForm) {
+export function createQuestion(question: Question, data: TQuestionForm) {
 	if (!data.config) {
 		throw new Error("Config is required");
 	}
@@ -12,5 +13,5 @@ export function createQuestion(question: QuestionResponse, data: TQuestionForm) 
 		config: data.config,
 	};
 
-	return api.questionQuizIdQuestionsPost(question.quizId, requestBody);
+	return questionApi.questionTestIdQuestionsPost(question.testId, requestBody);
 }

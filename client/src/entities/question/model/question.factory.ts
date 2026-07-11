@@ -1,16 +1,16 @@
 import { QUESTION_TYPES } from "./question-types.enum";
+import type { Question } from "./question.interface";
 import { QUESTION_NEW_ID } from "@shared/constant";
-import type { QuestionResponse } from "@shared/api/generated";
 
 export interface ICreateNewQuestionProps {
-	quizId: string;
+	testId: string;
 	order: number;
 }
 
-export const createNewQuestion = ({ quizId, order }: ICreateNewQuestionProps): QuestionResponse => {
+export const createNewQuestion = ({ testId, order }: ICreateNewQuestionProps): Question => {
 	return {
 		id: QUESTION_NEW_ID,
-		quizId,
+		testId: testId,
 		description: "",
 		sortKey: (order + 1) * 1000,
 		config: {

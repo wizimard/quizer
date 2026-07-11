@@ -1,1 +1,1 @@
-export { QuestionViewMultpleChoise } from "./QuestionViewMultpleChoise";
+export { QuestionViewMultpleChoice } from "./QuestionViewMultpleChoice";

@@ -7,7 +7,7 @@ export const AddQuestionButton = () => {
 	return (
 		<Button>
 			<PlusIcon />
-			{t("quiz.add_question_button")}
+			{t("test.add_question_button")}
 		</Button>
 	);
 };

@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { loginFormValidationSchema, type ILoginFormValues } from "../model/userLoginForm";
 import { ACCESS_TOKEN_KEY } from "@shared/constant";
-import { api } from "@shared/api";
+import { authApi } from "@shared/api";
 import { useUser } from "@entities/user";
 
 export const useLoginForm = () => {
@@ -27,7 +27,7 @@ export const useLoginForm = () => {
 
 	const submitHandler = handleSubmit(async (data: ILoginFormValues) => {
 		try {
-			const response = await api.authLoginPost({ email: data.email, password: data.password });
+			const response = await authApi.authLoginPost({ email: data.email, password: data.password });
 
 			localStorage.setItem(ACCESS_TOKEN_KEY, response.data.accessToken);
 

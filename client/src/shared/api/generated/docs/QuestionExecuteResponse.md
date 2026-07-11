@@ -6,8 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** |  | [default to undefined]
-**quizId** | **string** |  | [default to undefined]
-**order** | **number** |  | [default to undefined]
+**testId** | **string** |  | [default to undefined]
 **description** | **string** |  | [default to undefined]
 **config** | [**QuestionExecuteConfig**](QuestionExecuteConfig.md) |  | [default to undefined]
 
@@ -18,8 +17,7 @@ import { QuestionExecuteResponse } from './api';
 
 const instance: QuestionExecuteResponse = {
     id,
-    quizId,
-    order,
+    testId,
     description,
     config,
 };

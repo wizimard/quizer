@@ -3,9 +3,9 @@ import type { QuestionConfigOption } from "@shared/api/generated";
 import { FormTextField } from "@shared/ui/form";
 import { Button } from "@shared/ui/kit/button";
 import { cn } from "@shared/lib/utils";
-import type { TQuestionFormComponentProps } from "@features/question/question-insert/model/question-form";
+import type { QuestionFormComponentProps } from "@features/question/question-insert/model/question-form";
 
-export interface IAnswerOptionProps {
+export interface AnswerOptionProps {
 	children: React.ReactNode;
 	option: QuestionConfigOption;
 	index: number;
@@ -13,7 +13,7 @@ export interface IAnswerOptionProps {
 	onRemove(): void;
 }
 
-export const AnswerOption = ({ control, index, children, option, isChecked, onRemove }: TQuestionFormComponentProps<IAnswerOptionProps>) => {
+export const AnswerOption = ({ control, index, children, option, isChecked, onRemove }: QuestionFormComponentProps<AnswerOptionProps>) => {
 	return (
 		<li key={option.id} className="m-0 flex list-none items-start gap-2.5 rounded-md p-1.5">
 			{children}

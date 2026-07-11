@@ -1,19 +1,20 @@
 import { CircleChevronDown, CircleChevronUp, Pencil } from "lucide-react";
 import { QuestionViewConfig } from "../QuestionViewConfig";
 import { Text } from "@shared/ui/text";
-import type { QuestionResponse } from "@shared/api/generated";
+import type { Question } from "@entities/question";
 import { ButtonIcon } from "@shared/ui/button";
 
-export interface IQuestionViewProps {
-	question: QuestionResponse;
+export interface QuestionViewProps {
+	question: Question;
 	isDisableDownButton: boolean;
 	isDisableUpButton: boolean;
-	handleClickEdit: (question: QuestionResponse) => void;
-	handleClickUp?(question: QuestionResponse): void;
-	handleClickDown?(question: QuestionResponse): void;
+	handleClickEdit: (question: Question) => void;
+	handleClickUp?(question: Question): void;
+	handleClickDown?(question: Question): void;
 }
 
-export const QuestionView = ({ question, handleClickEdit, handleClickUp, handleClickDown, isDisableDownButton, isDisableUpButton }: IQuestionViewProps) => {
+// TODO: translate
+export const QuestionView = ({ question, handleClickEdit, handleClickUp, handleClickDown, isDisableDownButton, isDisableUpButton }: QuestionViewProps) => {
 	const clickUpHandler = () => {
 		handleClickUp?.(question);
 	};

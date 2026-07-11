@@ -1,8 +1,8 @@
 import zod from "zod";
 import type { Control } from "react-hook-form";
-import type { QuestionResponse } from "@shared/api/generated";
+import type { Question } from "@entities/question";
 
-export type TQuestionFormModel = Omit<QuestionResponse, "id" | "quizId" | "createdAt" | "updatedAt">;
+export type TQuestionFormModel = Omit<Question, "id" | "testId" | "sortKey">;
 
 const optionSchema = zod.object({
 	id: zod.string(),
@@ -23,12 +23,12 @@ export const questionFormModelSchema = zod.object({
 				ignore_case: zod.boolean(),
 			}),
 			zod.object({
-				type: zod.literal("single_choise"),
+				type: zod.literal("single_choice"),
 				answer: zod.string().min(1, "question_form.validation_errors.answer_single_choise"),
 				options: zod.array(optionSchema),
 			}),
 			zod.object({
-				type: zod.literal("multiple_choise"),
+				type: zod.literal("multiple_choice"),
 				answer: zod.array(zod.string()).min(1, "question_form.validation_errors.answer_multiple_choise"),
 				options: zod.array(optionSchema),
 			}),
@@ -46,6 +46,6 @@ export const questionFormModelSchema = zod.object({
 
 export type TQuestionForm = zod.infer<typeof questionFormModelSchema>;
 
-export type TQuestionFormComponentProps<T> = T & {
+export type QuestionFormComponentProps<T> = T & {
 	control: Control<TQuestionForm>;
 };

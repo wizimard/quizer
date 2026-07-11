@@ -1,16 +1,16 @@
 import { useController, useFieldArray, useWatch } from "react-hook-form";
 import { AnswerOption } from "../AnswerOption";
 import { FormCheckboxField } from "@shared/ui/form";
-import type { TQuestionFormComponentProps, TQuestionFormOption } from "@features/question/question-insert/model/question-form";
+import type { QuestionFormComponentProps, TQuestionFormOption } from "@features/question/question-insert/model/question-form";
 import { ButtonAddListItem } from "@shared/ui/button";
 import { generateOptions } from "@entities/question/model/questionConfigDefaults";
 
-export interface IMultipleChoiseConfigProps {
+export interface MultipleChoiseConfigProps {
 	options: TQuestionFormOption[];
 	answer: string[];
 }
 
-export const MultipleChoiseConfig = ({ answer, options, control }: TQuestionFormComponentProps<IMultipleChoiseConfigProps>) => {
+export const MultipleChoiseConfig = ({ answer, options, control }: QuestionFormComponentProps<MultipleChoiseConfigProps>) => {
 	const { field: answerField } = useController({ control, name: "config.answer" });
 
 	const { append, remove } = useFieldArray({ control, name: "config.options" });

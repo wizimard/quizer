@@ -1,1 +1,0 @@
-export { QuizSettings } from "./QuizSettings";

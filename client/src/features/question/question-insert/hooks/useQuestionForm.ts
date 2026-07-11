@@ -9,7 +9,9 @@ import { updateQuestion } from "../api/question-update";
 import type { QuestionConfigOption, QuestionResponse } from "@shared/api/generated";
 import { QUESTION_NEW_ID } from "@shared/constant";
 import { createDefaultQuestionConfig } from "@entities/question/model/questionConfigDefaults";
-import type { TQuiz } from "@entities/quiz";
+import type { TestFull } from "@entities/test";
+import type { Question } from "@entities/question";
+import { normalizeQuestion } from "@entities/question";
 
 const normalizeOptionsForm = (options: QuestionConfigOption[]): TQuestionFormOption[] => {
 	return options.map((option) => ({
@@ -19,7 +21,7 @@ const normalizeOptionsForm = (options: QuestionConfigOption[]): TQuestionFormOpt
 	}));
 };
 
-const getFormQuestionValues = (question: QuestionResponse): TQuestionForm => {
+const getFormQuestionValues = (question: Question): TQuestionForm => {
 	if (!("options" in question.config)) {
 		return {
 			description: question.description,
@@ -36,7 +38,8 @@ const getFormQuestionValues = (question: QuestionResponse): TQuestionForm => {
 	};
 };
 
-export const useQuestionForm = (question: QuestionResponse) => {
+// TODO: after create question need change question
+export const useQuestionForm = (question: Question) => {
 	const queryClient = useQueryClient();
 
 	const insertQuestion = useMutation({
@@ -46,22 +49,25 @@ export const useQuestionForm = (question: QuestionResponse) => {
 			}
 			return updateQuestion(question, data);
 		},
-		onSuccess: (response: AxiosResponse<QuestionResponse, unknown, object>) => {
-			reset(getFormQuestionValues(response.data));
-			queryClient.setQueryData(["quiz", question.quizId], (quiz: TQuiz) => {
-				if (!quiz) {
+		onSuccess: (response: AxiosResponse<QuestionResponse>) => {
+			const newQuestion = normalizeQuestion(response.data);
+
+			reset(getFormQuestionValues(newQuestion));
+
+			queryClient.setQueryData(["test", question.testId], (test: TestFull) => {
+				if (!test) {
 					return null;
 				}
 
-				let questions = quiz.questions;
+				let questions = test.questions;
 
 				if (question.id === QUESTION_NEW_ID) {
-					questions = [...questions, response.data];
+					questions = [...questions, newQuestion];
 				} else {
-					questions = questions.map((question) => (question.id === response.data.id ? response.data : question));
+					questions = questions.map((question) => (question.id === newQuestion.id ? newQuestion : question));
 				}
 
-				return { ...quiz, questions };
+				return { ...test, questions };
 			});
 		},
 		onError: (error) => {

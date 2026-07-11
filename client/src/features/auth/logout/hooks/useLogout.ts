@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@entities/user";
-import { api } from "@shared/api";
+import { authApi } from "@shared/api";
 import { ACCESS_TOKEN_KEY } from "@shared/constant";
 
 export const useLogout = () => {
@@ -9,7 +9,7 @@ export const useLogout = () => {
 
 	const logout = async () => {
 		try {
-			await api.authLogoutPost();
+			await authApi.authLogoutPost();
 
 			localStorage.removeItem(ACCESS_TOKEN_KEY);
 

@@ -4,8 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { registerFormValidationSchema, type IRegisterFormValues } from "../model/userRegisterForm";
 import { ACCESS_TOKEN_KEY } from "@shared/constant";
-import { api } from "@shared/api";
 import { useUser } from "@entities/user";
+import { authApi } from "@shared/api";
 
 export const useRegisterForm = () => {
 	const setUser = useUser((state) => state.setUser);
@@ -28,7 +28,7 @@ export const useRegisterForm = () => {
 
 	const submitHandler = handleSubmit(async (data: IRegisterFormValues) => {
 		try {
-			const response = await api.authRegisterPost({ email: data.email, password: data.password });
+			const response = await authApi.authRegisterPost({ email: data.email, password: data.password });
 
 			localStorage.setItem(ACCESS_TOKEN_KEY, response.data.accessToken);
 

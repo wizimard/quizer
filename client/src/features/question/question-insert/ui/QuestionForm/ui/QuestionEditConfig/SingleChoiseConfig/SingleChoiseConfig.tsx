@@ -1,9 +1,9 @@
 import { useController, useWatch } from "react-hook-form";
-import type { QuestionConfigSingleChoise } from "@shared/api/generated";
+import type { QuestionConfigSingleChoice } from "@shared/api/generated";
 import { FormRadioField, FormTextField } from "@shared/ui/form";
-import type { TQuestionFormComponentProps } from "@features/question/question-insert/model/question-form";
+import type { QuestionFormComponentProps } from "@features/question/question-insert/model/question-form";
 
-export const SingleChoiseConfig = ({ options, control }: TQuestionFormComponentProps<QuestionConfigSingleChoise>) => {
+export const SingleChoiseConfig = ({ options, control }: QuestionFormComponentProps<QuestionConfigSingleChoice>) => {
 	const { field: answerField } = useController({ control, name: "config.answer" });
 
 	const answer: string = useWatch({ control, name: "config.answer" }) as string;
