@@ -2,7 +2,7 @@ import { format, isBefore, isValid, startOfDay } from "date-fns";
 import { ru } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Controller, type Control, type Path } from "react-hook-form";
+import { Controller, type Control, type Path, type FieldValues } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@shared/lib/utils";
@@ -25,7 +25,7 @@ export interface IDateTimeFieldProps {
 	error?: string;
 }
 
-export type TFormDateTimeFieldProps<T> = Omit<IDateTimeFieldProps, "value" | "onChange" | "aria-invalid" | "error"> & {
+export type TFormDateTimeFieldProps<T extends FieldValues> = Omit<IDateTimeFieldProps, "value" | "onChange" | "aria-invalid" | "error"> & {
 	name: Path<T>;
 	control: Control<T, unknown, T>;
 	required?: boolean;

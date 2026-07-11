@@ -1,10 +1,10 @@
 {
-    "signleQuote": true,
-    "trailingComma": "all",
-    "semi": true,
-    "useTabs": true,
-    "tabWidth": 4,
-    "endOfLine": "auto",
-    "bracketSpacing": true,
-    "printWidth": 200
+	"signleQuote": true,
+	"trailingComma": "all",
+	"semi": true,
+	"useTabs": true,
+	"tabWidth": 4,
+	"endOfLine": "auto",
+	"bracketSpacing": true,
+	"printWidth": 200
 }

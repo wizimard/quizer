@@ -1,13 +1,15 @@
-import { api } from "@shared/api";
 import { useEffect } from "react";
-import { useUser } from "../model/store";
 import { useQuery } from "@tanstack/react-query";
+import { useUser } from "../model/store";
+import { ACCESS_TOKEN_KEY } from "@shared/constant";
 import type { UserAuthResponseUser } from "@shared/api/generated";
+import { userApi } from "@shared/api";
 
 export const useGetUser = () => {
 	const storeUser = useUser((state) => state.user);
 	const setUser = useUser((state) => state.setUser);
 	const clearUser = useUser((state) => state.clearUser);
+	const hasAccessToken: boolean = !!localStorage.getItem(ACCESS_TOKEN_KEY);
 
 	const {
 		data: userResponse,
@@ -17,11 +19,10 @@ export const useGetUser = () => {
 	} = useQuery<UserAuthResponseUser>({
 		queryKey: ["user"],
 		queryFn: async () => {
-			const response = await api.userMeGet();
+			const response = await userApi.userMeGet();
 			return response.data;
 		},
-		retry: false,
-		refetchOnWindowFocus: false,
+		enabled: hasAccessToken,
 	});
 
 	useEffect(() => {

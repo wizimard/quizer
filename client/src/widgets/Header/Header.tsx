@@ -1,9 +1,9 @@
-import { cn } from "@shared/lib/utils";
-import { Text } from "@shared/ui/text";
-import { HeaderUserMenu } from "./HeaderUserMenu";
-import { Logo } from "./Logo";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
+import { HeaderUserMenu } from "./HeaderUserMenu";
+import { Logo } from "./Logo";
+import { cn } from "@shared/lib/utils";
+import { Text } from "@shared/ui/text";
 
 export const Header = () => {
 	const { t } = useTranslation();

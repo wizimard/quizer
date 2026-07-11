@@ -1,15 +1,13 @@
+import { useTranslation } from "react-i18next";
 import { FormTextField } from "@shared/ui/form";
 import { DefaultButton } from "@shared/ui/button";
 import { Text } from "@shared/ui/text";
 import { useLoginForm } from "@features/auth/login/hooks/useLoginForm";
-import { useTranslation } from "react-i18next";
 
 export const LoginForm = () => {
 	const { t } = useTranslation();
 
 	const { isSubmitting, submitHandler, control, errors } = useLoginForm();
-
-	console.log(errors);
 
 	return (
 		<div className="w-[426px] p-[20px] flex flex-col gap-[20px]">
@@ -26,7 +24,7 @@ export const LoginForm = () => {
 					required
 					autoComplete="none"
 				></FormTextField>
-				{errors.root && (
+				{errors.root?.message && (
 					<Text variant="body1" color="error">
 						{t(errors.root.message)}
 					</Text>

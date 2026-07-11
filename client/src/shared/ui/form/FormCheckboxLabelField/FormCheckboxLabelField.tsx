@@ -1,9 +1,10 @@
 import { useTranslation } from "react-i18next";
+import type { FieldValues } from "react-hook-form";
+import FormCheckboxField, { type TFormCheckboxField } from "../FormCheckboxField/FormCheckboxField";
 import { Field, FieldLabel } from "@shared/ui/kit/field";
 import { cn } from "@shared/lib/utils";
-import FormCheckboxField, { type TFormCheckboxField } from "../FormCheckboxField/FormCheckboxField";
 
-export type TFormCheckboxLabelFieldProps<T> = TFormCheckboxField<T> & {
+export type TFormCheckboxLabelFieldProps<T extends FieldValues> = TFormCheckboxField<T> & {
 	label: string;
 };
 

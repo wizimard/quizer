@@ -1,5 +1,5 @@
-import type { UserAuthResponseUser } from "@shared/api/generated";
 import { create } from "zustand";
+import type { UserAuthResponseUser } from "@shared/api/generated";
 
 export interface IUserState {
 	user: UserAuthResponseUser | null;

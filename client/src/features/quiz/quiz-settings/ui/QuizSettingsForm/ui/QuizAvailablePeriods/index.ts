@@ -1,1 +1,0 @@
-export { QuizAvailablePeriods } from "./QuizAvailablePeriods";

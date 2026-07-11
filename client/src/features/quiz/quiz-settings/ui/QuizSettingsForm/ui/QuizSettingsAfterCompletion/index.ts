@@ -1,1 +1,0 @@
-export { QuizSettingsAfterCompletion } from "./QuizSettingsAfterCompletion";

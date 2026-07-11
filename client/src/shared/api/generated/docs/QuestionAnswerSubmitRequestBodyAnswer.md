@@ -1,0 +1,18 @@
+# QuestionAnswerSubmitRequestBodyAnswer
+
+
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+
+## Example
+
+```typescript
+import { QuestionAnswerSubmitRequestBodyAnswer } from './api';
+
+const instance: QuestionAnswerSubmitRequestBodyAnswer = {
+};
+```
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

@@ -1,8 +1,8 @@
+import { NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Text } from "@shared/ui/text";
 import { CenterElement } from "@shared/ui/layout";
-import { NavLink } from "react-router-dom";
 import { LoginForm } from "@features/auth/login";
-import { useTranslation } from "react-i18next";
 
 function LoginPage() {
 	const { t } = useTranslation();

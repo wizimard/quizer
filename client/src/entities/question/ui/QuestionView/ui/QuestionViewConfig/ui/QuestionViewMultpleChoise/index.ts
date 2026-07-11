@@ -1,1 +1,0 @@
-export { QuestionViewMultpleChoise } from "./QuestionViewMultpleChoise";

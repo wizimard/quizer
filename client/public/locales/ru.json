@@ -1,166 +1,191 @@
 {
-    "common": {
-        "button_cancel": "Отменить",
-        "button_delete": "Удалить",
-        "button_edit": "Изменить",
-        "button_save": "Сохранить",
-        "datetime": {
-            "at": "в",
-            "pick_date": "Выберите дату",
-            "clear_date": "Очистить дату"
-        }
-    },
-    "auth": {
-        "login": {
-            "title": "Ввойдите в ваш аккаунт",
-            "bottom": {
-                "text": "У вас нет аккаунта?",
-                "button": "создайте"
-            },
-            "button": "Войти"
-        },
-        "register": {
-            "title": "Создайте новый аккаунт",
-            "bottom": {
-                "text": "Уже имеете аккаунт?",
-                "button": "войдите"
-            },
-            "button": "Зарегистрироваться"
-        },
-        "form": {
-            "fields": {
-                "email": {
-                    "label": "Email",
-                    "placeholder": "Введите email"
-                },
-                "password": {
-                    "label": "Пароль",
-                    "placeholder": "Введите пароль"
-                },
-                "repeat_password": {
-                    "label": "Повторить пароль",
-                    "placeholder": "Введите пароль повторно"
-                }
-            },
-            "validation_errors": {
-                "email": "Значение в поле не email",
-                "password_min_length": "Минимальная длина пароля 8 символов",
-                "password_max_length": "Максимальная длина пароля 255 символов",
-                "confirm_password": "Пароли должны совпадать"
-            },
-            "server_errors": {
-                "something_wrong": "Что-то пошло не так",
-                "login_credentials_invalid": "Email или пароль не правильные",
-                "email_busy": "Email уже занят"
-            }
-        }
-    },
-    "quiz_list": {
-        "title": "Ваши тесты",
-        "add_button": "Добавить тест"
-    },
-    "quiz": {
-        "title": "Тест:",
-        "questions": "Вопросы",
-        "delete_modal": {
-            "title": "Вы уверены, что хотите удалить тест?"
-        },
-        "errors": {
-            "forbidden": "Вы не имеете доступа к этому тесту"
-        }
-    },
-    "quiz_create": {
-        "form": {
-            "fields": {
-                "title": {
-                    "label": "Название теста",
-                    "placeholder": "Введите название теста"
-                }
-            },
-            "add_question": "Добавить вопрос",
-            "validation_errors": {
-                "quiz_title": "Введите название теста",
-                "questions_count_zero": "Добавьте вопросы",
-                "option_value": "Введите вариант ответа",
-                "question_description": "Введите описание задачи",
-                "question_type": "Выберите тип вопроса",
-                "answer_input": "Введите ответ",
-                "answer_single_choise": "Выберите правильный ответ",
-                "answer_multiple_choise": "Выберите правильные ответы"
-            }
-        }
-    },
-    "question_create_form": {
-        "description": {
-            "label": "Описание задачи",
-            "placeholder": "Введите описание задачи"
-        },
-        "type": {
-            "label": "Тип ответа",
-            "placeholder": "Выберите тип ответа"
-        },
-        "input": {
-            "answer": {
-                "label": "Ответ",
-                "placeholder": "Введите ответ на вопрос"
-            },
-            "ignore_case": {
-                "label": "игнорировать регистр"
-            }
-        },
-        "answer_option": {
-            "label": "Вариант ответа",
-            "placeholder": "Введите вариант ответа",
-            "add": "Добавить вариант ответа"
-        }
-    },
-    "header": {
-        "tests_link": "тесты",
-        "user_menu": {
-            "logout": "Выйти"
-        }
-    },
-    "question_types": {
-        "input": "Ввод значения",
-        "single_choise": "Выбор единственного значения",
-        "multiple_choise": "Выбор множества значений"
-    },
-    "quiz_settings": {
-        "available_periods": {
-            "title": "Периоды доступности теста",
-            "period": {
-                "title": "Период",
-                "available_from": {
-                    "label": "Начало периода"
-                },
-                "available_to": {
-                    "label": "Конец периода"
-                },
-                "validation_errors": {
-                    "available_to_after_from": "Конец периода должен быть позже начала",
-                    "overlap": "Периоды доступности не должны пересекаться"
-                }
-            },
-            "button_add": "Добавить период"
-        },
-        "login_data": {
-            "title": "Данные для заполнения перед выполнением",
-            "is_required_email": {
-                "label": "Требовать заполнение email"
-            },
-            "is_required_first_name": {
-                "label": "Требовать заполнение имени"
-            },
-            "is_required_last_name": {
-                "label": "Требовать заполнение фамилии"
-            }
-        },
-        "after_completion": {
-            "title": "Действия после выполнения",
-            "is_show_answers": {
-                "label": "Показывать ответы после выполнения"
-            }
-        },
-        "button_delete_quiz": "Удалить тест"
-    }
+	"common": {
+		"button_cancel": "Отменить",
+		"button_delete": "Удалить",
+		"button_edit": "Изменить",
+		"button_save": "Сохранить",
+		"datetime": {
+			"at": "в",
+			"pick_date": "Выберите дату",
+			"clear_date": "Очистить дату"
+		}
+	},
+	"auth": {
+		"login": {
+			"title": "Ввойдите в ваш аккаунт",
+			"bottom": {
+				"text": "У вас нет аккаунта?",
+				"button": "создайте"
+			},
+			"button": "Войти"
+		},
+		"register": {
+			"title": "Создайте новый аккаунт",
+			"bottom": {
+				"text": "Уже имеете аккаунт?",
+				"button": "войдите"
+			},
+			"button": "Зарегистрироваться"
+		},
+		"form": {
+			"fields": {
+				"email": {
+					"label": "Email",
+					"placeholder": "Введите email"
+				},
+				"password": {
+					"label": "Пароль",
+					"placeholder": "Введите пароль"
+				},
+				"repeat_password": {
+					"label": "Повторить пароль",
+					"placeholder": "Введите пароль повторно"
+				}
+			},
+			"validation_errors": {
+				"email": "Значение в поле не email",
+				"password_min_length": "Минимальная длина пароля 8 символов",
+				"password_max_length": "Максимальная длина пароля 255 символов",
+				"confirm_password": "Пароли должны совпадать"
+			},
+			"server_errors": {
+				"something_wrong": "Что-то пошло не так",
+				"login_credentials_invalid": "Email или пароль не правильные",
+				"email_busy": "Email уже занят"
+			}
+		}
+	},
+	"test_list": {
+		"title": "Ваши тесты",
+		"add_button": "Добавить тест"
+	},
+	"test": {
+		"title": "Тест:",
+		"questions": "Вопросы",
+		"add_question_button": "Добавить вопрос",
+		"status": {
+			"scheduler": "По расписанию",
+			"open_by_scheduler": "Открыт",
+			"manual_open": "Открыт вручную",
+			"closed": "Закрыт"
+		},
+		"start": "Открыть тест",
+		"close": "Закрыть тест"
+	},
+	"header": {
+		"tests_link": "тесты",
+		"user_menu": {
+			"logout": "Выйти"
+		}
+	},
+	"question_types": {
+		"input": "Ввод значения",
+		"single_choise": "Выбор единственного значения",
+		"multiple_choise": "Выбор множества значений"
+	},
+	"test_scheduler_form": {
+		"title": "Периоды доступности теста",
+		"period": {
+			"title": "Период",
+			"available_from": {
+				"label": "Начало периода"
+			},
+			"available_to": {
+				"label": "Конец периода"
+			},
+			"validation_errors": {
+				"available_to_after_from": "Конец периода должен быть позже начала",
+				"overlap": "Периоды доступности не должны пересекаться"
+			}
+		},
+		"button_add": "Добавить период"
+	},
+	"test_general_settings_form": {
+		"title": {
+			"label": "Название теста",
+			"placeholder": "Введите название теста"
+		},
+		"login_data": {
+			"title": "Данные для заполнения перед выполнением",
+			"is_required_email": {
+				"label": "Требовать заполнение email"
+			},
+			"is_required_first_name": {
+				"label": "Требовать заполнение имени"
+			},
+			"is_required_last_name": {
+				"label": "Требовать заполнение фамилии"
+			}
+		},
+		"after_completion": {
+			"title": "Действия после выполнения",
+			"is_show_answers": {
+				"label": "Показывать ответы после выполнения"
+			}
+		},
+		"validation_errors": {
+			"title": "Введите название теста",
+			"title_min_length": "Название теста должно быть не менее 3 символов"
+		}
+	},
+	"test_delete": {
+		"button": "Удалить тест"
+	},
+	"question_delete": {
+		"button": "Удалить вопрос",
+		"dialog": {
+			"title": "Удалить вопрос",
+			"description": "Вы действительно хотите удалить вопрос?"
+		}
+	},
+	"question_settings": {
+		"title": "Настройки вопроса"
+	},
+	"question_form": {
+		"description": {
+			"label": "Описание задачи",
+			"placeholder": "Введите описание задачи"
+		},
+		"type": {
+			"label": "Тип ответа",
+			"placeholder": "Выберите тип ответа"
+		},
+		"input": {
+			"answer": {
+				"label": "Ответ",
+				"placeholder": "Введите ответ на вопрос"
+			},
+			"ignore_case": {
+				"label": "игнорировать регистр"
+			}
+		},
+		"answer_option": {
+			"label": "Вариант ответа",
+			"placeholder": "Введите вариант ответа",
+			"add": "Добавить вариант ответа"
+		},
+		"validation_errors": {
+			"option_value": "Введите вариант ответа",
+			"question_description": "Введите описание задачи",
+			"question_type": "Выберите тип вопроса",
+			"answer_input": "Введите ответ",
+			"answer_single_choise": "Выберите правильный ответ",
+			"answer_multiple_choise": "Выберите правильные ответы"
+		}
+	},
+	"errors": {
+		"unknown_error": "Произошла неизвестная ошибка",
+		"question_not_found": "Вопрос не найден",
+		"test_not_found": "Тест не найден",
+		"scheduler_update_periods_time": "Запрещено менять периоды, запланированные на ближайшее время",
+		"scheduler.period_not_found": "Период не найден",
+		"test_not_author": "Вам запрещено в доступе к тесту",
+		"test_validation_failed": "Ошибка валидации",
+		"unknown_question_type": "Неподерживаемый тип вопроса"
+	},
+	"not_found": {
+		"title": "Страница не найдена",
+		"description": "Запрашиваемая страница не существует или была удалена.",
+		"button": "На главную"
+	}
 }

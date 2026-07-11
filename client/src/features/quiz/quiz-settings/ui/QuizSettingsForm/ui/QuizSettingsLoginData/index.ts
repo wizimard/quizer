@@ -1,1 +1,0 @@
-export { QuizSettingsLoginData } from "./QuizSettingsLoginData";

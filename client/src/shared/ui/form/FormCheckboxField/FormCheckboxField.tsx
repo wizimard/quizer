@@ -1,8 +1,8 @@
-import { Controller, type Control, type Path } from "react-hook-form";
+import { Controller, type Control, type Path, type FieldValues } from "react-hook-form";
 import { Checkbox } from "@shared/ui/kit/checkbox";
 import { cn } from "@shared/lib/utils";
 
-export type TFormCheckboxField<T> = Omit<React.ComponentProps<typeof Checkbox>, "checked" | "onCheckedChange"> & {
+export type TFormCheckboxField<T extends FieldValues> = Omit<React.ComponentProps<typeof Checkbox>, "checked" | "onCheckedChange"> & {
 	name?: Path<T>;
 	control?: Control<T, unknown, T>;
 	checked?: boolean;

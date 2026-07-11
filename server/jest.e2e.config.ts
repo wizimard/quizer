@@ -60,6 +60,19 @@ const config: Config = {
 			},
 		],
 	},
+	reporters: [
+		'default',
+		[
+			'jest-html-reporter',
+			{
+				pageTitle: 'Test Report',
+				outputPath: './test-report.html',
+				append: true,
+				collapseSuitesByDefault: true,
+				includeFailureMsg: true,
+			},
+		],
+	],
 };
 
 export default config;
