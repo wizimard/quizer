@@ -1,7 +1,7 @@
-import type { TestId } from '@modules/test-management';
+import type { TestEntity } from '@modules/test-management';
 import type { UserId } from '@modules/identity-access';
 
 export interface DeleteTestInput {
-	testId: TestId;
+	test: TestEntity;
 	authorId: UserId;
 }

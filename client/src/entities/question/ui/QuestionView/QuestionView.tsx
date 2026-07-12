@@ -1,6 +1,6 @@
 import { CircleChevronDown, CircleChevronUp, Pencil } from "lucide-react";
 import { QuestionViewConfig } from "../QuestionViewConfig";
-import { Text } from "@shared/ui/text";
+import { Typography } from "@shared/ui/typography";
 import type { Question } from "@entities/question";
 import { ButtonIcon } from "@shared/ui/button";
 
@@ -40,7 +40,7 @@ export const QuestionView = ({ question, handleClickEdit, handleClickUp, handleC
 					<Pencil className="size-5" />
 				</ButtonIcon>
 			</div>
-			<Text className="pr-5">{question.description}</Text>
+			<Typography className="pr-5">{question.description}</Typography>
 			<QuestionViewConfig config={question.config} />
 		</div>
 	);

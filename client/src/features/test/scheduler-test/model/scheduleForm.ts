@@ -7,6 +7,7 @@ const schedulePeriodSchema = zod
 		periodId: zod.number().nullable(),
 		availableFrom: zod.date(),
 		availableTo: zod.date().nullish(),
+		isDeleted: zod.boolean().default(false),
 	})
 	.refine((data) => !data.availableTo || data.availableTo > data.availableFrom, {
 		message: "test_scheduler_form.period.validation_errors.availableTo_after_from",

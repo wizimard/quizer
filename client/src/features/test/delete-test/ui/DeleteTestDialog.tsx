@@ -1,62 +1,38 @@
 import { useTranslation } from "react-i18next";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { AxiosError } from "axios";
+import { useTestDelete } from "../api/test-delete";
 import { DefaultButton } from "@shared/ui/button";
 import { Dialog, DialogContent, DialogFooter } from "@shared/ui/kit/dialog";
-import { Text } from "@shared/ui/text";
-import { testApi } from "@shared/api";
+import { Typography } from "@shared/ui/typography";
+import { DIALOG_KEYS, useManageOpenDialog } from "@shared/model";
 
 interface DeleteTestDialogProps {
 	testId: string;
-	isOpen: boolean;
-	handleClose(): void;
 }
 
-export const DeleteTestDialog = ({ testId, isOpen, handleClose }: DeleteTestDialogProps) => {
+export const DeleteTestDialog = ({ testId }: DeleteTestDialogProps) => {
 	const { t } = useTranslation();
 
-	const queryClient = useQueryClient();
-	const navigate = useNavigate();
-
-	const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-	const testDeleteMutation = useMutation({
-		mutationFn: (testId: string) => testApi.testTestIdDelete(testId),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["tests"] });
-			navigate("/");
-		},
-		onError: (error) => {
-			if (!(error instanceof AxiosError) || !error.response?.data?.message) {
-				console.error(error);
-				setErrorMessage("errors.unknown_error");
-				return;
-			}
-			setErrorMessage(error.response.data.message);
-		},
-	});
+	const { isLoading, errorMessage, handleDelete } = useTestDelete();
+	const { isOpen, closeDialog } = useManageOpenDialog(DIALOG_KEYS.DELETE_TEST);
 
 	const handleRemove = async () => {
-		setErrorMessage(null);
-
-		testDeleteMutation.mutate(testId);
+		handleDelete(testId);
 	};
 
 	return (
-		<Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-			<DialogContent showCloseButton={false} className="h-[300px] flex flex-col items-center gap-2.5">
-				<Text className="text-[150%]">{t("test.delete_modal.title")}</Text>
+		<Dialog open={isOpen} onOpenChange={closeDialog}>
+			<DialogContent showCloseButton={false} className="pb-10 flex flex-col items-center gap-2.5">
+				<Typography className="w-full text-left text-[150%]">{t("test_delete.dialog.title")}</Typography>
+				<Typography className="w-full text-left">{t("test_delete.dialog.description")}</Typography>
 				<img src="/test_card_img.png" alt="test image" className="w-[150px] shrink-0" />
 
-				{errorMessage && <Text color="error">{t(errorMessage)}</Text>}
+				{errorMessage && <Typography color="error">{t(errorMessage)}</Typography>}
 
 				<DialogFooter className="mt-5 w-full border-0 bg-transparent p-0">
-					<DefaultButton variant="outline" onClick={handleClose}>
+					<DefaultButton variant="outline" onClick={closeDialog}>
 						{t("common.button_cancel")}
 					</DefaultButton>
-					<DefaultButton variant="destructive" onClick={handleRemove} isLoading={testDeleteMutation.isPending}>
+					<DefaultButton variant="destructive" onClick={handleRemove} isLoading={isLoading}>
 						{t("common.button_delete")}
 					</DefaultButton>
 				</DialogFooter>

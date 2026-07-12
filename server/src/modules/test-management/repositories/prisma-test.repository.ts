@@ -85,6 +85,7 @@ export class PrismaTestRepository implements TestRepository {
 			() =>
 				this.prismaService.client.testModel.findUnique({
 					where: { id: testId },
+					include: SHORT_TEST_INCLUDE,
 				}),
 			'PrismaTestRepository.findById',
 			this.logger,

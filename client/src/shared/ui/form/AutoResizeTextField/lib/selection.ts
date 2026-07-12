@@ -1,4 +1,4 @@
-import { getPlainText } from "./plain-text";
+import { getPlainTypography } from "./plain-text";
 
 export function getCaretOffset(element: HTMLElement): number {
 	const selection = window.getSelection();
@@ -14,7 +14,7 @@ export function getCaretOffset(element: HTMLElement): number {
 	const container = document.createElement("div");
 	container.appendChild(preCaretRange.cloneContents());
 
-	return getPlainText(container).length;
+	return getPlainTypography(container).length;
 }
 
 export function setCaretOffset(element: HTMLElement, offset: number): void {

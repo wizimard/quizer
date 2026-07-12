@@ -1,7 +1,7 @@
 import { CircleAlert } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@shared/ui/kit/card";
-import { Text } from "@shared/ui/text";
+import { Typography } from "@shared/ui/typography";
 
 export interface IErrorCardProps {
 	message: string;
@@ -17,9 +17,9 @@ export const ErrorCard = ({ message }: IErrorCardProps) => {
 					<div className="flex size-10 items-center justify-center rounded-full bg-destructive/10">
 						<CircleAlert className="size-5 text-destructive" aria-hidden />
 					</div>
-					<Text variant="body1" color="error" align="center">
+					<Typography variant="body1" color="error" align="center">
 						{t(message)}
-					</Text>
+					</Typography>
 				</CardContent>
 			</Card>
 		</div>

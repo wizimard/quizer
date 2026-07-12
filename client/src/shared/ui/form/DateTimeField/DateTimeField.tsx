@@ -236,11 +236,6 @@ export const DateTimeField = ({ label, value, onChange, id, disabled, allowEmpty
 					aria-invalid={ariaInvalid}
 					className="w-auto bg-background"
 				/>
-				{/* {allowEmpty && isValidDate(value) && (
-					<Button type="button" variant="ghost" size="icon" disabled={disabled} aria-label={t("common.datetime.clear_date")} onClick={handleClear}>
-						<XIcon />
-					</Button>
-				)} */}
 			</div>
 			{error && <FieldError>{t(error)}</FieldError>}
 		</Field>

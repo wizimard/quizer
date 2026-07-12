@@ -1,5 +1,5 @@
 import { enforceMaxLength } from "./max-length";
-import { getPlainText, isPlainDom, setPlainText } from "./plain-text";
+import { getPlainTypography, isPlainDom, setPlainTypography } from "./plain-text";
 import { getCaretOffset, setCaretOffset } from "./selection";
 
 type TReadAndEmitValueParams = {
@@ -13,10 +13,10 @@ export function readAndEmitValue({ element, value, onChange, maxLength }: TReadA
 	const isFocused = document.activeElement === element;
 	const caretOffset = isFocused ? getCaretOffset(element) : null;
 
-	let nextValue = getPlainText(element);
+	let nextValue = getPlainTypography(element);
 
 	if (!isPlainDom(element)) {
-		setPlainText(element, nextValue);
+		setPlainTypography(element, nextValue);
 
 		if (caretOffset !== null) {
 			setCaretOffset(element, Math.min(caretOffset, nextValue.length));
@@ -26,7 +26,7 @@ export function readAndEmitValue({ element, value, onChange, maxLength }: TReadA
 	if (maxLength !== undefined) {
 		nextValue = enforceMaxLength(element, maxLength);
 	} else {
-		nextValue = getPlainText(element);
+		nextValue = getPlainTypography(element);
 	}
 
 	if (nextValue !== value) {

@@ -5,7 +5,7 @@ import { TestSettingsLoginData } from "./ui/TestSettingsLoginData";
 import { Separator } from "@shared/ui/kit/separator";
 import { DefaultButton } from "@shared/ui/button";
 import { FormTextField } from "@shared/ui/form";
-import { Text } from "@shared/ui/text";
+import { Typography } from "@shared/ui/typography";
 import type { TestFull } from "@entities/test";
 
 export interface TestGeneralSettingsFormProps {
@@ -25,7 +25,7 @@ export const TestGeneralSettingsForm = ({ test }: TestGeneralSettingsFormProps) 
 
 			<TestSettingsAfterCompletion control={control} />
 
-			{formError?.message && <Text color="error">{t(formError.message)}</Text>}
+			{formError?.message && <Typography color="error">{t(formError.message)}</Typography>}
 
 			<div className="mt-2.5 flex gap-2.5">
 				<DefaultButton type="submit" isLoading={isSubmitting} disabled={!isDirty} onClick={submitHandler}>

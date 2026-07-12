@@ -1,10 +1,10 @@
 const ALLOWED_TAGS = new Set(["BR"]);
 
-export function getPlainText(element: HTMLElement): string {
+export function getPlainTypography(element: HTMLElement): string {
 	return element.innerText.replace(/\r\n?/g, "\n");
 }
 
-export function setPlainText(element: HTMLElement, text: string): void {
+export function setPlainTypography(element: HTMLElement, text: string): void {
 	element.replaceChildren();
 
 	if (!text) {

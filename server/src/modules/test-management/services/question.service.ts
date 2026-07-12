@@ -12,12 +12,19 @@ import type { IQuestionService } from '../interfaces/services/question.service.i
 import { QuestionMapper } from '../mappers/question.mapper';
 import type { QuestionResult } from '../interfaces/services/results/question.result';
 import { QuestionNotFoundError } from '../utils/errors/question-not-found.error';
+import type { ILogger } from '@shared/logger';
+import { APP_TYPES } from '@app/app.types';
 
 @injectable()
 export class QuestionService implements IQuestionService {
-	constructor(@inject(TM_TYPES.QUESTION_REPOSITORY) private readonly questionRepository: QuestionRepository) {}
+	constructor(
+		@inject(TM_TYPES.QUESTION_REPOSITORY) private readonly questionRepository: QuestionRepository,
+		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
+	) {}
 
 	async create(input: CreateQuestionInput): Promise<QuestionResult> {
+		this.logger.info({ message: 'QuestionService.create start', data: input });
+
 		const questionEntity = QuestionMapper.buildQuestionFromCreateInput(input);
 		const errors = questionEntity.validate();
 
@@ -26,10 +33,15 @@ export class QuestionService implements IQuestionService {
 		}
 
 		const createdQuestion = await this.questionRepository.create(questionEntity);
+
+		this.logger.info({ message: 'QuestionService.create question created:', data: createdQuestion });
+
 		return QuestionMapper.toResult(createdQuestion);
 	}
 
 	async update(input: UpdateQuestionInput): Promise<QuestionResult> {
+		this.logger.info({ message: 'QuestionService.update start', data: input });
+
 		const questionEntity = QuestionMapper.buildQuestionFromUpdateInput(input);
 		const errors = questionEntity.validate();
 
@@ -39,18 +51,26 @@ export class QuestionService implements IQuestionService {
 
 		const updatedQuestion = await this.questionRepository.update(questionEntity);
 
+		this.logger.info({ message: 'QuestionService.update question updated:', data: updatedQuestion });
+
 		return QuestionMapper.toResult(updatedQuestion);
 	}
 
 	async delete(input: DeleteQuestionInput): Promise<void> {
+		this.logger.info({ message: 'QuestionService.delete start', data: input });
+
 		const isDeleted = await this.questionRepository.delete(input.id.value, input.testId.value);
 
 		if (!isDeleted) {
 			throw new QuestionNotFoundError('QuestionService.delete');
 		}
+
+		this.logger.info({ message: 'QuestionService.delete question deleted' });
 	}
 
 	async changeOrder(input: ChangeQuestionOrderInput): Promise<QuestionResult[]> {
+		this.logger.info({ message: 'QuestionService.changeOrder start', data: input });
+
 		const { test, questionId, previousQuestionId, nextQuestionId } = input;
 
 		if (!previousQuestionId && !nextQuestionId) {
@@ -98,7 +118,10 @@ export class QuestionService implements IQuestionService {
 		}
 
 		if (!isNeedChangeOrders) {
+			this.logger.info({ message: 'QuestionService.changeOrder question order changed' });
+
 			await this.questionRepository.updateQuestionsOrders([question]);
+
 			return test.questions.map(QuestionMapper.toResult);
 		}
 
@@ -107,6 +130,8 @@ export class QuestionService implements IQuestionService {
 		}
 
 		await this.questionRepository.updateQuestionsOrders(test.questions);
+
+		this.logger.info({ message: 'QuestionService.changeOrder all questions orders changed in database' });
 
 		return test.questions.map(QuestionMapper.toResult);
 	}

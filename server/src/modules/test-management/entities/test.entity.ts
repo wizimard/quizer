@@ -18,7 +18,7 @@ export class TestEntity {
 	public questions: Array<QuestionEntity> = [];
 	public settings: TestSettings | null = null;
 	public schedulerPeriods: Array<TestSchedulerPeriod> = [];
-	public sessions: Array<TestSessionEntity> = [];
+	public _sessions: Array<TestSessionEntity> = [];
 
 	public updatedAt: Date;
 	public createdAt: Date;
@@ -30,8 +30,6 @@ export class TestEntity {
 
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
-
-		this.setStatus();
 	}
 
 	get availablePeriods(): Array<TestSchedulerPeriod> {
@@ -42,10 +40,16 @@ export class TestEntity {
 		return this.status === 'open' || this.status === 'open_by_scheduler';
 	}
 
-	private setStatus(): void {
-		if (this.sessions.length > 0) {
-			if (this.sessions[0]!.status === 'ACTIVE') {
-				this.status = this.sessions[0]!.startBy === 'SCHEDULED' ? 'open_by_scheduler' : 'open';
+	get sessions(): Array<TestSessionEntity> {
+		return this._sessions;
+	}
+
+	public setSessions(sessions: Array<TestSessionEntity>): void {
+		this._sessions = sessions;
+
+		if (sessions.length > 0) {
+			if (sessions[0]!.status === 'ACTIVE') {
+				this.status = sessions[0]!.startBy === 'SCHEDULED' ? 'open_by_scheduler' : 'open';
 			}
 			return;
 		}

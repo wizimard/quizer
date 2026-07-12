@@ -92,8 +92,8 @@ model TestSessionModel {
   status      TestSessionStatus  @default(ACTIVE)
   start_by    TestSessionStartBy @default(MANUALLY)
 
-  @@unique([test_id, status])
   @@index([test_id])
+  @@index([test_id, status])
 }
 
 enum TestSessionStatus {

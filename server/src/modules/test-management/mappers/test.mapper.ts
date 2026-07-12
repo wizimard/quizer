@@ -29,12 +29,6 @@ export class TestMapper {
 			test.questions = testModel.questions.map((question: TestQuestionModel) => QuestionMapper.toDomain(question));
 		}
 
-		if ('test_settings' in testModel) {
-			test.sessions = testModel.test_sessions.map(
-				(session: TestSessionModel) => new TestSessionEntity(session.id, testId, session.started_at, session.finished_at, session.status, session.start_by),
-			);
-		}
-
 		if ('scheduler_periods' in testModel) {
 			test.schedulerPeriods = testModel.scheduler_periods.map(
 				(period: TestSchedulerPeriodModel) => new TestSchedulerPeriod(Number(period.id), testId, period.available_from, period.available_to),
@@ -48,6 +42,12 @@ export class TestMapper {
 				testModel.test_settings.required_first_name,
 				testModel.test_settings.required_last_name,
 				testModel.test_settings.show_answers_after_completion,
+			);
+		}
+
+		if ('test_sessions' in testModel) {
+			test.setSessions(
+				testModel.test_sessions.map((session: TestSessionModel) => new TestSessionEntity(session.id, testId, session.started_at, session.finished_at, session.status, session.start_by)),
 			);
 		}
 

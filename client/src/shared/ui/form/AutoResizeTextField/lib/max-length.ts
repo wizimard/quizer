@@ -1,7 +1,7 @@
 import { getCaretOffset, setCaretOffset } from "./selection";
-import { getPlainText, setPlainText } from "./plain-text";
+import { getPlainTypography, setPlainTypography } from "./plain-text";
 
-export function getSelectedTextLength(root: HTMLElement): number {
+export function getSelectedTypographyLength(root: HTMLElement): number {
 	const selection = window.getSelection();
 	if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
 		return 0;
@@ -14,13 +14,13 @@ export function getSelectedTextLength(root: HTMLElement): number {
 	const container = document.createElement("div");
 	container.appendChild(range.cloneContents());
 
-	return getPlainText(container).length;
+	return getPlainTypography(container).length;
 }
 
-export function getInsertableText(text: string, element: HTMLElement, maxLength: number): string {
-	const currentText = getPlainText(element);
-	const selectedLength = getSelectedTextLength(element);
-	const availableLength = maxLength - (currentText.length - selectedLength);
+export function getInsertableTypography(text: string, element: HTMLElement, maxLength: number): string {
+	const currentTypography = getPlainTypography(element);
+	const selectedLength = getSelectedTypographyLength(element);
+	const availableLength = maxLength - (currentTypography.length - selectedLength);
 
 	if (availableLength <= 0) {
 		return "";
@@ -30,17 +30,17 @@ export function getInsertableText(text: string, element: HTMLElement, maxLength:
 }
 
 export function enforceMaxLength(element: HTMLElement, maxLength: number): string {
-	const text = getPlainText(element);
+	const text = getPlainTypography(element);
 
 	if (text.length <= maxLength) {
 		return text;
 	}
 
 	const caretOffset = getCaretOffset(element);
-	const truncatedText = text.slice(0, maxLength);
+	const truncatedTypography = text.slice(0, maxLength);
 
-	setPlainText(element, truncatedText);
+	setPlainTypography(element, truncatedTypography);
 	setCaretOffset(element, Math.min(caretOffset, maxLength));
 
-	return truncatedText;
+	return truncatedTypography;
 }

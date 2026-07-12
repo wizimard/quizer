@@ -1,25 +1,21 @@
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
 import { CreateTestDialog } from "./CreateTestDialog";
 import { ButtonAdd } from "@shared/ui/button/ButtonAdd";
+import { DIALOG_KEYS, useOpenDialog } from "@shared/model";
 
 export const CreateTestWidget = () => {
 	const { t } = useTranslation();
 
-	const [isOpen, setIsOpen] = useState(false);
+	const openDialog = useOpenDialog(DIALOG_KEYS.CREATE_TEST);
 
 	const handleClickNewTest = () => {
-		setIsOpen(true);
-	};
-
-	const handleCloseDialog = () => {
-		setIsOpen(false);
+		openDialog();
 	};
 
 	return (
 		<>
 			<ButtonAdd text={t("test_list.add_button")} onClick={handleClickNewTest} />
-			<CreateTestDialog isOpen={isOpen} handleClose={handleCloseDialog} />
+			<CreateTestDialog />
 		</>
 	);
 };

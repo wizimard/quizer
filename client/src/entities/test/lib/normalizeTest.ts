@@ -1,8 +1,8 @@
-import type { TestFull } from "../model/test-full.interface";
+import type { TestFull, TestSchedulerPeriod } from "../model/test-full.interface";
 import type { Test } from "../model/test.interface";
 import { normalizeScheduler } from "./normalizeScheduler";
 import type { TestFullResponse, TestResponse } from "@shared/api/generated";
-import { normalizeQuestion } from "@entities/question";
+import { normalizeQuestion, type Question } from "@entities/question";
 
 export function normalizeTest(test: TestResponse): Test {
 	return {
@@ -14,15 +14,15 @@ export function normalizeTest(test: TestResponse): Test {
 }
 
 export function normalizeTestFull(test: TestFullResponse): TestFull {
-	test.questions.sort((a, b) => a.sort_key - b.sort_key);
+	const questions: Array<Question> = test.questions.toSorted((a, b) => a.sort_key - b.sort_key).map(normalizeQuestion);
 
-	const schedulerPeriods = normalizeScheduler(test.scheduler);
+	const schedulerPeriods: Array<TestSchedulerPeriod> = normalizeScheduler(test.scheduler);
 
 	schedulerPeriods.sort((a, b) => a.availableFrom.getTime() - b.availableFrom.getTime());
 
 	return {
 		...test,
-		questions: test.questions.map(normalizeQuestion),
+		questions: questions,
 		authorId: test.author_id,
 		schedulerPeriods,
 		updatedAt: new Date(test.updated_at),

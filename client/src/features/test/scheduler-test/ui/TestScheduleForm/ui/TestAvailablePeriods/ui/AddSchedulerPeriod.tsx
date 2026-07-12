@@ -1,22 +1,27 @@
 import { Plus } from "lucide-react";
-import { type UseFieldArrayAppend } from "react-hook-form";
+import { useFieldArray } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { ButtonWithIcon } from "@shared/ui/button";
-import type { ScheduleForm } from "@features/test/scheduler-test/model/scheduleForm";
+import type { ScheduleComponentProps } from "@features/test/scheduler-test/model/scheduleForm";
 
-export interface AddSchedulerPeriodProps {
-	append: UseFieldArrayAppend<ScheduleForm, "schedulePeriods">;
-}
-
-export const AddSchedulerPeriod = ({ append }: AddSchedulerPeriodProps) => {
+export const AddSchedulerPeriod = ({ control }: ScheduleComponentProps<object>) => {
 	const { t } = useTranslation();
 
+	const { append, fields: schedulePeriods } = useFieldArray({ control, name: "schedulePeriods" });
+
 	const handleClick = () => {
+		const lastPeriod = schedulePeriods[schedulePeriods.length - 1];
+
+		const now = new Date(lastPeriod.availableTo);
+
+		now.setDate(now.getDate() + 1);
+
 		append({
-			id: null,
+			id: now.getTime(),
 			periodId: null,
-			availableFrom: new Date(),
+			availableFrom: now,
 			availableTo: null,
+			isDeleted: false,
 		});
 	};
 

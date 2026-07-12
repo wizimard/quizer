@@ -1,6 +1,6 @@
 import type { QuestionConfigOption } from "@shared/api/generated";
 import { cn } from "@shared/lib/utils";
-import { Text } from "@shared/ui/text";
+import { Typography } from "@shared/ui/typography";
 
 export interface QuestionOptionProps extends QuestionConfigOption {
 	checked?: boolean;
@@ -23,7 +23,7 @@ export const QuestionOption = ({ id, value, checked, disabled, onClick }: Questi
 			onClick={handleClick}
 			className={cn("w-full rounded-[10px] border px-2.5 py-1.5 text-start outline-none", checked ? "border-[#177D00] bg-[#C7FFCC]" : "border-[#B8B8B8] bg-transparent")}
 		>
-			<Text>{value}</Text>
+			<Typography>{value}</Typography>
 		</button>
 	);
 };

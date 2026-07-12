@@ -7,3 +7,4 @@ export { normalizeQuestion } from "./lib/normalizeQuestion";
 export { QuestionView } from "./ui/QuestionView";
 export { QuestionListItemContainer } from "./ui/QuestionListItemContainer";
 export { QuestionOption } from "./ui/QuestionOption";
+export { QuestionManageCard } from "./ui/QuestionManageCard/QuestionManageCard";

@@ -11,8 +11,8 @@ export class LoggerService implements ILogger {
 				{
 					pid: process.pid,
 					level,
-					message,
 					timestamp: new Date().toISOString(),
+					message,
 				},
 				null,
 				4,
@@ -20,19 +20,31 @@ export class LoggerService implements ILogger {
 		);
 	}
 
-	info(message: string): void {
-		this.write('info', message);
+	private getMessage(data: string | object): string {
+		let message = '';
+
+		try {
+			message += typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+		} catch (error) {
+			message += "object can't format to string";
+		}
+
+		return message;
 	}
 
-	error(message: string): void {
-		this.write('error', message);
+	info(...data: unknown[]): void {
+		this.write('info', this.getMessage(data));
 	}
 
-	warn(message: string): void {
-		this.write('warn', message);
+	error(...data: unknown[]): void {
+		this.write('error', this.getMessage(data));
 	}
 
-	success(message: string): void {
-		this.write('success', message);
+	warn(...data: unknown[]): void {
+		this.write('warn', this.getMessage(data));
+	}
+
+	success(...data: unknown[]): void {
+		this.write('success', this.getMessage(data));
 	}
 }
