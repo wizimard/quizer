@@ -1,5 +1,5 @@
 import { QUESTION_TYPES } from "@entities/question";
-import type { ISelectOption } from "@shared/ui/form/FormSelectField/FormSelectField";
+import type { ISelectOption } from "@shared/ui/form/FormSelectField";
 
 export const QUESTION_TYPES_OPTIONS: ISelectOption[] = [
 	{

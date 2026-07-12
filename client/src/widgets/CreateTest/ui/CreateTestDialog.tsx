@@ -1,24 +1,21 @@
 import { useTranslation } from "react-i18next";
-import { DialogContent, DialogHeader, DialogTitle } from "@shared/ui/kit/dialog";
-import { BaseDialog } from "@shared/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@shared/ui/kit/dialog";
 import { CreateTestForm } from "@features/test/create-test";
+import { DIALOG_KEYS, useDialog } from "@shared/model";
 
-export interface CreateTestDialogProps {
-	isOpen: boolean;
-	handleClose(): void;
-}
-
-export const CreateTestDialog = ({ isOpen, handleClose }: CreateTestDialogProps) => {
+export const CreateTestDialog = () => {
 	const { t } = useTranslation();
 
+	const { isOpen, closeDialog } = useDialog(DIALOG_KEYS.CREATE_TEST);
+
 	return (
-		<BaseDialog open={isOpen} onOpenChange={handleClose}>
+		<Dialog open={isOpen} onOpenChange={closeDialog}>
 			<DialogContent className="pb-5">
 				<DialogHeader>
 					<DialogTitle>{t("test_list.add_button")}</DialogTitle>
 				</DialogHeader>
 				<CreateTestForm />
 			</DialogContent>
-		</BaseDialog>
+		</Dialog>
 	);
 };

@@ -1,10 +1,10 @@
 import type { QuestionConfigInput } from "@shared/api/generated";
-import { Text } from "@shared/ui/text";
+import { Typography } from "@shared/ui/typography";
 
 export const QuestionViewInput = ({ answer, ignore_case }: QuestionConfigInput) => {
 	return (
-		<Text>
+		<Typography>
 			Ответ: {answer} ({ignore_case ? "без учета регистра" : "с учетом регистра"})
-		</Text>
+		</Typography>
 	);
 };

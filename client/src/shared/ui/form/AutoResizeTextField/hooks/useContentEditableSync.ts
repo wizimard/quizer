@@ -1,7 +1,7 @@
 import { useCallback, useLayoutEffect, useRef, type MutableRefObject, type RefObject } from "react";
 
-import { getSelectedTextLength } from "../lib/max-length";
-import { getPlainText, setPlainText } from "../lib/plain-text";
+import { getSelectedTypographyLength } from "../lib/max-length";
+import { getPlainTypography, setPlainTypography } from "../lib/plain-text";
 import { readAndEmitValue } from "../lib/read-and-emit-value";
 import { getCaretOffset, setCaretOffset } from "../lib/selection";
 
@@ -31,14 +31,14 @@ export function useContentEditableSync({ elementRef, value, onChange, isComposin
 			return;
 		}
 
-		const domValue = getPlainText(element);
+		const domValue = getPlainTypography(element);
 		if (domValue === value) {
 			return;
 		}
 
 		const caretOffset = isFocusedRef.current ? getCaretOffset(element) : null;
 
-		setPlainText(element, value);
+		setPlainTypography(element, value);
 
 		if (caretOffset !== null) {
 			setCaretOffset(element, Math.min(caretOffset, value.length));
@@ -80,9 +80,9 @@ export function useContentEditableSync({ elementRef, value, onChange, isComposin
 				return;
 			}
 
-			const currentText = getPlainText(element);
-			const selectedLength = getSelectedTextLength(element);
-			const availableLength = maxLength - (currentText.length - selectedLength);
+			const currentTypography = getPlainTypography(element);
+			const selectedLength = getSelectedTypographyLength(element);
+			const availableLength = maxLength - (currentTypography.length - selectedLength);
 
 			if (availableLength <= 0) {
 				event.preventDefault();

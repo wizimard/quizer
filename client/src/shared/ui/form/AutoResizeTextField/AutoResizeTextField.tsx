@@ -2,8 +2,8 @@ import { forwardRef, useCallback, useRef } from "react";
 
 import { useContentEditableSync } from "./hooks/useContentEditableSync";
 import { useImeComposition } from "./hooks/useImeComposition";
-import { insertPlainTextAtSelection } from "./lib/insert-plain-text";
-import { getInsertableText } from "./lib/max-length";
+import { insertPlainTypographyAtSelection } from "./lib/insert-plain-text";
+import { getInsertableTypography } from "./lib/max-length";
 import { readAndEmitValue } from "./lib/read-and-emit-value";
 import { cn } from "@shared/lib/utils";
 
@@ -17,7 +17,7 @@ export type TAutoResizeTextFieldProps = {
 	maxHeightLines?: number;
 };
 
-const autoResizeTextFieldClassName = cn(
+const autoResizeTypographyFieldClassName = cn(
 	"w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-2 text-base leading-normal break-words whitespace-pre-wrap transition-colors outline-none",
 	"min-h-[calc(3*1lh+1rem)]",
 	"focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
@@ -71,14 +71,14 @@ const AutoResizeTextField = forwardRef<HTMLDivElement, TAutoResizeTextFieldProps
 				return;
 			}
 
-			const pastedText = event.clipboardData.getData("text/plain").replace(/\r\n?/g, "\n");
-			const insertableText = maxLength === undefined ? pastedText : getInsertableText(pastedText, element, maxLength);
+			const pastedTypography = event.clipboardData.getData("text/plain").replace(/\r\n?/g, "\n");
+			const insertableTypography = maxLength === undefined ? pastedTypography : getInsertableTypography(pastedTypography, element, maxLength);
 
-			if (!insertableText) {
+			if (!insertableTypography) {
 				return;
 			}
 
-			insertPlainTextAtSelection(insertableText);
+			insertPlainTypographyAtSelection(insertableTypography);
 			readAndEmitValue({ element, onChange, value, maxLength });
 		},
 		[disabled, maxLength, onChange, value],
@@ -98,7 +98,7 @@ const AutoResizeTextField = forwardRef<HTMLDivElement, TAutoResizeTextFieldProps
 			data-empty={value.length === 0}
 			data-placeholder={placeholder ?? ""}
 			style={maxHeightLines !== undefined ? { maxHeight: `calc(${maxHeightLines} * 1lh + 1rem)` } : undefined}
-			className={cn(autoResizeTextFieldClassName, maxHeightLines !== undefined && "overflow-y-auto", disabled && disabledClassName, className)}
+			className={cn(autoResizeTypographyFieldClassName, maxHeightLines !== undefined && "overflow-y-auto", disabled && disabledClassName, className)}
 			onInput={handleInput}
 			onBeforeInput={handleBeforeInput}
 			onCompositionStart={handleCompositionStart}

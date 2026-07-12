@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback } from "@shared/ui/kit/avatar";
 import { Button } from "@shared/ui/kit/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@shared/ui/kit/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@shared/ui/kit/tooltip";
-import { Text } from "@shared/ui/text";
+import { Typography } from "@shared/ui/typography";
 
 const menuItems = [{ id: "logout", title: "header.user_menu.logout" }];
 
@@ -32,7 +32,7 @@ export const HeaderUserMenu = () => {
 				<DropdownMenuContent align="end">
 					{menuItems.map((menuItem) => (
 						<DropdownMenuItem key={menuItem.id} onSelect={handleClickMenuItem}>
-							<Text>{t(menuItem.title)}</Text>
+							<Typography>{t(menuItem.title)}</Typography>
 						</DropdownMenuItem>
 					))}
 				</DropdownMenuContent>

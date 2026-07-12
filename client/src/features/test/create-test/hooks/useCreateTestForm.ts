@@ -6,7 +6,9 @@ import { useNavigate } from "react-router-dom";
 import { createTestForm, type CreateTestForm } from "../model/createTestForm";
 import { testApi } from "@shared/api";
 import type { TestResponse } from "@shared/api/generated";
+import { DIALOG_KEYS, useLockDialog } from "@shared/model";
 
+// TODO: lock, unlock modal
 export const useCreateTestForm = () => {
 	const {
 		control,
@@ -24,12 +26,15 @@ export const useCreateTestForm = () => {
 		},
 	});
 
+	const { lockDialog, unlockDialog } = useLockDialog(DIALOG_KEYS.CREATE_TEST);
+
 	const queryClient = useQueryClient();
 
 	const navigate = useNavigate();
 
 	const testCreateMutation = useMutation({
 		mutationFn: (data: CreateTestForm) => {
+			lockDialog();
 			return testApi.testPost(data);
 		},
 		onSuccess: (response: AxiosResponse<TestResponse>) => {
@@ -42,6 +47,9 @@ export const useCreateTestForm = () => {
 				return;
 			}
 			setError("root", { message: error.response.data.message });
+		},
+		onSettled: () => {
+			unlockDialog();
 		},
 	});
 

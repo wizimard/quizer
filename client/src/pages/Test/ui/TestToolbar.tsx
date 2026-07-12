@@ -1,10 +1,9 @@
-import { TestSettingsDrawer } from "./TestSettingsDrawer";
-import { SettingsDrawerButton } from "./SettingsDrawerButton";
-import { Text } from "@shared/ui/text";
+import { Typography } from "@shared/ui/typography";
 import { TestResponseStatusEnum } from "@shared/api/generated";
 import { TestStatus, type TestFull } from "@entities/test";
 import { StartTest } from "@features/test/start-test";
 import { StopTest } from "@features/test/stop-test";
+import { TestSettings } from "@widgets/TestSettings";
 
 export interface TestToolbarProps {
 	test: TestFull;
@@ -16,14 +15,13 @@ export const TestToolbar = ({ test }: TestToolbarProps) => {
 	return (
 		<>
 			<div className="flex w-full items-center gap-3">
-				<Text component="h1" className="text-[1.4rem]">
+				<Typography component="h1" className="text-[1.4rem] text-nowrap overflow-hidden text-ellipsis whitespace-nowrap">
 					{test.title}
-				</Text>
+				</Typography>
 				<TestStatus status={test.status} className="ml-auto" />
 				{isOpen ? <StopTest test={test} /> : <StartTest test={test} />}
-				<SettingsDrawerButton />
+				<TestSettings test={test} />
 			</div>
-			<TestSettingsDrawer test={test} />
 		</>
 	);
 };

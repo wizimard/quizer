@@ -5,7 +5,7 @@ import { QuestionConfig } from "./ui/QuestionEditConfig";
 import { FormSelectField, FormTextField } from "@shared/ui/form";
 import type { Question } from "@entities/question";
 import { DefaultButton } from "@shared/ui/button";
-import { Text } from "@shared/ui/text";
+import { Typography } from "@shared/ui/typography";
 
 export interface QuestionFormProps {
 	question: Question;
@@ -22,7 +22,7 @@ export const QuestionForm = ({ question }: QuestionFormProps) => {
 			<FormSelectField control={control} name="config.type" options={QUESTION_TYPES_OPTIONS} label="question_form.type.label" placeholder="question_form.type.placeholder" id="config.type" />
 			<QuestionConfig control={control} />
 
-			{formError?.message && <Text color="error">{t(formError.message)}</Text>}
+			{formError?.message && <Typography color="error">{t(formError.message)}</Typography>}
 
 			<div className="mt-2.5 flex gap-2.5">
 				<DefaultButton type="submit" isLoading={isLoading} disabled={!isDirty}>

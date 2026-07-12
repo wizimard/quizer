@@ -52,7 +52,7 @@ export class TestInputMapper {
 
 	static toDeleteInput(test: TestEntity): DeleteTestInput {
 		return {
-			testId: test.id,
+			test,
 			authorId: test.authorId,
 		};
 	}

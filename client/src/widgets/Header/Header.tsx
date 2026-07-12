@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import { HeaderUserMenu } from "./HeaderUserMenu";
 import { Logo } from "./Logo";
 import { cn } from "@shared/lib/utils";
-import { Text } from "@shared/ui/text";
+import { Typography } from "@shared/ui/typography";
 
 export const Header = () => {
 	const { t } = useTranslation();
@@ -12,9 +12,9 @@ export const Header = () => {
 		<header className="flex shrink-0 items-center gap-6 border-b-2 border-green-600 px-5 py-1.5">
 			<Logo />
 			<NavLink to="/" className={({ isActive }) => cn("transition-colors hover:text-foreground", isActive ? "text-foreground font-medium" : "text-muted-foreground")}>
-				<Text component="span" className="capitalize">
+				<Typography component="span" className="capitalize">
 					{t("header.tests_link")}
-				</Text>
+				</Typography>
 			</NavLink>
 			<HeaderUserMenu />
 		</header>

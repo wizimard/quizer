@@ -1,63 +1,53 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { AxiosError, AxiosResponse } from "axios";
-import { QuestionList } from "./ui/QuestionList";
-import type { QuestionChangeOrderRequestBody, QuestionResponse } from "@shared/api/generated";
-import { normalizeQuestion, type Question } from "@entities/question";
-import { questionApi } from "@shared/api";
-import type { TestFull } from "@entities/test";
-import { useQuestionDrawer } from "@widgets/TestQuestions/store/question-drawer";
+import { useCallback, useEffect, useRef } from "react";
+import { QuestionListItem } from "./ui/QuestionListItem";
+import { type Question } from "@entities/question";
+import { useChangeQuestionOrder } from "@features/question/change-question-order";
+import { DRAWER_KEYS, useOpenDrawer } from "@shared/model";
 
 export interface IQuestionsListProps {
 	questions: Question[];
 }
 // TODO: review
 export const QuestionsList = ({ questions }: IQuestionsListProps) => {
-	const queryClient = useQueryClient();
+	const { handleChangeQuestionOrder } = useChangeQuestionOrder();
 
-	const questionOrderChagenMutation = useMutation({
-		mutationFn: ({ question, next_question_id, previous_question_id }: QuestionChangeOrderRequestBody & { question: Question }) => {
-			return questionApi.questionTestIdQuestionsQuestionIdOrderPatch(question.testId, question.id, {
-				next_question_id,
-				previous_question_id,
-			});
+	const openDrawer = useOpenDrawer(DRAWER_KEYS.QUESTION_SETTINGS);
+
+	const questionsRef = useRef<Question[]>(questions);
+
+	useEffect(() => {
+		questionsRef.current = questions;
+	}, [questions]);
+
+	const handleClickEdit = useCallback(
+		(question: Question) => {
+			openDrawer(question);
 		},
-		onSuccess: (response: AxiosResponse<QuestionResponse[]>) => {
-			queryClient.setQueryData(["test", response.data[0].test_id], (oldData: TestFull) => {
-				return {
-					...oldData,
-					questions: response.data.map(normalizeQuestion).toSorted((a, b) => a.sortKey - b.sortKey),
-				};
-			});
+		[openDrawer],
+	);
+
+	const handleClickUp = useCallback(
+		(question: Question) => {
+			const prevQuestion = questionsRef.current[questionsRef.current.findIndex((q) => q.id === question.id) - 1];
+
+			handleChangeQuestionOrder({ question, previousQuestionId: prevQuestion.id });
 		},
-		onError: (error: AxiosError) => {
-			console.error(error, error.response);
+		[handleChangeQuestionOrder],
+	);
+
+	const handleClickDown = useCallback(
+		(question: Question) => {
+			const nextQuestion = questionsRef.current[questionsRef.current.findIndex((q) => q.id === question.id) + 1];
+
+			handleChangeQuestionOrder({ question, nextQuestionId: nextQuestion.id });
 		},
-	});
-
-	const setIsOpen = useQuestionDrawer((state) => state.setIsOpen);
-	const setQuestion = useQuestionDrawer((state) => state.setQuestion);
-
-	const handleClickEdit = (question: Question) => {
-		setQuestion(question);
-		setIsOpen(true);
-	};
-
-	const handleClickUp = (question: Question) => {
-		const prevQuestion = questions[questions.findIndex((q) => q.id === question.id) - 1];
-
-		questionOrderChagenMutation.mutate({ question, next_question_id: prevQuestion.id });
-	};
-
-	const handleClickDown = (question: Question) => {
-		const nextQuestion = questions[questions.findIndex((q) => q.id === question.id) + 1];
-
-		questionOrderChagenMutation.mutate({ question, previous_question_id: nextQuestion.id });
-	};
+		[handleChangeQuestionOrder],
+	);
 
 	return (
 		<ul className="m-0 flex h-full w-full list-none flex-col gap-4 p-0">
 			{questions.map((question, index) => (
-				<QuestionList
+				<QuestionListItem
 					key={question.id}
 					question={question}
 					index={index}

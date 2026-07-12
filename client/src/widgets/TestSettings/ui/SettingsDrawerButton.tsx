@@ -1,12 +1,17 @@
 import { Settings } from "lucide-react";
-import { useTestSettingsDrawer } from "../store/settings-drawer";
 import { Button } from "@shared/ui/kit/button";
+import { DRAWER_KEYS, useOpenDrawer } from "@shared/model";
+import type { TestFull } from "@entities/test";
 
-export const SettingsDrawerButton = () => {
-	const setIsOpen = useTestSettingsDrawer((state) => state.setIsOpen);
+export interface SettingsDrawerButtonProps {
+	test: TestFull;
+}
+
+export const SettingsDrawerButton = ({ test }: SettingsDrawerButtonProps) => {
+	const setOpen = useOpenDrawer(DRAWER_KEYS.TEST_SETTINGS);
 
 	const handleClick = () => {
-		setIsOpen(true);
+		setOpen(test);
 	};
 
 	return (

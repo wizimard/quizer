@@ -7,6 +7,7 @@ import { generalSettingsFormValidationSchema, type GeneralSettingsTestForm } fro
 import { normalizeTestFull, type TestFull } from "@entities/test";
 import { testApi } from "@shared/api";
 import type { TestFullResponse } from "@shared/api/generated";
+import { DRAWER_KEYS, useSetUnlockDrawer, useSetLockDrawer } from "@shared/model";
 
 function updateTestSettings(test: TestFull, formData: GeneralSettingsTestForm): Promise<AxiosResponse<TestFullResponse>> {
 	return testApi.testTestIdSettingsPatch(test.id, {
@@ -41,10 +42,14 @@ export function useGeneralSettingsTestForm(test: TestFull) {
 		resolver: zodResolver(generalSettingsFormValidationSchema) as Resolver<GeneralSettingsTestForm>,
 	});
 
+	const lock = useSetLockDrawer(DRAWER_KEYS.TEST_SETTINGS);
+	const unlock = useSetUnlockDrawer(DRAWER_KEYS.TEST_SETTINGS);
+
 	const queryClient = useQueryClient();
 
 	const testSettingsMutation = useMutation({
 		mutationFn: (formData: GeneralSettingsTestForm) => {
+			lock();
 			return updateTestSettings(test, formData);
 		},
 		onSuccess: (response: AxiosResponse<TestFullResponse>) => {
@@ -58,6 +63,9 @@ export function useGeneralSettingsTestForm(test: TestFull) {
 			}
 
 			setError("root", { message: error.response.data.message });
+		},
+		onSettled: () => {
+			unlock();
 		},
 	});
 

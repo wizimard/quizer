@@ -1,4 +1,4 @@
-export function insertPlainTextAtSelection(text: string): void {
+export function insertPlainTypographyAtSelection(text: string): void {
 	const selection = window.getSelection();
 	if (!selection || selection.rangeCount === 0) {
 		return;

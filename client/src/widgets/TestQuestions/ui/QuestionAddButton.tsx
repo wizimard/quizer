@@ -1,21 +1,19 @@
-import { useQuestionDrawer } from "../store/question-drawer";
 import { createNewQuestion, type Question } from "@entities/question";
 import { ButtonAddListItem } from "@shared/ui/button";
 import type { TestFull } from "@entities/test";
+import { DRAWER_KEYS, useOpenDrawer } from "@shared/model";
 
 export interface QuestionAddButtonProps {
 	test: TestFull;
 }
 
 export const QuestionAddButton = ({ test }: QuestionAddButtonProps) => {
-	const setIsOpen = useQuestionDrawer((state) => state.setIsOpen);
-	const setQuestion = useQuestionDrawer((state) => state.setQuestion);
+	const openDrawer = useOpenDrawer(DRAWER_KEYS.QUESTION_SETTINGS);
 
 	const handleAddQuestion = () => {
 		const newQuestion: Question = createNewQuestion({ testId: test.id, order: test.questions.length });
 
-		setQuestion(newQuestion);
-		setIsOpen(true);
+		openDrawer(newQuestion);
 	};
 
 	return (

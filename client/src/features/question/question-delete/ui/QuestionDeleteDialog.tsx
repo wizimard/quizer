@@ -2,30 +2,31 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { AxiosError } from "axios";
-import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@shared/ui/kit/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@shared/ui/kit/dialog";
 import { DefaultButton } from "@shared/ui/button";
-import { Text } from "@shared/ui/text";
-import { BaseDialog } from "@shared/ui/dialog";
+import { Typography } from "@shared/ui/typography";
 import { questionApi } from "@shared/api";
 import type { TestFull } from "@entities/test";
 import type { Question } from "@entities/question";
+import { DIALOG_KEYS, DRAWER_KEYS, useCloseDrawer, useDialog } from "@shared/model";
 
 export interface QuestionDeleteDialogProps {
-	onDeleteSuccess(): void;
-	isOpen: boolean;
-	onOpenChange: (open?: boolean) => void;
 	question: Question;
 }
-
-export const QuestionDeleteDialog = ({ onDeleteSuccess, question, isOpen, onOpenChange }: QuestionDeleteDialogProps) => {
+// TODO: review
+export const QuestionDeleteDialog = ({ question }: QuestionDeleteDialogProps) => {
 	const { t } = useTranslation();
 
 	const queryClient = useQueryClient();
+
+	const { isOpen, lockDialog, unlockDialog, closeDialog } = useDialog(DIALOG_KEYS.QUESTION_DELETE);
+	const closeDrawer = useCloseDrawer(DRAWER_KEYS.QUESTION_SETTINGS);
 
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
 	const deleteQuestionMutation = useMutation({
 		mutationFn: () => {
+			lockDialog();
 			return questionApi.questionTestIdQuestionsQuestionIdDelete(question.testId, question.id);
 		},
 		onSuccess: () => {
@@ -36,9 +37,9 @@ export const QuestionDeleteDialog = ({ onDeleteSuccess, question, isOpen, onOpen
 				};
 			});
 
-			onOpenChange(false);
+			closeDialog();
 
-			onDeleteSuccess();
+			closeDrawer();
 		},
 		onError: (error) => {
 			if (!(error instanceof AxiosError) || !error.response?.data?.message) {
@@ -49,31 +50,28 @@ export const QuestionDeleteDialog = ({ onDeleteSuccess, question, isOpen, onOpen
 
 			setErrorMessage(error.response.data.message);
 		},
+		onSettled: () => {
+			unlockDialog();
+		},
 	});
 
 	const handleDelete = () => {
 		setErrorMessage(null);
 
 		deleteQuestionMutation.mutate();
-
-		onOpenChange(false);
-	};
-
-	const handleCancel = () => {
-		onOpenChange(false);
 	};
 
 	return (
 		<>
-			<BaseDialog open={isOpen} onOpenChange={onOpenChange}>
+			<Dialog open={isOpen} onOpenChange={closeDialog}>
 				<DialogContent className="pb-5">
 					<DialogHeader>
 						<DialogTitle>{t("question_delete.dialog.title")}</DialogTitle>
 					</DialogHeader>
 					<DialogDescription>{t("question_delete.dialog.description")}</DialogDescription>
-					{errorMessage && <Text color="error">{t(errorMessage)}</Text>}
+					{errorMessage && <Typography color="error">{t(errorMessage)}</Typography>}
 					<DialogFooter className="w-full border-0 bg-transparent p-0 m-0">
-						<DefaultButton variant="outline" onClick={handleCancel}>
+						<DefaultButton variant="outline" onClick={closeDialog}>
 							{t("common.button_cancel")}
 						</DefaultButton>
 						<DefaultButton variant="destructive" onClick={handleDelete} isLoading={deleteQuestionMutation.isPending}>
@@ -81,7 +79,7 @@ export const QuestionDeleteDialog = ({ onDeleteSuccess, question, isOpen, onOpen
 						</DefaultButton>
 					</DialogFooter>
 				</DialogContent>
-			</BaseDialog>
+			</Dialog>
 		</>
 	);
 };

@@ -12,6 +12,7 @@ import { createDefaultQuestionConfig } from "@entities/question/model/questionCo
 import type { TestFull } from "@entities/test";
 import type { Question } from "@entities/question";
 import { normalizeQuestion } from "@entities/question";
+import { DRAWER_KEYS, useSetDataDrawer, useSetLockDrawer, useSetUnlockDrawer } from "@shared/model";
 
 const normalizeOptionsForm = (options: QuestionConfigOption[]): TQuestionFormOption[] => {
 	return options.map((option) => ({
@@ -40,21 +41,27 @@ const getFormQuestionValues = (question: Question): TQuestionForm => {
 
 // TODO: after create question need change question
 export const useQuestionForm = (question: Question) => {
+	const setData = useSetDataDrawer(DRAWER_KEYS.QUESTION_SETTINGS);
+	const lock = useSetLockDrawer(DRAWER_KEYS.QUESTION_SETTINGS);
+	const unlock = useSetUnlockDrawer(DRAWER_KEYS.QUESTION_SETTINGS);
+
 	const queryClient = useQueryClient();
 
 	const insertQuestion = useMutation({
 		mutationFn: (data: TQuestionForm) => {
+			lock();
+
 			if (question.id === QUESTION_NEW_ID) {
-				return createQuestion(question, data);
+				return createQuestion(question!, data);
 			}
-			return updateQuestion(question, data);
+			return updateQuestion(question!, data);
 		},
 		onSuccess: (response: AxiosResponse<QuestionResponse>) => {
 			const newQuestion = normalizeQuestion(response.data);
 
 			reset(getFormQuestionValues(newQuestion));
 
-			queryClient.setQueryData(["test", question.testId], (test: TestFull) => {
+			queryClient.setQueryData(["test", question!.testId], (test: TestFull) => {
 				if (!test) {
 					return null;
 				}
@@ -69,6 +76,8 @@ export const useQuestionForm = (question: Question) => {
 
 				return { ...test, questions };
 			});
+
+			setData(newQuestion);
 		},
 		onError: (error) => {
 			if (!(error instanceof AxiosError) || !error.response?.data?.message) {
@@ -78,6 +87,9 @@ export const useQuestionForm = (question: Question) => {
 			}
 
 			setError("root", { message: error.response.data.message });
+		},
+		onSettled: () => {
+			unlock();
 		},
 	});
 
