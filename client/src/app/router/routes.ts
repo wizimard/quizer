@@ -16,6 +16,7 @@ const RegisterPage = lazy(() => import("@pages/Register"));
 const NotFoundPage = lazy(() => import("@pages/NotFound"));
 const MainPage = lazy(() => import("@pages/Main"));
 const TestPage = lazy(() => import("@pages/Test"));
+const TestQrCodePage = lazy(() => import("@pages/TestQrCode"));
 
 export const appRoutes: IAppRoutes = {
 	public: [
@@ -40,11 +41,15 @@ export const appRoutes: IAppRoutes = {
 	],
 	common: [
 		{
-			path: "*",
-			element: NotFoundPage,
+			path: "test-qr/:id",
+			element: TestQrCodePage,
 		},
 		{
 			path: "404",
+			element: NotFoundPage,
+		},
+		{
+			path: "*",
 			element: NotFoundPage,
 		},
 	],

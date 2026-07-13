@@ -8,6 +8,10 @@
 			"at": "в",
 			"pick_date": "Выберите дату",
 			"clear_date": "Очистить дату"
+		},
+		"button_copy": {
+			"title": "Скопировать",
+			"copied": "Скопировано"
 		}
 	},
 	"auth": {
@@ -126,6 +130,19 @@
 		"validation_errors": {
 			"title": "Введите название теста",
 			"title_min_length": "Название теста должно быть не менее 3 символов"
+		}
+	},
+	"test_qr_code": {
+		"button_open_on_new_page": "Развернуть QR-код на новой странице",
+		"description": "Сканируйте QR-код,\nчтобы перейти к тесту"
+	},
+	"test_settings_drawer": {
+		"title": "Настройки",
+		"tabs": {
+			"general": "Общие",
+			"scheduler": "Планировщик",
+			"link": "Ссылка",
+			"delete": "Удалить"
 		}
 	},
 	"test_delete": {
