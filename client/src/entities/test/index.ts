@@ -10,3 +10,4 @@ export { TestCard } from "./ui/TestCard";
 export { TestStatus } from "./ui/TestStatus";
 export { ButtonTestStart } from "./ui/ButtonTestStart";
 export { ButtonTestStop } from "./ui/ButtonTestStop";
+export { TestQrLink } from "./ui/TestQrLink";
