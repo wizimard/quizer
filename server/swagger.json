@@ -2,7 +2,7 @@
     "openapi": "3.0.4",
     "info": {
         "title": "Quiz API",
-        "description": "API documentation generated from src/modules controllers and DTOs (test-management and identity-access).",
+        "description": "API documentation generated from src/modules controllers and DTOs (test-management, test-execution and identity-access).",
         "version": "0.0.1"
     },
     "servers": [
@@ -15,7 +15,8 @@
         { "name": "auth", "description": "identity-access" },
         { "name": "user", "description": "identity-access" },
         { "name": "test", "description": "test-management" },
-        { "name": "question", "description": "test-management" }
+        { "name": "question", "description": "test-management" },
+        { "name": "test-execution", "description": "test-execution" }
     ],
     "paths": {
         "/auth/login": {
@@ -403,6 +404,33 @@
                 }
             }
         },
+        "/test-execute/{testId}": {
+            "get": {
+                "tags": ["test-execution"],
+                "summary": "Get test for execution",
+                "description": "Get test metadata by id for test takers.",
+                "parameters": [
+                    {
+                        "name": "testId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Test found",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/TestExecuteResponse" }
+                            }
+                        }
+                    },
+                    "404": { "description": "Not found" },
+                    "422": { "description": "Validation failed" }
+                }
+            }
+        },
         "/question/{testId}/questions": {
             "post": {
                 "tags": ["question"],
@@ -688,6 +716,47 @@
                 ],
                 "discriminator": { "propertyName": "type" }
             },
+            "QuestionExecuteConfigInput": {
+                "type": "object",
+                "required": ["ignore_case", "type"],
+                "properties": {
+                    "type": { "type": "string", "enum": ["input"] },
+                    "ignore_case": { "type": "boolean" }
+                }
+            },
+            "QuestionExecuteConfigSingleChoice": {
+                "type": "object",
+                "required": ["options", "type"],
+                "properties": {
+                    "type": { "type": "string", "enum": ["single_choice"] },
+                    "options": { "$ref": "#/components/schemas/QuestionConfigOptionArray" }
+                }
+            },
+            "QuestionExecuteConfigMultipleChoice": {
+                "type": "object",
+                "required": ["options", "type"],
+                "properties": {
+                    "type": { "type": "string", "enum": ["multiple_choice"] },
+                    "options": { "$ref": "#/components/schemas/QuestionConfigOptionArray" }
+                }
+            },
+            "QuestionExecuteConfigOrder": {
+                "type": "object",
+                "required": ["options", "type"],
+                "properties": {
+                    "type": { "type": "string", "enum": ["order"] },
+                    "options": { "$ref": "#/components/schemas/QuestionConfigOptionArray" }
+                }
+            },
+            "QuestionExecuteConfig": {
+                "oneOf": [
+                    { "$ref": "#/components/schemas/QuestionExecuteConfigInput" },
+                    { "$ref": "#/components/schemas/QuestionExecuteConfigSingleChoice" },
+                    { "$ref": "#/components/schemas/QuestionExecuteConfigMultipleChoice" },
+                    { "$ref": "#/components/schemas/QuestionExecuteConfigOrder" }
+                ],
+                "discriminator": { "propertyName": "type" }
+            },
             "QuestionCreateRequestBody": {
                 "type": "object",
                 "required": ["description", "config"],
@@ -730,6 +799,17 @@
                     "config": { "$ref": "#/components/schemas/QuestionRequestConfig" }
                 }
             },
+            "QuestionExecuteResponse": {
+                "type": "object",
+                "required": ["id", "test_id", "sort_key", "description", "config"],
+                "properties": {
+                    "id": { "type": "string" },
+                    "test_id": { "type": "string" },
+                    "sort_key": { "type": "number" },
+                    "description": { "type": "string" },
+                    "config": { "$ref": "#/components/schemas/QuestionExecuteConfig" }
+                }
+            },
             "TestSettings": {
                 "type": "object",
                 "required": [
@@ -747,17 +827,38 @@
             },
             "TestResponse": {
                 "type": "object",
-                "required": ["id", "author_id", "status", "title", "updated_at", "created_at"],
+                "required": ["id", "author_id", "isOpen", "title", "updated_at", "created_at"],
                 "properties": {
                     "id": { "type": "string" },
                     "author_id": { "type": "string" },
-                    "status": {
-                        "type": "string",
-                        "enum": ["open", "open_by_scheduler", "closed"]
+                    "isOpen": {
+                        "type": "boolean"
                     },
                     "title": { "type": "string" },
                     "updated_at": { "type": "string", "format": "date-time" },
                     "created_at": { "type": "string", "format": "date-time" }
+                }
+            },
+            "TestExecuteResponse": {
+                "type": "object",
+                "required": ["id", "title", "is_open", "questions", "register_credentials"],
+                "properties": {
+                    "id": { "type": "string" },
+                    "title": { "type": "string" },
+                    "is_open": { "type": "boolean" },
+                    "open_from_at": { "type": "string", "format": "date-time" },
+                    "open_until_at": { "type": "string", "format": "date-time" },
+                    "questions": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/QuestionExecuteResponse" }
+                    },
+                    "register_credentials": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": ["email", "first_name", "last_name"]
+                        }
+                    }
                 }
             },
             "TestFullResponse": {

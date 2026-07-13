@@ -3,6 +3,7 @@ import { type AxiosResponse } from "axios";
 import { normalizeTest, type Test } from "..";
 import { testApi } from "@shared/api";
 import type { TestResponse } from "@shared/api/generated";
+import { QUERY_KEYS } from "@shared/constant";
 
 export interface IUseGetTests {
 	isLoading: boolean;
@@ -12,7 +13,7 @@ export interface IUseGetTests {
 
 export const useGetTestes = (): IUseGetTests => {
 	const { data, isLoading, error } = useQuery<Array<Test>>({
-		queryKey: ["tests"],
+		queryKey: [QUERY_KEYS.GET_AUTHOR_TESTS],
 		queryFn: async () => {
 			const response: AxiosResponse<Array<TestResponse>> = await testApi.testGet();
 			return response.data.map(normalizeTest);

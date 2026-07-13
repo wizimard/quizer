@@ -14,6 +14,7 @@ export interface TestSettings extends TestSettingsResponse {
 }
 
 export interface TestFull extends Omit<TestFullResponse, "settings" | "scheduler" | "author_id" | "updated_at" | "created_at" | "questions"> {
+	isOpen: boolean;
 	authorId: string;
 	settings: TestSettings;
 	schedulerPeriods: Array<TestSchedulerPeriod>;

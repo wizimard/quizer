@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useUser } from "../model/store";
-import { ACCESS_TOKEN_KEY } from "@shared/constant";
+import { ACCESS_TOKEN_KEY, QUERY_KEYS } from "@shared/constant";
 import type { UserAuthResponseUser } from "@shared/api/generated";
 import { userApi } from "@shared/api";
 
@@ -17,7 +17,7 @@ export const useGetUser = () => {
 		error,
 		isFetched,
 	} = useQuery<UserAuthResponseUser>({
-		queryKey: ["user"],
+		queryKey: [QUERY_KEYS.GET_ME],
 		queryFn: async () => {
 			const response = await userApi.userMeGet();
 			return response.data;

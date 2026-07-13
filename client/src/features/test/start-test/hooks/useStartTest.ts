@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { testApi } from "@shared/api";
+import { QUERY_KEYS } from "@shared/constant";
 
 export const useStartTest = (testId: string) => {
 	const queryClient = useQueryClient();
@@ -9,7 +10,7 @@ export const useStartTest = (testId: string) => {
 			return testApi.testTestIdStartPost(testId);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["test", testId] });
+			queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_TEST_EXECUTION, testId] });
 		},
 		onError: (error) => {
 			// TODO: handle error

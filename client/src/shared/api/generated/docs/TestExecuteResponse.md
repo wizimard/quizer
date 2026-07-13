@@ -6,9 +6,12 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** |  | [default to undefined]
-**authorId** | **string** |  | [default to undefined]
 **title** | **string** |  | [default to undefined]
-**isOpen** | **boolean** |  | [default to undefined]
+**is_open** | **boolean** |  | [default to undefined]
+**open_from_at** | **string** |  | [optional] [default to undefined]
+**open_until_at** | **string** |  | [optional] [default to undefined]
+**questions** | [**Array&lt;QuestionExecuteResponse&gt;**](QuestionExecuteResponse.md) |  | [default to undefined]
+**register_credentials** | **Array&lt;string&gt;** |  | [default to undefined]
 
 ## Example
 
@@ -17,9 +20,12 @@ import { TestExecuteResponse } from './api';
 
 const instance: TestExecuteResponse = {
     id,
-    authorId,
     title,
-    isOpen,
+    is_open,
+    open_from_at,
+    open_until_at,
+    questions,
+    register_credentials,
 };
 ```
 

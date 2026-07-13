@@ -1,8 +1,10 @@
 import type { TestFull, TestSchedulerPeriod } from "../model/test-full.interface";
 import type { Test } from "../model/test.interface";
+import type { TestExecution } from "../model/test-execution.interface";
 import { normalizeScheduler } from "./normalizeScheduler";
-import type { TestFullResponse, TestResponse } from "@shared/api/generated";
+import { TestFullResponseStatusEnum, type TestFullResponse, type TestResponse, type TestExecuteResponse } from "@shared/api/generated";
 import { normalizeQuestion, type Question } from "@entities/question";
+import { normalizeExecutionQuestion } from "@entities/question/lib/normalizeQuestion";
 
 export function normalizeTest(test: TestResponse): Test {
 	return {
@@ -22,6 +24,7 @@ export function normalizeTestFull(test: TestFullResponse): TestFull {
 
 	return {
 		...test,
+		isOpen: test.status === TestFullResponseStatusEnum.Open || test.status === TestFullResponseStatusEnum.OpenByScheduler,
 		questions: questions,
 		authorId: test.author_id,
 		schedulerPeriods,
@@ -34,5 +37,17 @@ export function normalizeTestFull(test: TestFullResponse): TestFull {
 			isRequiredLastName: test.settings.is_required_last_name,
 			isShowAnswersAfterCompletion: test.settings.is_show_answers_after_completion,
 		},
+	};
+}
+
+export function normalizeExecutionTest(test: TestExecuteResponse): TestExecution {
+	return {
+		id: test.id,
+		title: test.title,
+		isOpen: test.is_open,
+		openDate: test.open_from_at,
+		closeDate: test.open_until_at,
+		questions: test.questions.map(normalizeExecutionQuestion),
+		register_credentials: test.register_credentials,
 	};
 }

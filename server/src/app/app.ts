@@ -12,6 +12,7 @@ import type { IConfigService } from '@shared/config';
 import type { IExceptionFilter } from '@shared/error';
 import cors from 'cors';
 import { TM_TYPES } from '@modules/test-management/test-management.types';
+import { TE_TYPES } from '@modules/test-execution/test-execution.types';
 
 @injectable()
 export class App {
@@ -32,6 +33,7 @@ export class App {
 		@inject(APP_TYPES.SWAGGER) private readonly swaggerController: IController,
 		@inject(TM_TYPES.TEST_CONTROLLER) private readonly testController: IController,
 		@inject(TM_TYPES.QUESTION_CONTROLLER) private readonly questionController: IController,
+		@inject(TE_TYPES.TEST_EXECUTE_CONTROLLER) private readonly testExecuteController: IController,
 	) {
 		this.app = express();
 
@@ -89,6 +91,7 @@ export class App {
 
 		this.app.use('/api/auth', this.authController.router);
 		this.app.use('/api/user', this.userController.router);
+		this.app.use('/api/test-execute', this.testExecuteController.router);
 		this.app.use('/api/test', this.testController.router);
 		this.app.use('/api/question', this.questionController.router);
 	}

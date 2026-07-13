@@ -7,11 +7,11 @@ import { Typography } from "@shared/ui/typography";
 export const TestQrCodePage = () => {
 	const { t } = useTranslation();
 
-	const { testId } = useParams();
+	const { id } = useParams();
 
 	return (
 		<CenterElement className="w-full h-full">
-			<TestQrLink testId={testId} size="large" />
+			<TestQrLink testId={id as string} size="large" />
 			<Typography variant="h3" className="pt-8 text-center whitespace-break-spaces">
 				{t("test_qr_code.description")}
 			</Typography>

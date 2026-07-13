@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { testApi } from "@shared/api";
 import { DIALOG_KEYS, useLockDialog } from "@shared/model";
+import { QUERY_KEYS } from "@shared/constant";
 
 export const useTestDelete = () => {
 	const queryClient = useQueryClient();
@@ -19,7 +20,7 @@ export const useTestDelete = () => {
 			return testApi.testTestIdDelete(testId);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["tests"] });
+			queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_AUTHOR_TESTS] });
 			navigate("/");
 		},
 		onError: (error) => {

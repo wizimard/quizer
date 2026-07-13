@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Quiz API
- * API documentation generated from src/modules controllers and DTOs (test-management and identity-access).
+ * API documentation generated from src/modules controllers and DTOs (test-management, test-execution and identity-access).
  *
  * The version of the OpenAPI document: 0.0.1
  * 
@@ -97,6 +97,62 @@ export interface QuestionCreateRequestBody {
     'config': QuestionRequestConfig;
 }
 /**
+ * @type QuestionExecuteConfig
+ */
+export type QuestionExecuteConfig = QuestionExecuteConfigInput | QuestionExecuteConfigMultipleChoice | QuestionExecuteConfigOrder | QuestionExecuteConfigSingleChoice;
+
+export interface QuestionExecuteConfigInput {
+    'type': QuestionExecuteConfigInputTypeEnum;
+    'ignore_case': boolean;
+}
+
+export const QuestionExecuteConfigInputTypeEnum = {
+    Input: 'input',
+} as const;
+
+export type QuestionExecuteConfigInputTypeEnum = typeof QuestionExecuteConfigInputTypeEnum[keyof typeof QuestionExecuteConfigInputTypeEnum];
+
+export interface QuestionExecuteConfigMultipleChoice {
+    'type': QuestionExecuteConfigMultipleChoiceTypeEnum;
+    'options': Array<QuestionConfigOption>;
+}
+
+export const QuestionExecuteConfigMultipleChoiceTypeEnum = {
+    MultipleChoice: 'multiple_choice',
+} as const;
+
+export type QuestionExecuteConfigMultipleChoiceTypeEnum = typeof QuestionExecuteConfigMultipleChoiceTypeEnum[keyof typeof QuestionExecuteConfigMultipleChoiceTypeEnum];
+
+export interface QuestionExecuteConfigOrder {
+    'type': QuestionExecuteConfigOrderTypeEnum;
+    'options': Array<QuestionConfigOption>;
+}
+
+export const QuestionExecuteConfigOrderTypeEnum = {
+    Order: 'order',
+} as const;
+
+export type QuestionExecuteConfigOrderTypeEnum = typeof QuestionExecuteConfigOrderTypeEnum[keyof typeof QuestionExecuteConfigOrderTypeEnum];
+
+export interface QuestionExecuteConfigSingleChoice {
+    'type': QuestionExecuteConfigSingleChoiceTypeEnum;
+    'options': Array<QuestionConfigOption>;
+}
+
+export const QuestionExecuteConfigSingleChoiceTypeEnum = {
+    SingleChoice: 'single_choice',
+} as const;
+
+export type QuestionExecuteConfigSingleChoiceTypeEnum = typeof QuestionExecuteConfigSingleChoiceTypeEnum[keyof typeof QuestionExecuteConfigSingleChoiceTypeEnum];
+
+export interface QuestionExecuteResponse {
+    'id': string;
+    'test_id': string;
+    'sort_key': number;
+    'description': string;
+    'config': QuestionExecuteConfig;
+}
+/**
  * @type QuestionRequestConfig
  */
 export type QuestionRequestConfig = QuestionConfigInput | QuestionConfigMultipleChoice | QuestionConfigOrder | QuestionConfigSingleChoice;
@@ -118,6 +174,24 @@ export interface RefreshTokenResponse {
 export interface TestCreateRequestBody {
     'title': string;
 }
+export interface TestExecuteResponse {
+    'id': string;
+    'title': string;
+    'is_open': boolean;
+    'open_from_at'?: string;
+    'open_until_at'?: string;
+    'questions': Array<QuestionExecuteResponse>;
+    'register_credentials': Array<TestExecuteResponseRegisterCredentialsEnum>;
+}
+
+export const TestExecuteResponseRegisterCredentialsEnum = {
+    Email: 'email',
+    FirstName: 'first_name',
+    LastName: 'last_name',
+} as const;
+
+export type TestExecuteResponseRegisterCredentialsEnum = typeof TestExecuteResponseRegisterCredentialsEnum[keyof typeof TestExecuteResponseRegisterCredentialsEnum];
+
 export interface TestFullResponse {
     'id': string;
     'author_id': string;
@@ -141,20 +215,11 @@ export type TestFullResponseStatusEnum = typeof TestFullResponseStatusEnum[keyof
 export interface TestResponse {
     'id': string;
     'author_id': string;
-    'status': TestResponseStatusEnum;
+    'isOpen': boolean;
     'title': string;
     'updated_at': string;
     'created_at': string;
 }
-
-export const TestResponseStatusEnum = {
-    Open: 'open',
-    OpenByScheduler: 'open_by_scheduler',
-    Closed: 'closed',
-} as const;
-
-export type TestResponseStatusEnum = typeof TestResponseStatusEnum[keyof typeof TestResponseStatusEnum];
-
 export interface TestSchedulerPeriodAddDto {
     'available_from': string;
     'available_to'?: string;
@@ -1588,6 +1653,107 @@ export class TestApi extends BaseAPI {
      */
     public testTestIdStartPost(testId: string, testStartRequestBody?: TestStartRequestBody, options?: RawAxiosRequestConfig) {
         return TestApiFp(this.configuration).testTestIdStartPost(testId, testStartRequestBody, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * TestExecutionApi - axios parameter creator
+ */
+export const TestExecutionApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Get test metadata by id for test takers.
+         * @summary Get test for execution
+         * @param {string} testId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        testExecuteTestIdGet: async (testId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'testId' is not null or undefined
+            assertParamExists('testExecuteTestIdGet', 'testId', testId)
+            const localVarPath = `/test-execute/{testId}`
+                .replace('{testId}', encodeURIComponent(String(testId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * TestExecutionApi - functional programming interface
+ */
+export const TestExecutionApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = TestExecutionApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Get test metadata by id for test takers.
+         * @summary Get test for execution
+         * @param {string} testId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async testExecuteTestIdGet(testId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TestExecuteResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.testExecuteTestIdGet(testId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TestExecutionApi.testExecuteTestIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * TestExecutionApi - factory interface
+ */
+export const TestExecutionApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = TestExecutionApiFp(configuration)
+    return {
+        /**
+         * Get test metadata by id for test takers.
+         * @summary Get test for execution
+         * @param {string} testId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        testExecuteTestIdGet(testId: string, options?: RawAxiosRequestConfig): AxiosPromise<TestExecuteResponse> {
+            return localVarFp.testExecuteTestIdGet(testId, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * TestExecutionApi - object-oriented interface
+ */
+export class TestExecutionApi extends BaseAPI {
+    /**
+     * Get test metadata by id for test takers.
+     * @summary Get test for execution
+     * @param {string} testId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public testExecuteTestIdGet(testId: string, options?: RawAxiosRequestConfig) {
+        return TestExecutionApiFp(this.configuration).testExecuteTestIdGet(testId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

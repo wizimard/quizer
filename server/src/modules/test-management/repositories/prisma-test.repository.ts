@@ -29,6 +29,7 @@ const SHORT_TEST_INCLUDE = {
 			status: 'ACTIVE',
 		},
 	},
+	test_settings: true,
 } as const;
 
 @injectable()

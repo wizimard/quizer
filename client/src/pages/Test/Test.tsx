@@ -2,13 +2,13 @@ import { useParams } from "react-router-dom";
 import { TestToolbar } from "./ui/TestToolbar";
 import { LoadingLayout } from "@shared/ui/layout";
 import { Separator } from "@shared/ui/kit/separator";
-import { useGetTest } from "@entities/test";
+import { useGetFullTest } from "@entities/test";
 import { QuestionsWidget } from "@widgets/TestQuestions";
 
 export const Test = () => {
 	const { id } = useParams();
 
-	const { isLoading, isForbidden, test } = useGetTest(id as string);
+	const { isLoading, isForbidden, test } = useGetFullTest(id as string);
 
 	return (
 		<LoadingLayout isLoading={isLoading} error={isForbidden ? new Error("test.errors.forbidden") : undefined}>

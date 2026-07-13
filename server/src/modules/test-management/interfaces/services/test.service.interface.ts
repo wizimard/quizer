@@ -8,13 +8,14 @@ import type { TestSchedulerResultPeriod } from './results/test-scheduler.result'
 import type { TestFullResult } from './results/test-full.result';
 import type { TestResult } from './results/test.result';
 import type { GetTestByIdInput } from './input/get-test-by-id.input';
+import type { GetFullTestByIdInput } from './input/get-full-test-by-id.input';
 
 export interface ITestService {
 	create(input: CreateTestInput): Promise<TestFullResult>;
 	update(input: UpdateTestInput): Promise<TestFullResult>;
 	delete(input: DeleteTestInput): Promise<void>;
 	getByAuthor(input: GetAuthorTestsInput): Promise<TestResult[]>;
-	getFullById(input: GetTestByIdInput): Promise<TestFullResult>;
+	getFullById(input: GetFullTestByIdInput): Promise<TestFullResult>;
 	getById(input: GetTestByIdInput): Promise<TestResult>;
 	updateSettings(input: UpdateTestSettingsInput): Promise<TestFullResult>;
 	updateSchedulerPeriods(input: UpdateTestSchedulerInput): Promise<Array<TestSchedulerResultPeriod>>;

@@ -1,30 +1,30 @@
 import { useTranslation } from "react-i18next";
-import { TestResponseStatusEnum } from "@shared/api/generated";
+import { TestFullResponseStatusEnum } from "@shared/api/generated";
 import { cn } from "@shared/lib/utils";
 
-const STATUS_LABEL_KEYS: Record<TestResponseStatusEnum, string> = {
-	[TestResponseStatusEnum.Open]: "test.status.open",
-	[TestResponseStatusEnum.OpenByScheduler]: "test.status.open_by_scheduler",
-	[TestResponseStatusEnum.Closed]: "test.status.closed",
+const STATUS_LABEL_KEYS: Record<TestFullResponseStatusEnum, string> = {
+	[TestFullResponseStatusEnum.Open]: "test.status.open",
+	[TestFullResponseStatusEnum.OpenByScheduler]: "test.status.open_by_scheduler",
+	[TestFullResponseStatusEnum.Closed]: "test.status.closed",
 };
 
-const STATUS_STYLES: Record<TestResponseStatusEnum, { text: string; dot: string }> = {
-	[TestResponseStatusEnum.Open]: {
+const STATUS_STYLES: Record<TestFullResponseStatusEnum, { text: string; dot: string }> = {
+	[TestFullResponseStatusEnum.Open]: {
 		text: "text-sky-700 dark:text-sky-400",
 		dot: "bg-sky-500",
 	},
-	[TestResponseStatusEnum.OpenByScheduler]: {
+	[TestFullResponseStatusEnum.OpenByScheduler]: {
 		text: "text-green-600 dark:text-green-500",
 		dot: "bg-green-500 dark:bg-green-400",
 	},
-	[TestResponseStatusEnum.Closed]: {
+	[TestFullResponseStatusEnum.Closed]: {
 		text: "text-muted-foreground",
 		dot: "bg-muted-foreground",
 	},
 };
 
 export interface ITestStatusProps {
-	status: TestResponseStatusEnum;
+	status: TestFullResponseStatusEnum;
 	className?: string;
 }
 

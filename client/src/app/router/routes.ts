@@ -17,6 +17,7 @@ const NotFoundPage = lazy(() => import("@pages/NotFound"));
 const MainPage = lazy(() => import("@pages/Main"));
 const TestPage = lazy(() => import("@pages/Test"));
 const TestQrCodePage = lazy(() => import("@pages/TestQrCode"));
+const TestExecutePage = lazy(() => import("@pages/TestExecute"));
 
 export const appRoutes: IAppRoutes = {
 	public: [
@@ -43,6 +44,10 @@ export const appRoutes: IAppRoutes = {
 		{
 			path: "test-qr/:id",
 			element: TestQrCodePage,
+		},
+		{
+			path: "test-execute/:id",
+			element: TestExecutePage,
 		},
 		{
 			path: "404",

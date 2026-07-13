@@ -1,9 +1,11 @@
 export type { TestFull, TestSettings, TestSchedulerPeriod } from "./model/test-full.interface";
 export { type Test } from "./model/test.interface";
+export { type TestExecution } from "./model/test-execution.interface";
 
 export { useGetTestes } from "./hooks/useGetTests";
-export { useGetTest } from "./hooks/useGetTest";
-export { normalizeTest, normalizeTestFull } from "./lib/normalizeTest";
+export { useGetFullTest } from "./hooks/useGetFullTest";
+export { useGetExecutionTest } from "./hooks/useGetExecutionTest";
+export { normalizeTest, normalizeTestFull, normalizeExecutionTest } from "./lib/normalizeTest";
 export { getOpenPeriod } from "./lib/getOpenPeriod";
 
 export { TestCard } from "./ui/TestCard";

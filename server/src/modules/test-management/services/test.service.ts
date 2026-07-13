@@ -11,7 +11,7 @@ import type { GetAuthorTestsInput } from '../interfaces/services/input/get-autho
 import type { UpdateTestSchedulerInput } from '../interfaces/services/input/update-test-scheduler.input';
 import type { UpdateTestSettingsInput } from '../interfaces/services/input/update-test-settings.input';
 import type { UpdateTestInput } from '../interfaces/services/input/update-test.input';
-import { TestNotFoundError, type TestEntity } from '..';
+import { TestNotFoundError, type TestEntity, TestNotOwnedError } from '..';
 import type { ITestValidationError } from '../interfaces/error/test-validation.error.interface';
 import type { ITestService } from '../interfaces/services/test.service.interface';
 import type { TestFullResult } from '../interfaces/services/results/test-full.result';
@@ -25,6 +25,7 @@ import { SchedulerPeriodNotFoundError } from '../utils/errors/scheduler-period-n
 import { TestOpenError } from '../utils/errors/test-open.error';
 import type { ILogger } from '@shared/logger';
 import { APP_TYPES } from '@app/app.types';
+import type { GetFullTestByIdInput } from '../interfaces/services/input/get-full-test-by-id.input';
 
 @injectable()
 export class TestService implements ITestService {
@@ -139,13 +140,17 @@ export class TestService implements ITestService {
 		return updatedSchedulerPeriods.map(SchedulerPeriodMapper.toDomain).map(SchedulerPeriodMapper.toResult);
 	}
 
-	async getFullById(input: GetTestByIdInput): Promise<TestFullResult> {
+	async getFullById(input: GetFullTestByIdInput): Promise<TestFullResult> {
 		this.logger.info({ message: 'TestService.getFullById start', data: input });
 
 		const test: TestEntity | null = await this.testRepository.findFullById(input.testId.value);
 
 		if (!test) {
 			throw new TestNotFoundError('TestService.getFullById');
+		}
+
+		if (!test.authorId.equals(input.userId)) {
+			throw new TestNotOwnedError('TestService.getFullById');
 		}
 
 		this.logger.info({ message: 'TestService.getFullById test found:', data: test });

@@ -88,7 +88,7 @@ export class TestMapper {
 			id: test.id.value,
 			author_id: test.authorId.value,
 			title: test.title,
-			status: test.status,
+			isOpen: test.status === 'open' || test.status === 'open_by_scheduler',
 			updated_at: test.updatedAt,
 			created_at: test.createdAt,
 		};

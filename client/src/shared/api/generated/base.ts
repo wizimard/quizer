@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Quiz API
- * API documentation generated from src/modules controllers and DTOs (test-management and identity-access).
+ * API documentation generated from src/modules controllers and DTOs (test-management, test-execution and identity-access).
  *
  * The version of the OpenAPI document: 0.0.1
  * 
