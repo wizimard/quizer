@@ -20,7 +20,7 @@ export class PrismaTestExecutionRepository implements TestExecutionRepository {
 				this.prismaService.client.testSessionModel.create({
 					data: { test_id: testId, started_at: new Date(), finished_at: finishedAt ?? null },
 				}),
-			'PrismaTestExecutionRepository.startTest',
+			'PrismaTestExecutionRepository startTest',
 			this.logger,
 		);
 
@@ -34,7 +34,7 @@ export class PrismaTestExecutionRepository implements TestExecutionRepository {
 					where: { status: 'ACTIVE', test_id: testId },
 					data: { status: 'FINISHED', finished_at: new Date() },
 				}),
-			'PrismaTestExecutionRepository.finishTest',
+			'PrismaTestExecutionRepository finishTest',
 			this.logger,
 		);
 

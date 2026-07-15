@@ -11,7 +11,7 @@ export class SwaggerController extends BaseController {
 		this.router.use('/swagger', swaggerUi.serve);
 		this.router.get('/swagger', swaggerUi.setup(swaggerDocument));
 
-		this.router.get('/swagger.json', (req, res, next) => {
+		this.router.get('/swagger.json', (_req, res, _next) => {
 			res.status(200);
 			res.contentType('json');
 			res.send(swaggerDocument);

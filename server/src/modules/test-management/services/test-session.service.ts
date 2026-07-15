@@ -17,7 +17,7 @@ export class TestSessionService implements ITestSessionService {
 	) {}
 
 	async startTest(input: StartTestInput): Promise<boolean> {
-		this.logger.info({ message: 'TestSessionService.startTest start', data: input });
+		this.logger.info({ message: '[TestSessionService startTest] start', data: input });
 
 		if (input.test.isOpen) {
 			throw new TestOpenError('TestSessionService.startTest', 'errors.start_test_open');
@@ -25,13 +25,13 @@ export class TestSessionService implements ITestSessionService {
 
 		const test = await this.testExecutionRepository.startTest(input.test.id.value, input.finishedAt);
 
-		this.logger.info({ message: 'TestSessionService.startTest test started:', data: test });
+		this.logger.info({ message: '[TestSessionService startTest] test started', data: test });
 
 		return !!test;
 	}
 
 	async finishTest(input: FinishTestInput): Promise<boolean> {
-		this.logger.info({ message: 'TestSessionService.finishTest start', data: input });
+		this.logger.info({ message: '[TestSessionService finishTest] start', data: input });
 
 		if (!input.test.isOpen) {
 			throw new TestClosedError('TestSessionService.finishTest', 'errors.finish_test_closed');
@@ -43,7 +43,7 @@ export class TestSessionService implements ITestSessionService {
 			this.logger.info(`Test ${input.test.id} has a few active sessions, finished ${count} sessions`);
 		}
 
-		this.logger.info({ message: 'TestSessionService.finishTest test finished:', data: count });
+		this.logger.info({ message: '[TestSessionService finishTest] test finished', data: count });
 
 		return count > 0;
 	}

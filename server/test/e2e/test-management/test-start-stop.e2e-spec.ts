@@ -102,6 +102,8 @@ describe('POST /api/test/:testId/start', () => {
 
 		expect(res.statusCode).toBe(200);
 		expect(res.body).toEqual({ message: 'Test started successfully' });
+
+		await finishTest(createRes.body.id);
 	});
 
 	it('starts test with duration', async () => {
@@ -111,6 +113,8 @@ describe('POST /api/test/:testId/start', () => {
 
 		expect(res.statusCode).toBe(200);
 		expect(res.body).toEqual({ message: 'Test started successfully' });
+
+		await finishTest(createRes.body.id);
 	});
 });
 
@@ -158,8 +162,8 @@ describe('POST /api/test/:testId/finish', () => {
 
 		const res = await finishTest(createRes.body.id);
 
-		expect(res.statusCode).toBe(200);
-		expect(res.body).toEqual({ message: 'Test not finished' });
+		expect(res.statusCode).toBe(400);
+		expect(res.body).toEqual({ message: 'errors.finish_test_closed' });
 	});
 
 	it('finishes an active test session', async () => {
@@ -188,8 +192,8 @@ describe('POST /api/test/:testId/finish', () => {
 
 		const secondFinishRes = await finishTest(createRes.body.id);
 
-		expect(secondFinishRes.statusCode).toBe(200);
-		expect(secondFinishRes.body).toEqual({ message: 'Test not finished' });
+		expect(secondFinishRes.statusCode).toBe(400);
+		expect(secondFinishRes.body).toEqual({ message: 'errors.finish_test_closed' });
 	});
 });
 

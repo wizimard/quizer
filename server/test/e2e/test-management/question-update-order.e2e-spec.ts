@@ -175,8 +175,8 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 
 		const movedQuestion = res.body.find((question: QuestionResponseBody) => question.id === firstQuestionRes.body.id);
 
-		expect(movedQuestion.sort_key).toBe(0);
-		expect(sortedQuestionIds(res.body)).toEqual([firstQuestionRes.body.id, res.body.find((question: QuestionResponseBody) => question.sort_key === 2000)!.id, thirdQuestionRes.body.id]);
+		expect(movedQuestion.sort_key).toBe(2500);
+		expect(sortedQuestionIds(res.body)).toEqual([res.body.find((question: QuestionResponseBody) => question.sort_key === 2000)!.id, firstQuestionRes.body.id, thirdQuestionRes.body.id]);
 	});
 
 	it('returns updated questions when changing order with previous question id', async () => {
@@ -193,8 +193,8 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 		expect(Array.isArray(res.body)).toBe(true);
 		expect(res.body).toHaveLength(3);
 		expect(res.body.map((question: QuestionResponseBody) => question.test_id)).toEqual([createRes.body.id, createRes.body.id, createRes.body.id]);
-		expect(res.body.map((question: QuestionResponseBody) => question.sort_key)).toEqual([1000, 2000, 3000]);
-		expect(sortedQuestionIds(res.body)).toEqual([firstQuestionRes.body.id, secondQuestionRes.body.id, thirdQuestionRes.body.id]);
+		expect(res.body.map((question: QuestionResponseBody) => question.sort_key)).toEqual([1000, 1500, 2000]);
+		expect(sortedQuestionIds(res.body)).toEqual([firstQuestionRes.body.id, thirdQuestionRes.body.id, secondQuestionRes.body.id]);
 	});
 
 	it('normalizes question sort_keys when gaps get too close', async () => {
@@ -211,8 +211,8 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 
 		expect(res.statusCode).toBe(200);
 		expect(Array.isArray(res.body)).toBe(true);
-		expect(res.body.map((question: QuestionResponseBody) => question.sort_key)).toEqual([1000, 2000, 3000, 4000, 5000]);
-		expect(sortedQuestionIds(res.body)).toEqual(questions.map((question) => question.body.id));
+		expect(res.body.map((question: QuestionResponseBody) => question.sort_key)).toEqual([1000, 2000, 2500, 3000, 4000]);
+		expect(sortedQuestionIds(res.body)).toEqual([questions[0]!.body.id, questions[1]!.body.id, questions[4]!.body.id, questions[2]!.body.id, questions[3]!.body.id]);
 	});
 
 	it('persists updated question sort_key', async () => {
@@ -231,7 +231,7 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 		const getRes = await request(application.app).get(`/api/test/${createRes.body.id}`).set('Authorization', `Bearer ${accessToken}`);
 
 		expect(getRes.statusCode).toBe(200);
-		expect(getRes.body.questions.find((question: { id: string }) => question.id === firstQuestionRes.body.id).sort_key).toBe(0);
+		expect(getRes.body.questions.find((question: { id: string }) => question.id === firstQuestionRes.body.id).sort_key).toBe(2500);
 	});
 });
 

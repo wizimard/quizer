@@ -17,17 +17,15 @@ const FULL_TEST_INCLUDE = {
 	test_settings: true,
 	scheduler_periods: true,
 	test_sessions: {
-		where: {
-			status: 'ACTIVE',
-		},
+		orderBy: { started_at: 'desc' },
+		take: 1,
 	},
 } as const;
 
 const SHORT_TEST_INCLUDE = {
 	test_sessions: {
-		where: {
-			status: 'ACTIVE',
-		},
+		orderBy: { started_at: 'desc' },
+		take: 1,
 	},
 	test_settings: true,
 } as const;
@@ -46,7 +44,7 @@ export class PrismaTestRepository implements TestRepository {
 					data: TestPersistenceMapper.toCreateData(test),
 					include: FULL_TEST_INCLUDE,
 				}),
-			'PrismaTestRepository.create',
+			'PrismaTestRepository create',
 			this.logger,
 		);
 
@@ -61,7 +59,7 @@ export class PrismaTestRepository implements TestRepository {
 					data: TestPersistenceMapper.toUpdateData(test),
 					include: FULL_TEST_INCLUDE,
 				}),
-			'PrismaTestRepository.update',
+			'PrismaTestRepository update',
 			this.logger,
 		);
 
@@ -74,7 +72,7 @@ export class PrismaTestRepository implements TestRepository {
 				this.prismaService.client.testModel.deleteMany({
 					where: { id: testId },
 				}),
-			'PrismaTestRepository.delete',
+			'PrismaTestRepository delete',
 			this.logger,
 		);
 
@@ -88,7 +86,7 @@ export class PrismaTestRepository implements TestRepository {
 					where: { id: testId },
 					include: SHORT_TEST_INCLUDE,
 				}),
-			'PrismaTestRepository.findById',
+			'PrismaTestRepository findById',
 			this.logger,
 		);
 
@@ -102,7 +100,7 @@ export class PrismaTestRepository implements TestRepository {
 					where: { id: testId },
 					include: FULL_TEST_INCLUDE,
 				}),
-			'PrismaTestRepository.findFullById',
+			'PrismaTestRepository findFullById',
 			this.logger,
 		);
 
@@ -116,7 +114,7 @@ export class PrismaTestRepository implements TestRepository {
 					where: { author_id: authorId },
 					include: SHORT_TEST_INCLUDE,
 				}),
-			'PrismaTestRepository.findByAuthor',
+			'PrismaTestRepository findByAuthor',
 			this.logger,
 		);
 
@@ -131,7 +129,7 @@ export class PrismaTestRepository implements TestRepository {
 					data: TestPersistenceMapper.toSettingsUpdateInput(updateSettingsData),
 					include: FULL_TEST_INCLUDE,
 				}),
-			'PrismaTestRepository.updateSettings',
+			'PrismaTestRepository updateSettings',
 			this.logger,
 		);
 
@@ -144,7 +142,7 @@ export class PrismaTestRepository implements TestRepository {
 				this.prismaService.client.testSchedulerPeriodModel.findMany({
 					where: { test_id: testId },
 				}),
-			'PrismaTestRepository.getScheduler',
+			'PrismaTestRepository getScheduler',
 			this.logger,
 		);
 
@@ -188,7 +186,7 @@ export class PrismaTestRepository implements TestRepository {
 
 				return this.prismaService.client.$transaction(transactions);
 			},
-			'PrismaTestRepository.updateSchedulerPeriods',
+			'PrismaTestRepository updateSchedulerPeriods',
 			this.logger,
 		);
 

@@ -36,9 +36,6 @@ export const TestPersistenceMapper = {
 	toSettingsUpdateInput(updateSettingsData: ITestUpdateSettingsData): TestModelUpdateArgs['data'] {
 		const settingsData = {
 			show_answers_after_completion: updateSettingsData.isShowAnswersAfterCompletion,
-			required_email: updateSettingsData.isRequiredEmail,
-			required_first_name: updateSettingsData.isRequiredFirstName,
-			required_last_name: updateSettingsData.isRequiredLastName,
 		};
 
 		return {

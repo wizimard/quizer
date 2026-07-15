@@ -3,9 +3,6 @@ import type { TestSchedulerResult } from './test-scheduler.result';
 import type { TestResult } from './test.result';
 
 export interface TestFullResultSettings {
-	isRequiredEmail: boolean;
-	isRequiredFirstName: boolean;
-	isRequiredLastName: boolean;
 	isShowAnswersAfterCompletion: boolean;
 }
 

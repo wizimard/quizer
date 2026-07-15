@@ -3,8 +3,7 @@ import type { TestModelGetPayload, TestSettingsModelGetPayload } from '@prisma/m
 import type { TestModel, TestSchedulerPeriodModel, TestSettingsModel } from '@prisma/client';
 import type { TestSchedulerPeriod } from '@modules/test-management/entities/test-scheduler-period';
 
-export type TTestSettingsModelAll = TestSettingsModel &
-	TestSettingsModelGetPayload<{ select: { show_answers_after_completion: true; required_email: true; required_first_name: true; required_last_name: true } }>;
+export type TTestSettingsModelAll = TestSettingsModel & TestSettingsModelGetPayload<{ select: { show_answers_after_completion: true } }>;
 
 export type TTestModelWithQuestions = TestModel & TestModelGetPayload<{ select: { questions: true } }>;
 
@@ -12,7 +11,7 @@ export type TTestModelAll = TestModel &
 	TestModelGetPayload<{
 		select: {
 			questions: true;
-			test_settings: { select: { show_answers_after_completion: true; required_email: true; required_first_name: true; required_last_name: true } };
+			test_settings: { select: { show_answers_after_completion: true } };
 			scheduler_periods: true;
 			test_sessions: true;
 		};
@@ -22,9 +21,6 @@ export type TTestModelWithSessions = TestModel & TestModelGetPayload<{ select: {
 
 export interface ITestUpdateSettingsData {
 	title: string;
-	isRequiredEmail: boolean;
-	isRequiredFirstName: boolean;
-	isRequiredLastName: boolean;
 	isShowAnswersAfterCompletion: boolean;
 }
 

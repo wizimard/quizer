@@ -18,6 +18,7 @@ import type { QuestionResult } from '../interfaces/services/results/question.res
 import type { TestSchedulerResultPeriod } from '../interfaces/services/results/test-scheduler.result';
 import { SchedulerPeriodMapper } from './scheduler-period.mapper';
 import type { CreateTestInput } from '../interfaces/services/input/create-test.input';
+import type { QuestionEntity } from '../entities/question.entity';
 
 export class TestMapper {
 	static toDomain(testModel: TTestModelAll | TestModel): TestEntity {
@@ -36,13 +37,7 @@ export class TestMapper {
 		}
 
 		if ('test_settings' in testModel && testModel.test_settings) {
-			test.settings = new TestSettings(
-				testId,
-				testModel.test_settings.required_email,
-				testModel.test_settings.required_first_name,
-				testModel.test_settings.required_last_name,
-				testModel.test_settings.show_answers_after_completion,
-			);
+			test.settings = new TestSettings(testId, testModel.test_settings.show_answers_after_completion);
 		}
 
 		if ('test_sessions' in testModel) {
@@ -67,9 +62,6 @@ export class TestMapper {
 
 	static toFullResult(test: TestEntity): TestFullResult {
 		const settings: TestFullResultSettings = {
-			isRequiredEmail: test.settings?.isRequiredEmail ?? false,
-			isRequiredFirstName: test.settings?.isRequiredFirstName ?? false,
-			isRequiredLastName: test.settings?.isRequiredLastName ?? false,
 			isShowAnswersAfterCompletion: test.settings?.isShowAnswersAfterCompletion ?? false,
 		};
 
@@ -96,9 +88,6 @@ export class TestMapper {
 
 	static toFullResponse(test: TestFullResult): TestFullResponse {
 		const settings: TestFullResponseSettings = {
-			is_required_email: test.settings.isRequiredEmail ?? false,
-			is_required_first_name: test.settings?.isRequiredFirstName ?? false,
-			is_required_last_name: test.settings?.isRequiredLastName ?? false,
 			is_show_answers_after_completion: test.settings?.isShowAnswersAfterCompletion ?? false,
 		};
 

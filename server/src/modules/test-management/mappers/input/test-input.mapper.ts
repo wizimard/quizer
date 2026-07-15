@@ -15,9 +15,16 @@ import type { GetTestByIdInput } from '@modules/test-management/interfaces/servi
 import type { GetAuthorTestsInput } from '@modules/test-management/interfaces/services/input/get-author-tests.input';
 import { TestId } from '@modules/test-management';
 import { UserId } from '@modules/identity-access';
+import type { GetFullTestByIdInput } from '@modules/test-management/interfaces/services/input/get-full-test-by-id.input';
 
 export class TestInputMapper {
-	static toGetByIdInput(testId: string, userId: string): GetTestByIdInput {
+	static toGetByIdInput(testId: string): GetTestByIdInput {
+		return {
+			testId: TestId.of(testId),
+		};
+	}
+
+	static toGetFullByIdInput(testId: string, userId: string): GetFullTestByIdInput {
 		return {
 			testId: TestId.of(testId),
 			userId: UserId.of(userId),
@@ -61,9 +68,6 @@ export class TestInputMapper {
 		return {
 			test,
 			title: dto.title,
-			isRequiredEmail: dto.required_email,
-			isRequiredFirstName: dto.required_first_name,
-			isRequiredLastName: dto.required_last_name,
 			isShowAnswersAfterCompletion: dto.show_answers_after_completion,
 		};
 	}

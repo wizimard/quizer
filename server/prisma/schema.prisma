@@ -34,7 +34,7 @@ model TestModel {
   questions         TestQuestionModel[]
   test_sessions     TestSessionModel[]
   scheduler_periods TestSchedulerPeriodModel[]
-
+  
   @@index([author_id])
 }
 
@@ -45,9 +45,6 @@ model TestSettingsModel {
   test                          TestModel @relation(fields: [test_id], references: [id], onDelete: Cascade)
 
   show_answers_after_completion Boolean @default(false)
-  required_email                Boolean @default(false)
-  required_first_name           Boolean @default(true)
-  required_last_name            Boolean @default(true)
 
   created_at                    DateTime @default(now())
   updated_at                    DateTime @updatedAt
@@ -63,7 +60,8 @@ model TestQuestionModel {
   sort_key    Int
   config      Json?
 
-  @@unique([test_id, sort_key])
+  answers         TestSessionAnswerModel[]
+
   @@index([test_id])
 }
 
@@ -92,6 +90,8 @@ model TestSessionModel {
   status      TestSessionStatus  @default(ACTIVE)
   start_by    TestSessionStartBy @default(MANUALLY)
 
+  registered_users TestSessionRegisteredUserModel[]
+
   @@index([test_id])
   @@index([test_id, status])
 }
@@ -105,4 +105,41 @@ enum TestSessionStatus {
 enum TestSessionStartBy {
   MANUALLY  @map("manually")
   SCHEDULED @map("scheduled")
+}
+
+model TestSessionRegisteredUserModel {
+  id          String @id @default(uuid())
+
+  first_name  String
+  last_name   String
+
+  test_session_id String
+  test_session    TestSessionModel @relation(fields: [test_session_id], references: [id], onDelete: Cascade)
+
+  answers         TestSessionAnswerModel[]
+
+  created_at      DateTime @default(now())
+
+  @@index([test_session_id])
+}
+
+model TestSessionAnswerModel {
+  id          String @id @default(uuid())
+
+  questionId String
+  question   TestQuestionModel @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  test_session_registered_user_id String
+  test_session_registered_user    TestSessionRegisteredUserModel @relation(fields: [test_session_registered_user_id], references: [id], onDelete: Cascade)
+
+  value String?
+
+  skipped Boolean @default(false)
+
+  created_at      DateTime @default(now())
+
+  @@index([test_session_registered_user_id])
+  @@index([questionId])
+  
+  @@unique([questionId, test_session_registered_user_id])
 }

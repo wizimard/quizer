@@ -1,18 +1,17 @@
 import type { QuestionEntity } from '@modules/test-management';
-import type { QuestionExecuteResponse } from '../dto/response/question-execute-response.dto';
+import { QuestionConfigMapper } from '@modules/test-management/mappers/question-config.mapper';
+import type { QuestionExecuteConfigResponse, QuestionExecuteResponse } from '../dto/response/question-execute-response.dto';
 
 export class QuestionExecuteMapper {
 	static toResponse(question: QuestionEntity): QuestionExecuteResponse {
-		const questionExecute = {
-			id: question.id,
-			test_id: question.testId,
+		const { answer: _answer, ...config } = QuestionConfigMapper.toHttp(question.config);
+
+		return {
+			id: question.id.value,
+			test_id: question.testId.value,
 			sort_key: question.sortKey,
 			description: question.description,
-			config: question.config,
+			config: config as QuestionExecuteConfigResponse,
 		};
-
-		delete questionExecute.config.answer;
-
-		return questionExecute as unknown as QuestionExecuteResponse;
 	}
 }

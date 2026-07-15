@@ -9,13 +9,8 @@ export class TestExecuteMapper {
 		const executionTest: TestExecuteResult = {
 			id: test.id,
 			title: test.title,
-			isOpen: test.isOpen,
+			status: test.status,
 			questions: test.questions,
-			settings: {
-				isRequiredEmail: test.settings?.isRequiredEmail ?? false,
-				isRequiredFirstName: test.settings?.isRequiredFirstName ?? true,
-				isRequiredLastName: test.settings?.isRequiredLastName ?? true,
-			},
 		};
 
 		if (test.isOpen) {
@@ -34,26 +29,11 @@ export class TestExecuteMapper {
 	}
 
 	static toResponse(test: TestExecuteResult): TestExecuteResponse {
-		const credentials: Array<string> = [];
-
-		if (test.settings?.isRequiredEmail) {
-			credentials.push('email');
-		}
-
-		if (test.settings?.isRequiredFirstName) {
-			credentials.push('first_name');
-		}
-
-		if (test.settings?.isRequiredLastName) {
-			credentials.push('last_name');
-		}
-
 		const testExectuin: TestExecuteResponse = {
 			id: test.id.value,
 			title: test.title,
-			is_open: test.isOpen,
+			status: test.status,
 			questions: test.questions.map(QuestionExecuteMapper.toResponse),
-			register_credentials: credentials,
 		};
 
 		if (test.openFromAt) {

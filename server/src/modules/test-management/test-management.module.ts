@@ -13,6 +13,7 @@ import { PrismaTestRepository } from './repositories/prisma-test.repository';
 import type { TestExecutionRepository } from './interfaces/repository/test-execution.repository.interface';
 import { PrismaTestExecutionRepository } from './repositories/prisma-test-execution.repository';
 import { TestSessionService } from './services/test-session.service';
+import { QuestionExistsGuard } from './middlewares/question-exists.guard';
 
 const testManagementModule: ContainerModule = new ContainerModule((options: ContainerModuleLoadOptions) => {
 	options.bind<TestRepository>(TM_TYPES.TEST_REPOSITORY).to(PrismaTestRepository).inSingletonScope();
@@ -25,6 +26,7 @@ const testManagementModule: ContainerModule = new ContainerModule((options: Cont
 	options.bind(TM_TYPES.TEST_MIDDLEWARE).to(TestMiddleware).inSingletonScope();
 	options.bind(TM_TYPES.TEST_OWNERSHIP_GUARD).to(TestOwnershipGuard).inSingletonScope();
 	options.bind(TM_TYPES.TEST_SESSION_SERVICE).to(TestSessionService).inSingletonScope();
+	options.bind(TM_TYPES.QUESTION_EXISTS_GUARD).to(QuestionExistsGuard).inSingletonScope();
 });
 
 export { testManagementModule, TM_TYPES };

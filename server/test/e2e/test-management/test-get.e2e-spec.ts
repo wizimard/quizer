@@ -78,9 +78,6 @@ describe('GET /api/test/:testId', () => {
 			status: createRes.body.status,
 			questions: [],
 			settings: {
-				is_required_email: false,
-				is_required_first_name: true,
-				is_required_last_name: true,
 				is_show_answers_after_completion: false,
 			},
 			scheduler: {
@@ -140,7 +137,7 @@ describe('GET /api/test', () => {
 					id: firstTest.body.id,
 					author_id: authUtils.userId,
 					title: firstTest.body.title,
-					status: firstTest.body.status,
+					isOpen: false,
 					updated_at: firstTest.body.updated_at,
 					created_at: firstTest.body.created_at,
 				},
@@ -148,7 +145,7 @@ describe('GET /api/test', () => {
 					id: secondTest.body.id,
 					author_id: authUtils.userId,
 					title: secondTest.body.title,
-					status: secondTest.body.status,
+					isOpen: false,
 					updated_at: secondTest.body.updated_at,
 					created_at: secondTest.body.created_at,
 				},

@@ -28,12 +28,12 @@ export class QuestionMapper {
 		return new QuestionEntity(QuestionId.of(questionModel.id), TestId.of(questionModel.test_id), questionModel.description, questionModel.sort_key, config);
 	}
 
-	static buildQuestionFromCreateInput(input: CreateQuestionInput): QuestionEntity {
+	static buildQuestionFromCreateInput(input: CreateQuestionInput, sortKey: number): QuestionEntity {
 		return new QuestionEntity(
 			QuestionId.generate(),
 			input.testId,
 			input.description,
-			input.sortKey,
+			sortKey,
 			createQuestionConfigFromPayload(input.config as unknown as { type: string } & Record<string, unknown>),
 		);
 	}

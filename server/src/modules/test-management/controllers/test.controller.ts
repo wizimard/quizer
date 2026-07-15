@@ -113,96 +113,105 @@ export class TestController extends BaseController {
 	}
 
 	async getTestById(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		this.logger.info('getTestById start');
-		const dto = TestMapper.toFullResult(req.test!);
+		this.logger.info('[TestController getTestById] start');
 
-		this.logger.info({ message: 'getTestById dto:', data: dto });
+		const dto = await this.testService.getFullById(TestInputMapper.toGetFullByIdInput(req.test!.id.value, req.user!.id));
+
+		this.logger.info({ message: '[TestController getTestById] got test by id:', data: dto });
 
 		const test: TestFullResponse = TestMapper.toFullResponse(dto);
 
-		this.logger.info({ message: 'getTestById send test response:', data: test });
+		this.logger.info({ message: '[TestController getTestById] end:', data: test });
 
 		this.ok(res, test);
 	}
 
 	async getUserTest(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		this.logger.info('getUserTest start');
+		this.logger.info('[TestController getUserTest] start');
 
 		const dtos = await this.testService.getByAuthor(TestInputMapper.toGetByAuthorInput(req.user!.id));
 
 		const tests: TestResponse[] = dtos.map((dto: TestResult) => TestMapper.toResponse(dto));
 
-		this.logger.info({ message: 'getUserTest send test responses:', data: tests });
+		this.logger.info({ message: '[TestController getUserTest] end:', data: tests });
 
 		this.ok(res, tests);
 	}
 
 	async createTest(req: Request<object, object, TestCreateRequestDto>, res: Response, _next: NextFunction): Promise<void> {
-		this.logger.info('createTest start');
+		this.logger.info('[TestController createTest] start');
+
 		const dto = await this.testService.create(TestInputMapper.toCreateInput(req.body, req.user!.id));
+
 		const createdTest: TestFullResponse = TestMapper.toFullResponse(dto);
 
-		this.logger.info({ message: 'createTest send created test response:', data: createdTest });
+		this.logger.info({ message: '[TestController createTest] end:', data: createdTest });
 
 		this.created(res, createdTest);
 	}
 
 	async updateTest(req: Request<object, object, TestUpdateRequestDto>, res: Response, _next: NextFunction): Promise<void> {
-		this.logger.info('updateTest start');
+		this.logger.info('[TestController updateTest] start');
+
 		const dto = await this.testService.update(TestInputMapper.toUpdateInput(req.test!, req.body));
+
 		const updatedTest: TestFullResponse = TestMapper.toFullResponse(dto);
 
-		this.logger.info({ message: 'updateTest send updated test response:', data: updatedTest });
+		this.logger.info({ message: '[TestController updateTest] end:', data: updatedTest });
 
 		this.ok(res, updatedTest);
 	}
 
 	async deleteTest(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		this.logger.info('deleteTest start');
+		this.logger.info('[TestController deleteTest] start');
+
 		await this.testService.delete(TestInputMapper.toDeleteInput(req.test!));
 
-		this.logger.info('deleteTest send no content response');
+		this.logger.info('[TestController deleteTest] end');
 
 		this.noContent(res);
 	}
 
 	async updateTestSettings(req: Request<any, object, TestSettingsUpdateRequestDto>, res: Response, _next: NextFunction): Promise<void> {
-		this.logger.info('updateTestSettings start');
+		this.logger.info('[TestController updateTestSettings] start');
 
 		const dto = await this.testService.updateSettings(TestInputMapper.toUpdateSettingsInput(req.test!, req.body));
+
 		const updatedTest: TestFullResponse = TestMapper.toFullResponse(dto);
 
-		this.logger.info({ message: 'updateTestSettings send updated test response:', data: updatedTest });
+		this.logger.info({ message: '[TestController updateTestSettings] end:', data: updatedTest });
 
 		this.ok(res, updatedTest);
 	}
 
 	async updateTestSchedulerPeriods(req: Request<any, object, TestSchedulerPeriodsEditRequestDto>, res: Response, _next: NextFunction): Promise<void> {
-		this.logger.info('updateTestSchedulerPeriods start');
+		this.logger.info('[TestController updateTestSchedulerPeriods] start');
+
 		const dto = await this.testService.updateSchedulerPeriods(TestInputMapper.toUpdateSchedulerPeriodsInput(req.test!, req.body));
+
 		const schedulerResponse: TestSchedulerResponse = SchedulerMapper.toResponse(dto);
 
-		this.logger.info({ message: 'updateTestSchedulerPeriods send scheduler response:', data: schedulerResponse });
+		this.logger.info({ message: '[TestController updateTestSchedulerPeriods] end:', data: schedulerResponse });
 
 		this.ok(res, schedulerResponse);
 	}
 
 	async startTest(req: Request<ParamsDictionary, any, TestStartRequestDto>, res: Response, _next: NextFunction): Promise<void> {
-		this.logger.info('startTest start');
+		this.logger.info('[TestController startTest] start');
 
 		const isStarted: boolean = await this.testSessionService.startTest(TestInputMapper.toStartInput(req.test!, req.body));
 
-		this.logger.info({ message: 'startTest send is started response:', data: isStarted });
+		this.logger.info({ message: '[TestController startTest] end:', data: isStarted });
 
-		this.ok(res, { message: isStarted ? 'Test started successfully' : 'Test not started' });
+		this.ok(res, { message: isStarted ? 'Test started successfully' : 'test not started' });
 	}
 
 	async finishTest(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		this.logger.info('finishTest start');
+		this.logger.info('[TestController finishTest] start');
 
 		const isFinished: boolean = await this.testSessionService.finishTest(TestInputMapper.toFinishInput(req.test!));
 
-		this.logger.info({ message: 'finishTest send is finished response:', data: isFinished });
+		this.logger.info({ message: '[TestController finishTest] send is finished response:', data: isFinished });
 
 		this.ok(res, { message: isFinished ? 'Test finished successfully' : 'Test not finished' });
 	}

@@ -4,9 +4,6 @@ import type { TestSchedulerResponse } from './test-scheduler.response-dto';
 import type { TestResponse } from './test.response-dto';
 
 export interface TestFullResponseSettings {
-	is_required_email: boolean;
-	is_required_first_name: boolean;
-	is_required_last_name: boolean;
 	is_show_answers_after_completion: boolean;
 }
 

@@ -12,15 +12,14 @@ export class RequestLoggerMiddleware implements IMiddleware {
 	execute(req: Request, _res: Response, next: NextFunction): void {
 		const safeBody = req.body ? redactSensitive(req.body) : undefined;
 
-		this.logger.info(
-			JSON.stringify({
-				correlationId: req.correlationId,
-				method: req.method,
-				url: req.url,
-				userId: req.user?.id,
-				body: safeBody,
-			}),
-		);
+		this.logger.info({
+			message: 'Request received',
+			correlationId: req.correlationId,
+			method: req.method,
+			url: req.url,
+			userId: req.user?.id,
+			body: safeBody,
+		});
 
 		next();
 	}

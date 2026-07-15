@@ -94,9 +94,6 @@ describe('POST /api/test', () => {
 			status: 'closed',
 			questions: [],
 			settings: {
-				is_required_email: false,
-				is_required_first_name: true,
-				is_required_last_name: true,
 				is_show_answers_after_completion: false,
 			},
 			scheduler: {

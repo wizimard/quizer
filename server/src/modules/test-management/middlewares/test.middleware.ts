@@ -15,7 +15,7 @@ export class TestMiddleware implements IMiddleware {
 	async execute(req: Request, _res: Response, next: NextFunction): Promise<void> {
 		try {
 			const testId = parseIdParam(req, this.paramName);
-			const test = await this.testRepository.findFullById(testId);
+			const test = await this.testRepository.findById(testId);
 
 			if (test) {
 				req.test = test;

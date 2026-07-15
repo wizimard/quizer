@@ -6,7 +6,7 @@ import type { QuestionEntity } from '..';
 import type { TestSettings } from './test-settings';
 import type { TestSchedulerPeriod } from './test-scheduler-period';
 
-export type TestStatus = 'open' | 'open_by_scheduler' | 'closed';
+export type TestStatus = 'open' | 'open_by_scheduler' | 'closed' | 'finished';
 
 export class TestEntity {
 	public status: TestStatus = 'closed';
@@ -47,12 +47,20 @@ export class TestEntity {
 	public setSessions(sessions: Array<TestSessionEntity>): void {
 		this._sessions = sessions;
 
-		if (sessions.length > 0) {
-			if (sessions[0]!.status === 'ACTIVE') {
-				this.status = sessions[0]!.startBy === 'SCHEDULED' ? 'open_by_scheduler' : 'open';
-			}
+		if (!sessions.length) {
+			this.status = 'closed';
 			return;
 		}
+
+		if (sessions[0]!.status === 'ACTIVE') {
+			this.status = sessions[0]!.startBy === 'SCHEDULED' ? 'open_by_scheduler' : 'open';
+
+			return;
+		}
+
+		const hourInterval = 60 * 60 * 1000;
+
+		this.status = Date.now() - sessions[0]!.startedAt.getTime() > hourInterval ? 'finished' : 'closed';
 	}
 
 	assertOwnedBy(userId: UserId): void {

@@ -10,17 +10,5 @@ export class TestSettingsUpdateRequestDto {
 
 	@IsDefined()
 	@IsBoolean()
-	required_email: boolean;
-
-	@IsDefined()
-	@IsBoolean()
-	required_first_name: boolean;
-
-	@IsDefined()
-	@IsBoolean()
-	required_last_name: boolean;
-
-	@IsDefined()
-	@IsBoolean()
 	show_answers_after_completion: boolean;
 }

@@ -1,5 +1,5 @@
-import type { IRequestHandler } from './request-handler.interface';
+import type { Request, Response, NextFunction } from 'express';
 
 export interface IMiddleware {
-	execute: IRequestHandler;
+	execute: (req: Request, res: Response, next: NextFunction) => void | Promise<void>;
 }

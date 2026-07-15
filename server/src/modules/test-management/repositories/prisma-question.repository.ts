@@ -21,7 +21,7 @@ export class PrismaQuestionRepository implements QuestionRepository {
 				this.prismaService.client.testQuestionModel.create({
 					data: QuestionPersistenceMapper.toCreateData(data),
 				}),
-			'PrismaQuestionRepository.create',
+			'PrismaQuestionRepository create',
 			this.logger,
 		);
 
@@ -35,7 +35,7 @@ export class PrismaQuestionRepository implements QuestionRepository {
 					where: { id: data.id.value, test_id: data.testId.value },
 					data: QuestionPersistenceMapper.toUpdateData(data),
 				}),
-			'PrismaQuestionRepository.update',
+			'PrismaQuestionRepository update',
 			this.logger,
 		);
 
@@ -48,7 +48,7 @@ export class PrismaQuestionRepository implements QuestionRepository {
 				this.prismaService.client.testQuestionModel.deleteMany({
 					where: { id, test_id: testId },
 				}),
-			'PrismaQuestionRepository.delete',
+			'PrismaQuestionRepository delete',
 			this.logger,
 		);
 
@@ -72,7 +72,7 @@ export class PrismaQuestionRepository implements QuestionRepository {
 
 				return this.prismaService.client.$transaction(updateQuestions);
 			},
-			'PrismaQuestionRepository.updateQuestionsOrders',
+			'PrismaQuestionRepository updateQuestionsOrders',
 			this.logger,
 		);
 

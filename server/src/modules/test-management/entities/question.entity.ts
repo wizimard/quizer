@@ -47,4 +47,8 @@ export class QuestionEntity {
 
 		return errorData;
 	}
+
+	public isValidAnswer(answer: string): boolean {
+		return this._config.isValidAnswer(answer);
+	}
 }

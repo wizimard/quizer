@@ -1,50 +1,89 @@
-import type { ILogger } from './logger.interface';
+import { mkdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { createLogger, format, transports, type Logger } from 'winston';
+import type { ILogger, LogMessage } from './logger.interface';
 import { injectable } from 'inversify';
+import chalk from 'chalk';
 
 type LogLevel = 'info' | 'error' | 'warn' | 'success';
 
+const logLevels = {
+	error: 0,
+	warn: 1,
+	info: 2,
+	success: 3,
+} as const;
+
+const levelColors = {
+	error: chalk.red,
+	warn: chalk.yellow,
+	info: chalk.blue,
+	success: chalk.green,
+} as const;
+
 @injectable()
 export class LoggerService implements ILogger {
-	private write(level: LogLevel, message: string): void {
-		console.log(
-			JSON.stringify(
-				{
-					pid: process.pid,
-					level,
-					timestamp: new Date().toISOString(),
-					message,
-				},
-				null,
-				4,
-			),
-		);
+	private correlationId: string | undefined;
+	private readonly logger: Logger;
+
+	constructor() {
+		const logsDir = join(process.cwd(), 'logs');
+		mkdirSync(logsDir, { recursive: true });
+
+		this.logger = createLogger({
+			levels: logLevels,
+			level: 'success',
+			defaultMeta: { pid: process.pid },
+			transports: [
+				new transports.File({
+					filename: join(logsDir, 'app.log'),
+					format: format.combine(format.timestamp(), format.json()),
+				}),
+			],
+		});
 	}
 
-	private getMessage(data: string | object): string {
+	setCorrelationId(correlationId: string): void {
+		this.correlationId = correlationId;
+	}
+
+	private write<T extends LogMessage>(level: LogLevel, data: string | T): void {
+		const message = typeof data === 'string' ? data : data.message;
+
+		console.log(levelColors[level](level.toLocaleUpperCase()) + ` [${new Date().toISOString()}] ${this.correlationId} : ${message}`);
+
+		this.logger.log({
+			level,
+			message: this.getMessage(data),
+			correlationId: this.correlationId,
+		});
+	}
+
+	private getMessage<T extends LogMessage>(data: string | T): string {
 		let message = '';
 
 		try {
 			message += typeof data === 'string' ? data : JSON.stringify(data, null, 2);
-		} catch (error) {
+		} catch {
 			message += "object can't format to string";
 		}
 
 		return message;
 	}
 
-	info(...data: unknown[]): void {
-		this.write('info', this.getMessage(data));
+	info<T extends LogMessage>(data: string | T): void {
+		this.write('info', data);
 	}
 
-	error(...data: unknown[]): void {
-		this.write('error', this.getMessage(data));
+	error<T extends LogMessage>(data: string | T): void {
+		this.write('error', data);
 	}
 
-	warn(...data: unknown[]): void {
-		this.write('warn', this.getMessage(data));
+	warn<T extends LogMessage>(data: string | T): void {
+		this.write('warn', data);
 	}
 
-	success(...data: unknown[]): void {
-		this.write('success', this.getMessage(data));
+	success<T extends LogMessage>(data: string | T): void {
+		this.write('success', data);
 	}
 }

@@ -6,24 +6,23 @@ import type { NextFunction, Request, Response } from 'express';
 import type { ParamsDictionary } from 'express-serve-static-core';
 import { QuestionCreateRequestDto } from '../dto/http/request/question-create.request-dto';
 import { QuestionUpdateRequestDto } from '../dto/http/request/question-update.request-dto';
-import { parseIdParam } from '@shared/http/utils/parse-id-param';
 import { APP_TYPES } from '@app/app.types';
 import type { IMiddlewareFactory } from '@shared/http/middleware.factory.interface';
-import { QuestionExistsGuard } from '../middlewares/question-exists.guard';
 import type { QuestionChangeOrderRequestDto } from '../dto/http/request/question-change-order.request-dto';
 import { QuestionInputMapper } from '../mappers/input/question-input.mapper';
 import type { QuestionResponse } from '../dto/http/response/question.response-dto';
 import { QuestionMapper } from '../mappers/question.mapper';
 import type { QuestionResult } from '../interfaces/services/results/question.result';
 import type { ILogger } from '@shared/logger';
+import type { IMiddleware } from '@shared/http/middleware.interface';
 
 @injectable()
 export class QuestionController extends BaseController {
-	private readonly questionExistsGuard: QuestionExistsGuard = new QuestionExistsGuard();
 	constructor(
 		@inject(TM_TYPES.QUESTION_SERVICE) private readonly questionService: QuestionService,
 		@inject(APP_TYPES.MIDDLEWARE_FACTORY) private readonly middlewareFactory: IMiddlewareFactory,
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
+		@inject(TM_TYPES.QUESTION_EXISTS_GUARD) private readonly questionExistsGuard: IMiddleware,
 	) {
 		super();
 
@@ -67,54 +66,47 @@ export class QuestionController extends BaseController {
 	}
 
 	async createQuestion(req: Request<ParamsDictionary, unknown, QuestionCreateRequestDto>, res: Response, _next: NextFunction): Promise<void> {
-		this.logger.info('createQuestion start');
+		this.logger.info('[QuestionController createQuestion] start');
 
 		const result: QuestionResult = await this.questionService.create(QuestionInputMapper.toCreateInput(req.body, req.test!));
 
 		const createdQuestion: QuestionResponse = QuestionMapper.toResponse(result);
 
-		this.logger.info({ message: 'createQuestion send created question response:', data: createdQuestion });
+		this.logger.info({ message: '[QuestionController createQuestion] end:', data: createdQuestion });
 
 		this.created(res, createdQuestion);
 	}
 
 	async updateQuestion(req: Request<ParamsDictionary, unknown, QuestionUpdateRequestDto>, res: Response, _next: NextFunction): Promise<void> {
-		this.logger.info('updateQuestion start');
+		this.logger.info('[QuestionController updateQuestion] start');
 
-		const questionId = parseIdParam(req, 'questionId');
-
-		const result: QuestionResult = await this.questionService.update(QuestionInputMapper.toUpdateInput(req.body, req.test!.id.value, questionId));
+		const result: QuestionResult = await this.questionService.update(QuestionInputMapper.toUpdateInput(req.body, req.question!));
 
 		const updatedQuestion: QuestionResponse = QuestionMapper.toResponse(result);
 
-		this.logger.info({ message: 'updateQuestion send updated question response:', data: updatedQuestion });
+		this.logger.info({ message: '[QuestionController updateQuestion] end:', data: updatedQuestion });
 
 		this.ok(res, updatedQuestion);
 	}
 
 	async deleteQuestion(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		this.logger.info('deleteQuestion start');
+		this.logger.info('[QuestionController deleteQuestion] start');
 
-		const testId = parseIdParam(req, 'testId');
-		const questionId = parseIdParam(req, 'questionId');
+		await this.questionService.delete(QuestionInputMapper.toDeleteInput(req.question!));
 
-		await this.questionService.delete(QuestionInputMapper.toDeleteInput(questionId, testId));
-
-		this.logger.info('deleteQuestion send no content response');
+		this.logger.info('[QuestionController deleteQuestion] end');
 
 		this.noContent(res);
 	}
 
 	async changeQuestionOrder(req: Request<ParamsDictionary, unknown, QuestionChangeOrderRequestDto>, res: Response, _next: NextFunction): Promise<void> {
-		this.logger.info('changeQuestionOrder start');
+		this.logger.info('[QuestionController changeQuestionOrder] start');
 
-		const questionId = parseIdParam(req, 'questionId');
-
-		const result: QuestionResult[] = await this.questionService.changeOrder(QuestionInputMapper.toChangeOrderInput(req.body, req.test!, questionId));
+		const result: QuestionResult[] = await this.questionService.changeOrder(QuestionInputMapper.toChangeOrderInput(req.body, req.question!));
 
 		const response: QuestionResponse[] = result.map(QuestionMapper.toResponse);
 
-		this.logger.info({ message: 'changeQuestionOrder send result response:', data: response });
+		this.logger.info({ message: '[QuestionController changeQuestionOrder] end:', data: response });
 
 		this.ok(res, response);
 	}

@@ -431,6 +431,84 @@
                 }
             }
         },
+        "/test-execute/{testId}/register": {
+            "post": {
+                "tags": ["test-execution"],
+                "summary": "Register user for test",
+                "description": "Register a test taker for an open test session. Idempotent for the same first and last name within a session.",
+                "parameters": [
+                    {
+                        "name": "testId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/TestRegisterRequestBody" }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User registered",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/TestRegisteredUserResponse" }
+                            }
+                        }
+                    },
+                    "400": { "description": "Test is closed" },
+                    "404": { "description": "Not found" },
+                    "422": { "description": "Validation failed" }
+                }
+            }
+        },
+        "/test-execute/{testId}/{questionId}/answer": {
+            "post": {
+                "tags": ["test-execution"],
+                "summary": "Answer question",
+                "description": "Submit an answer for a question in an open test session.",
+                "parameters": [
+                    {
+                        "name": "testId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "questionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/QuestionAnswerRequestBody" }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Answer submitted",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/TestRegisteredUserResponse" }
+                            }
+                        }
+                    },
+                    "400": { "description": "Test is closed" },
+                    "404": { "description": "Not found" },
+                    "422": { "description": "Validation failed" }
+                }
+            }
+        },
         "/question/{testId}/questions": {
             "post": {
                 "tags": ["question"],
@@ -812,16 +890,8 @@
             },
             "TestSettings": {
                 "type": "object",
-                "required": [
-                    "is_required_email",
-                    "is_required_first_name",
-                    "is_required_last_name",
-                    "is_show_answers_after_completion"
-                ],
+                "required": ["is_show_answers_after_completion"],
                 "properties": {
-                    "is_required_email": { "type": "boolean" },
-                    "is_required_first_name": { "type": "boolean" },
-                    "is_required_last_name": { "type": "boolean" },
                     "is_show_answers_after_completion": { "type": "boolean" }
                 }
             },
@@ -841,24 +911,52 @@
             },
             "TestExecuteResponse": {
                 "type": "object",
-                "required": ["id", "title", "is_open", "questions", "register_credentials"],
+                "required": ["id", "title", "status", "questions"],
                 "properties": {
                     "id": { "type": "string" },
                     "title": { "type": "string" },
-                    "is_open": { "type": "boolean" },
+                    "status": {
+                        "type": "string",
+                        "enum": ["open", "open_by_scheduler", "closed", "finished"]
+                    },
                     "open_from_at": { "type": "string", "format": "date-time" },
                     "open_until_at": { "type": "string", "format": "date-time" },
                     "questions": {
                         "type": "array",
                         "items": { "$ref": "#/components/schemas/QuestionExecuteResponse" }
-                    },
-                    "register_credentials": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "enum": ["email", "first_name", "last_name"]
-                        }
                     }
+                }
+            },
+            "TestRegisterRequestBody": {
+                "type": "object",
+                "required": ["first_name", "last_name"],
+                "properties": {
+                    "first_name": { "type": "string", "minLength": 1 },
+                    "last_name": { "type": "string", "minLength": 1 }
+                }
+            },
+            "QuestionAnswerRequestBody": {
+                "type": "object",
+                "required": ["user_id"],
+                "properties": {
+                    "user_id": { "type": "string", "minLength": 1 },
+                    "answer": { "type": "string", "minLength": 1 },
+                    "skipped": { "type": "boolean" }
+                }
+            },
+            "TestRegisteredUserResponse": {
+                "type": "object",
+                "required": ["id", "first_name", "last_name", "current_question", "current_question_index", "total_questions_count"],
+                "properties": {
+                    "id": { "type": "string" },
+                    "first_name": { "type": "string" },
+                    "last_name": { "type": "string" },
+                    "current_question": {
+                        "nullable": true,
+                        "allOf": [{ "$ref": "#/components/schemas/QuestionExecuteResponse" }]
+                    },
+                    "current_question_index": { "type": "number" },
+                    "total_questions_count": { "type": "number" }
                 }
             },
             "TestFullResponse": {
@@ -869,7 +967,7 @@
                     "author_id": { "type": "string" },
                     "status": {
                         "type": "string",
-                        "enum": ["open", "open_by_scheduler", "closed"]
+                        "enum": ["open", "open_by_scheduler", "closed", "finished"]
                     },
                     "title": { "type": "string" },
                     "questions": {
@@ -958,18 +1056,9 @@
             },
             "TestSettingsUpdateRequestBody": {
                 "type": "object",
-                "required": [
-                    "title",
-                    "required_email",
-                    "required_first_name",
-                    "required_last_name",
-                    "show_answers_after_completion"
-                ],
+                "required": ["title", "show_answers_after_completion"],
                 "properties": {
                     "title": { "type": "string", "minLength": 3 },
-                    "required_email": { "type": "boolean" },
-                    "required_first_name": { "type": "boolean" },
-                    "required_last_name": { "type": "boolean" },
                     "show_answers_after_completion": { "type": "boolean" }
                 }
             },

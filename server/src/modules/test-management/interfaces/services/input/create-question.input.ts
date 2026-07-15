@@ -5,5 +5,4 @@ export interface CreateQuestionInput {
 	testId: TestId;
 	description: string;
 	config: IQuestionConfigBase;
-	sortKey: number;
 }

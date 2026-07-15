@@ -16,16 +16,10 @@ let testUtils: TestUtils;
 const settingsPayload = (
 	title: string,
 	overrides: Partial<{
-		required_email: boolean;
-		required_first_name: boolean;
-		required_last_name: boolean;
 		show_answers_after_completion: boolean;
 	}> = {},
 ) => ({
 	title,
-	required_email: false,
-	required_first_name: false,
-	required_last_name: false,
 	show_answers_after_completion: false,
 	...overrides,
 });
@@ -127,9 +121,6 @@ describe('PATCH /api/test/:testId/settings', () => {
 			.set('Authorization', `Bearer ${accessToken}`)
 			.send(
 				settingsPayload(updatedTitle, {
-					required_email: true,
-					required_first_name: true,
-					required_last_name: false,
 					show_answers_after_completion: true,
 				}),
 			);
@@ -142,9 +133,6 @@ describe('PATCH /api/test/:testId/settings', () => {
 			status: createRes.body.status,
 			questions: [],
 			settings: {
-				is_required_email: true,
-				is_required_first_name: true,
-				is_required_last_name: false,
 				is_show_answers_after_completion: true,
 			},
 			scheduler: {

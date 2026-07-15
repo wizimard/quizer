@@ -1,17 +1,11 @@
 import type { QuestionEntity, TestId } from '@modules/test-management';
-
-export interface TestExecuteSettingsResult {
-	isRequiredEmail: boolean;
-	isRequiredFirstName: boolean;
-	isRequiredLastName: boolean;
-}
+import type { TestStatus } from '@modules/test-management/entities/test.entity';
 
 export interface TestExecuteResult {
 	id: TestId;
 	title: string;
-	isOpen: boolean;
+	status: TestStatus;
 	openFromAt?: Date;
 	openUntilAt?: Date;
 	questions: Array<QuestionEntity>;
-	settings: TestExecuteSettingsResult;
 }

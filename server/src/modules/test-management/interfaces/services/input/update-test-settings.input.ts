@@ -4,8 +4,6 @@ export interface UpdateTestSettingsInput {
 	test: TestEntity;
 
 	title: string;
-	isRequiredEmail: boolean;
-	isRequiredFirstName: boolean;
-	isRequiredLastName: boolean;
+
 	isShowAnswersAfterCompletion: boolean;
 }

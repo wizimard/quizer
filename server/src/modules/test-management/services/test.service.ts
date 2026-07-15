@@ -35,7 +35,7 @@ export class TestService implements ITestService {
 	) {}
 
 	async create(input: CreateTestInput): Promise<TestFullResult> {
-		this.logger.info({ message: 'TestService.create start', data: input });
+		this.logger.info({ message: '[TestService create] start', data: input });
 
 		const testEntity: TestEntity = TestMapper.buildTestFromCreateInput(input);
 		const errors: ITestValidationError = TestValidator.validate(testEntity);
@@ -46,13 +46,13 @@ export class TestService implements ITestService {
 
 		const createdTest: TestEntity = await this.testRepository.create(testEntity);
 
-		this.logger.info({ message: 'TestService.create test created:', data: createdTest });
+		this.logger.info({ message: '[TestService create] test created', data: createdTest });
 
 		return TestMapper.toFullResult(createdTest);
 	}
 
 	async update(input: UpdateTestInput): Promise<TestFullResult> {
-		this.logger.info({ message: 'TestService.update start', data: input });
+		this.logger.info({ message: '[TestService update] start', data: input });
 
 		const test: TestEntity = input.test;
 
@@ -62,25 +62,25 @@ export class TestService implements ITestService {
 
 		const updatedTest: TestEntity = await this.testRepository.update(test);
 
-		this.logger.info({ message: 'TestService.update test updated:', data: updatedTest });
+		this.logger.info({ message: '[TestService update] test updated', data: updatedTest });
 
 		return TestMapper.toFullResult(updatedTest);
 	}
 
 	async delete(input: DeleteTestInput): Promise<void> {
-		this.logger.info({ message: 'TestService.delete start', data: input });
+		this.logger.info({ message: '[TestService delete] start', data: input });
 
 		if (input.test.isOpen) {
 			throw new TestOpenError('TestService.delete', 'errors.delete_test_open');
 		}
 
-		this.logger.info({ message: 'TestService.delete test deleted' });
+		this.logger.info('[TestService delete] test deleted');
 
 		await this.testRepository.delete(input.test.id.value);
 	}
 
 	async getByAuthor(input: GetAuthorTestsInput): Promise<TestResult[]> {
-		this.logger.info({ message: 'TestService.getByAuthor start', data: input });
+		this.logger.info({ message: '[TestService getByAuthor] start', data: input });
 
 		const tests: TestEntity[] = await this.testRepository.findByAuthor(input.authorId.value);
 
@@ -88,19 +88,19 @@ export class TestService implements ITestService {
 	}
 
 	async updateSettings(input: UpdateTestSettingsInput): Promise<TestFullResult> {
-		this.logger.info({ message: 'TestService.updateSettings start', data: input });
+		this.logger.info({ message: '[TestService updateSettings] start', data: input });
 
 		const test: TestEntity = input.test;
 
 		const updatedTest: TestEntity = await this.testRepository.updateSettings(test.id.value, input);
 
-		this.logger.info({ message: 'TestService.updateSettings test updated:', data: updatedTest });
+		this.logger.info({ message: '[TestService updateSettings] test updated', data: updatedTest });
 
 		return TestMapper.toFullResult(updatedTest);
 	}
 
 	async updateSchedulerPeriods(input: UpdateTestSchedulerInput): Promise<Array<TestSchedulerResultPeriod>> {
-		this.logger.info({ message: 'TestService.updateSchedulerPeriods start', data: input });
+		this.logger.info({ message: '[TestService updateSchedulerPeriods] start', data: input });
 
 		const schedulerPeriods: Array<TestSchedulerPeriod> = (await this.testRepository.getScheduler(input.test.id.value)).map(SchedulerPeriodMapper.toDomain);
 
@@ -135,13 +135,13 @@ export class TestService implements ITestService {
 
 		const updatedSchedulerPeriods: Array<TestSchedulerPeriodModel> = await this.testRepository.updateSchedulerPeriods(test.id.value, SchedulerPeriodMapper.toRepositoryUpdateData(test.id, input));
 
-		this.logger.info({ message: 'TestService.updateSchedulerPeriods scheduler periods updated:', data: updatedSchedulerPeriods });
+		this.logger.info({ message: '[TestService updateSchedulerPeriods] scheduler periods updated', data: updatedSchedulerPeriods });
 
 		return updatedSchedulerPeriods.map(SchedulerPeriodMapper.toDomain).map(SchedulerPeriodMapper.toResult);
 	}
 
 	async getFullById(input: GetFullTestByIdInput): Promise<TestFullResult> {
-		this.logger.info({ message: 'TestService.getFullById start', data: input });
+		this.logger.info({ message: '[TestService getFullById] start', data: input });
 
 		const test: TestEntity | null = await this.testRepository.findFullById(input.testId.value);
 
@@ -153,13 +153,13 @@ export class TestService implements ITestService {
 			throw new TestNotOwnedError('TestService.getFullById');
 		}
 
-		this.logger.info({ message: 'TestService.getFullById test found:', data: test });
+		this.logger.info({ message: '[TestService getFullById] test found', data: test });
 
 		return TestMapper.toFullResult(test);
 	}
 
 	async getById(input: GetTestByIdInput): Promise<TestResult> {
-		this.logger.info({ message: 'TestService.getById start', data: input });
+		this.logger.info({ message: '[TestService getById] start', data: input });
 
 		const test: TestEntity | null = await this.testRepository.findById(input.testId.value);
 
@@ -167,7 +167,7 @@ export class TestService implements ITestService {
 			throw new TestNotFoundError('TestService.getById');
 		}
 
-		this.logger.info({ message: 'TestService.getById test found:', data: test });
+		this.logger.info({ message: '[TestService getById] test found', data: test });
 
 		return TestMapper.toResult(test);
 	}
