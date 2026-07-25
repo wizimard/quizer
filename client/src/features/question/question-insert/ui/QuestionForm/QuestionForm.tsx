@@ -6,21 +6,25 @@ import { FormSelectField, FormTextField } from "@shared/ui/form";
 import type { Question } from "@entities/question";
 import { DefaultButton } from "@shared/ui/button";
 import { Typography } from "@shared/ui/typography";
+import type { TestFull } from "@entities/test";
 
 export interface QuestionFormProps {
 	question: Question;
+	test: TestFull;
 }
 
-export const QuestionForm = ({ question }: QuestionFormProps) => {
+export const QuestionForm = ({ question, test }: QuestionFormProps) => {
 	const { t } = useTranslation();
 
-	const { control, handleSubmit, isLoading, isDirty, resetForm, formError } = useQuestionForm(question);
+	const { control, handleSubmit, isLoading, isDirty, resetForm, formError } = useQuestionForm(question, test);
 
 	return (
 		<form onSubmit={handleSubmit}>
-			<FormTextField control={control} name="description" placeholder="question_form.description.placeholder" label="question_form.description.label" className="mb-5" multiline />
-			<FormSelectField control={control} name="config.type" options={QUESTION_TYPES_OPTIONS} label="question_form.type.label" placeholder="question_form.type.placeholder" id="config.type" />
-			<QuestionConfig control={control} />
+			<fieldset disabled={test.isOpen} className="disabled:pointer-events-none">
+				<FormTextField control={control} name="description" placeholder="question_form.description.placeholder" label="question_form.description.label" className="mb-5" multiline />
+				<FormSelectField control={control} name="config.type" options={QUESTION_TYPES_OPTIONS} label="question_form.type.label" placeholder="question_form.type.placeholder" id="config.type" />
+				<QuestionConfig control={control} />
+			</fieldset>
 
 			{formError?.message && <Typography color="error">{t(formError.message)}</Typography>}
 

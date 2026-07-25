@@ -1,8 +1,6 @@
-import type { TestId } from '@modules/test-management';
-
 export interface TestSchedulerResultPeriod {
 	id: number;
-	testId: TestId;
+	testId: string;
 	availableFrom: Date;
 	availableTo?: Date | null | undefined;
 }

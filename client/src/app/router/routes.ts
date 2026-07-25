@@ -18,6 +18,7 @@ const MainPage = lazy(() => import("@pages/Main"));
 const TestPage = lazy(() => import("@pages/Test"));
 const TestQrCodePage = lazy(() => import("@pages/TestQrCode"));
 const TestExecutePage = lazy(() => import("@pages/TestExecute"));
+const TestExecutionOverviewPage = lazy(() => import("@pages/TestExecutionOverviewPage"));
 
 export const appRoutes: IAppRoutes = {
 	public: [
@@ -31,6 +32,10 @@ export const appRoutes: IAppRoutes = {
 		},
 	],
 	private: [
+		{
+			path: "/test-execution-overview/:id",
+			element: TestExecutionOverviewPage,
+		},
 		{
 			path: "/test/:id",
 			element: TestPage,

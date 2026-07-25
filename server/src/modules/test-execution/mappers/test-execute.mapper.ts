@@ -30,7 +30,7 @@ export class TestExecuteMapper {
 
 	static toResponse(test: TestExecuteResult): TestExecuteResponse {
 		const testExectuin: TestExecuteResponse = {
-			id: test.id.value,
+			id: test.id,
 			title: test.title,
 			status: test.status,
 			questions: test.questions.map(QuestionExecuteMapper.toResponse),

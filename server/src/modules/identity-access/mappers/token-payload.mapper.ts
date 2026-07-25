@@ -3,7 +3,7 @@ import type { User } from '../entities/user.entity';
 
 export function toTokenPayload(user: User): ITokenPayload {
 	return {
-		id: user.id.value,
+		id: user.id,
 		email: user.email.value,
 	};
 }

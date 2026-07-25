@@ -2,18 +2,20 @@ import { BaseController } from '@shared/http/controller.base';
 import { inject, injectable } from 'inversify';
 import type { Request, Response, NextFunction } from 'express';
 import { APP_TYPES } from '@app/app.types';
-import type { IMiddlewareFactory } from '@shared/http/middleware.factory.interface';
 import type { User } from '../entities/user.entity';
 import { UserMapper } from '../mappers/user.mapper';
 import { IA_TYPES } from '..';
 import type { UserService } from '../services/user.service';
+import { AuthGuard } from '../middleware/auth.guard';
+import type { ILogger } from '@shared/logger';
 
 // TODO: add delete user
 @injectable()
 export class UserController extends BaseController {
+	private readonly authGuard: AuthGuard = new AuthGuard();
 	constructor(
-		@inject(APP_TYPES.MIDDLEWARE_FACTORY) private readonly middlewareFactory: IMiddlewareFactory,
 		@inject(IA_TYPES.USER_SERVICE) private readonly userService: UserService,
+		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
 	) {
 		super();
 
@@ -22,13 +24,13 @@ export class UserController extends BaseController {
 				url: '/me',
 				method: 'get',
 				handler: this.getCurrentUser,
-				middlewares: [this.middlewareFactory.authGuard()],
+				middlewares: [this.authGuard],
 			},
 			{
 				url: '/',
 				method: 'delete',
 				handler: this.deleteUser,
-				middlewares: [this.middlewareFactory.authGuard()],
+				middlewares: [this.authGuard],
 			},
 		]);
 	}

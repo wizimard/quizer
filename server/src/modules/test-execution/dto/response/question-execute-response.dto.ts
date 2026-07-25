@@ -1,7 +1,23 @@
-import type { QuestionResponse } from '@modules/test-management/dto/http/response/question.response-dto';
+import type { IQuestionConfigMultipleChoise, IQuestionInputValueConfig, IQuestionSingleChoiseConfig, QuestionType } from '@modules/test-management';
 
-export type QuestionExecuteConfigResponse = Omit<QuestionResponse['config'], 'answer'>;
+export interface QuestionExecuteResponseInputConfig extends Omit<IQuestionInputValueConfig, 'answer' | 'ignore_case'> {
+	type: Extract<QuestionType, 'input'>;
+}
 
-export interface QuestionExecuteResponse extends Omit<QuestionResponse, 'config'> {
-	config: QuestionExecuteConfigResponse;
+export interface QuestionExecuteResponseSingleChoiceConfig extends Omit<IQuestionSingleChoiseConfig, 'answer'> {
+	type: Extract<QuestionType, 'single_choice'>;
+}
+
+export interface QuestionExecuteResponseMultipleChoiceConfig extends Omit<IQuestionConfigMultipleChoise, 'answer'> {
+	type: Extract<QuestionType, 'multiple_choice'>;
+}
+
+export type QuestionExecuteResponseConfig = QuestionExecuteResponseInputConfig | QuestionExecuteResponseSingleChoiceConfig | QuestionExecuteResponseMultipleChoiceConfig;
+
+export interface QuestionExecuteResponse {
+	id: string;
+	test_id: string;
+	sort_key: number;
+	description: string;
+	config: QuestionExecuteResponseConfig;
 }

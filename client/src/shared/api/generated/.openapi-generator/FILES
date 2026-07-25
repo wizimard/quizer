@@ -6,6 +6,7 @@ common.ts
 configuration.ts
 docs/AuthApi.md
 docs/MessageResponse.md
+docs/QuestionAnswerRequestBody.md
 docs/QuestionApi.md
 docs/QuestionChangeOrderRequestBody.md
 docs/QuestionConfigInput.md
@@ -29,7 +30,14 @@ docs/TestApi.md
 docs/TestCreateRequestBody.md
 docs/TestExecuteResponse.md
 docs/TestExecutionApi.md
+docs/TestExecutionOverviewAnswerResponse.md
+docs/TestExecutionOverviewQuestionResponse.md
+docs/TestExecutionOverviewRegisteredUserResponse.md
+docs/TestExecutionOverviewResponse.md
 docs/TestFullResponse.md
+docs/TestNextQuestionRequestBody.md
+docs/TestRegisterRequestBody.md
+docs/TestRegisteredUserResponse.md
 docs/TestResponse.md
 docs/TestSchedulerPeriodAddDto.md
 docs/TestSchedulerPeriodEditDto.md

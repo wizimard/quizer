@@ -5,6 +5,7 @@ import type { ILogger } from '@shared/logger';
 import type { Request, Response, NextFunction } from 'express';
 import { redactSensitive } from './utils/redact-sensitive';
 
+// TODO: review
 @injectable()
 export class RequestLoggerMiddleware implements IMiddleware {
 	constructor(@inject(APP_TYPES.LOGGER) private readonly logger: ILogger) {}

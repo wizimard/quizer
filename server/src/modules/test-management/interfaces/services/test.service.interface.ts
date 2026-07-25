@@ -9,13 +9,15 @@ import type { TestFullResult } from './results/test-full.result';
 import type { TestResult } from './results/test.result';
 import type { GetTestByIdInput } from './input/get-test-by-id.input';
 import type { GetFullTestByIdInput } from './input/get-full-test-by-id.input';
+import type { TestEntity } from '../../entities/test.entity';
 
-export interface ITestService {
+export interface TestService {
 	create(input: CreateTestInput): Promise<TestFullResult>;
 	update(input: UpdateTestInput): Promise<TestFullResult>;
 	delete(input: DeleteTestInput): Promise<void>;
 	getByAuthor(input: GetAuthorTestsInput): Promise<TestResult[]>;
-	getFullById(input: GetFullTestByIdInput): Promise<TestFullResult>;
+	getFullByIdAndCheckOwnership(input: GetFullTestByIdInput): Promise<TestFullResult>;
+	getFullById(testId: string): Promise<TestEntity | null>;
 	getById(input: GetTestByIdInput): Promise<TestResult>;
 	updateSettings(input: UpdateTestSettingsInput): Promise<TestFullResult>;
 	updateSchedulerPeriods(input: UpdateTestSchedulerInput): Promise<Array<TestSchedulerResultPeriod>>;

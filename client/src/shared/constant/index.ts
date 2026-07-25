@@ -10,4 +10,5 @@ export const QUERY_KEYS = {
 	GET_FULL_TEST: "full-test",
 	GET_TEST_EXECUTION: "test-execution",
 	GET_AUTHOR_TESTS: "author-tests",
+	GET_TEST_EXECUTION_OVERVIEW: "test-execution-overview",
 } as const;

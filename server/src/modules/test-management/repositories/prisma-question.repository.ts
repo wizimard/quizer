@@ -7,6 +7,8 @@ import type { IPrismaService } from '@shared/persistence/prisma.service.interfac
 import { inject, injectable } from 'inversify';
 import { QuestionMapper } from '../mappers/question.mapper';
 import { QuestionPersistenceMapper } from '../mappers/repositories/question-persistence.mapper';
+import type { TestQuestionModel } from '@prisma/client';
+import type { BatchPayload } from '@prisma/internal/prismaNamespace';
 
 @injectable()
 export class PrismaQuestionRepository implements QuestionRepository {
@@ -15,8 +17,8 @@ export class PrismaQuestionRepository implements QuestionRepository {
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
 	) {}
 
-	async create(data: QuestionEntity): Promise<QuestionEntity> {
-		const row = await repositoryCall(
+	async create(data: QuestionEntity): Promise<QuestionEntity | null> {
+		const row: TestQuestionModel | null = await repositoryCall(
 			() =>
 				this.prismaService.client.testQuestionModel.create({
 					data: QuestionPersistenceMapper.toCreateData(data),
@@ -25,25 +27,25 @@ export class PrismaQuestionRepository implements QuestionRepository {
 			this.logger,
 		);
 
-		return QuestionMapper.toDomain(row);
+		return row ? QuestionMapper.toDomain(row) : null;
 	}
 
-	async update(data: QuestionEntity): Promise<QuestionEntity> {
-		const row = await repositoryCall(
+	async update(data: QuestionEntity): Promise<QuestionEntity | null> {
+		const row: TestQuestionModel | null = await repositoryCall(
 			() =>
 				this.prismaService.client.testQuestionModel.update({
-					where: { id: data.id.value, test_id: data.testId.value },
+					where: { id: data.id, test_id: data.testId },
 					data: QuestionPersistenceMapper.toUpdateData(data),
 				}),
 			'PrismaQuestionRepository update',
 			this.logger,
 		);
 
-		return QuestionMapper.toDomain(row);
+		return row ? QuestionMapper.toDomain(row) : null;
 	}
 
 	async delete(id: string, testId: string): Promise<boolean> {
-		const rows = await repositoryCall(
+		const rows: BatchPayload | null = await repositoryCall(
 			() =>
 				this.prismaService.client.testQuestionModel.deleteMany({
 					where: { id, test_id: testId },
@@ -52,21 +54,25 @@ export class PrismaQuestionRepository implements QuestionRepository {
 			this.logger,
 		);
 
-		return rows.count > 0;
+		return rows ? rows.count > 0 : false;
 	}
 
 	async findById(id: string): Promise<QuestionEntity | null> {
-		const row = await repositoryCall(() => this.prismaService.client.testQuestionModel.findUnique({ where: { id } }), 'PrismaQuestionRepository.findById', this.logger);
+		const row: TestQuestionModel | null = await repositoryCall(() => this.prismaService.client.testQuestionModel.findUnique({ where: { id } }), 'PrismaQuestionRepository.findById', this.logger);
 		return row ? QuestionMapper.toDomain(row) : null;
 	}
 
 	async findByTestId(testId: string): Promise<QuestionEntity[]> {
-		const rows = await repositoryCall(() => this.prismaService.client.testQuestionModel.findMany({ where: { test_id: testId } }), 'PrismaQuestionRepository.findByTestId', this.logger);
-		return rows.map((row) => QuestionMapper.toDomain(row));
+		const rows: TestQuestionModel[] | null = await repositoryCall(
+			() => this.prismaService.client.testQuestionModel.findMany({ where: { test_id: testId } }),
+			'PrismaQuestionRepository.findByTestId',
+			this.logger,
+		);
+		return rows ? rows.map((row) => QuestionMapper.toDomain(row)) : [];
 	}
 
 	async updateQuestionsOrders(questions: QuestionEntity[]): Promise<boolean> {
-		const rows = await repositoryCall(
+		const rows: TestQuestionModel[] | null = await repositoryCall(
 			() => {
 				const updateQuestions = questions.map((question) => this.prismaService.client.testQuestionModel.update(QuestionPersistenceMapper.toUpdateOrderData(question)));
 
@@ -76,6 +82,6 @@ export class PrismaQuestionRepository implements QuestionRepository {
 			this.logger,
 		);
 
-		return rows.length === questions.length;
+		return rows ? rows.length === questions.length : false;
 	}
 }

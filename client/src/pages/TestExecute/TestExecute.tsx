@@ -1,7 +1,8 @@
 import { useParams } from "react-router-dom";
-import { TestClosedScreen } from "./ui/TestClosedScreen";
+import { TestExecuteContent } from "./ui/TestExecuteContent";
 import { LoadingLayout } from "@shared/ui/layout";
 import { useGetExecutionTest } from "@entities/test";
+
 export const TestExecute = () => {
 	const { id } = useParams();
 
@@ -9,7 +10,7 @@ export const TestExecute = () => {
 
 	return (
 		<LoadingLayout isLoading={isLoading} error={error}>
-			{!!test && (test.isOpen ? <div>{test.title}</div> : <TestClosedScreen test={test} />)}
+			{!!test && <TestExecuteContent test={test} />}
 		</LoadingLayout>
 	);
 };

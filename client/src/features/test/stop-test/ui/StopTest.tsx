@@ -1,8 +1,8 @@
-import { useStopTest } from "../hooks/useStopTest";
-import { ButtonTestStop, type Test } from "@entities/test";
+import { useStopTest, type StoppableTest } from "../hooks/useStopTest";
+import { ButtonTestStop } from "@entities/test";
 
 export interface TestStopProps {
-	test: Test;
+	test: StoppableTest;
 }
 
 export const StopTest = ({ test }: TestStopProps) => {

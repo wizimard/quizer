@@ -8,11 +8,12 @@ import { QUERY_KEYS } from "@shared/constant";
 export const useGetFullTest = (id: string) => {
 	const { data, isLoading, error } = useQuery<Test>({
 		queryKey: [QUERY_KEYS.GET_FULL_TEST, id],
-		queryFn: async () => {
-			const response: AxiosResponse<TestFullResponse> = await testApi.testTestIdGet(id);
+		queryFn: async ({ signal }) => {
+			const response: AxiosResponse<TestFullResponse> = await testApi.testTestIdGet(id, { signal });
 
 			return normalizeTestFull(response.data);
 		},
+		retry: 3,
 	});
 
 	const isForbidden = error instanceof AxiosError && error.response?.status === 403;

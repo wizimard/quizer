@@ -20,7 +20,7 @@ export class PrismaTestRegisterRepository implements TestRegisterRepository {
 	) {}
 
 	async registerUserForTest(sessionId: string, firstName: string, lastName: string): Promise<TestExecutionUser | null> {
-		const row: TestRegisteredUserModel = await repositoryCall(
+		const row: TestRegisteredUserModel | null = await repositoryCall(
 			() => {
 				return this.prismaService.client.testSessionRegisteredUserModel.create({
 					data: PrismaTestRegisterMapper.toRegisterUserPersistence(sessionId, firstName, lastName),
@@ -62,5 +62,20 @@ export class PrismaTestRegisterRepository implements TestRegisterRepository {
 		);
 
 		return row ? TestExecutionUserMapper.toDomain(row) : null;
+	}
+
+	async findSessionRegisteredUsers(sessionId: string): Promise<Array<TestExecutionUser>> {
+		const rows: TestRegisteredUserModel[] | null = await repositoryCall(
+			() => {
+				return this.prismaService.client.testSessionRegisteredUserModel.findMany({
+					where: { test_session_id: sessionId },
+					include: REGISTER_USER_INCLUDE,
+				});
+			},
+			'PrismaTestRegisterRepository.findSessionRegisteredUsers',
+			this.logger,
+		);
+
+		return rows ? rows.map(TestExecutionUserMapper.toDomain) : [];
 	}
 }

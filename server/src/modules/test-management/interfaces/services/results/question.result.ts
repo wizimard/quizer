@@ -1,8 +1,9 @@
-import type { QuestionConfigBase, QuestionId, TestId } from '@modules/test-management';
+import type { QuestionConfigBase } from '@modules/test-management';
 
+// TODO: review
 export interface QuestionResult {
-	id: QuestionId;
-	testId: TestId;
+	id: string;
+	testId: string;
 	sortKey: number;
 	description: string;
 	config: QuestionConfigBase;

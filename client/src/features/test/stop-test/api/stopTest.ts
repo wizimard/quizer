@@ -1,7 +1,11 @@
-import type { Test } from "@entities/test";
 import { testApi } from "@shared/api";
 
-export function stopTest(test: Test) {
+export type StoppableTest = {
+	id: string;
+	isOpen: boolean;
+};
+
+export function stopTest(test: StoppableTest) {
 	if (!test.isOpen) {
 		throw new Error("Test is not open");
 	}

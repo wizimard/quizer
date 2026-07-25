@@ -1,20 +1,19 @@
 import type { TestSchedulerPeriodModel } from '@prisma/client';
-import type { ITestUpdateSchedulerPeriodsData } from '../interfaces/repository/test.repository.interface';
-import { TestId } from '../entities/value-object/test-id';
 import { TestSchedulerPeriod } from '../entities/test-scheduler-period';
 import type { CreateTestSchedulerPeriodInput, UpdateTestSchedulerInput, UpdateTestSchedulerPeriodInput } from '../interfaces/services/input/update-test-scheduler.input';
 import type { TestSchedulerResponsePeriod } from '../dto/http/response/test-scheduler.response-dto';
 import type { TestSchedulerResultPeriod } from '../interfaces/services/results/test-scheduler.result';
+import type { TestUpdateSchedulerPeriodsData } from '../interfaces/repository/test-scheduler.repository.interface';
 
 export class SchedulerPeriodMapper {
 	static toDomain(period: TestSchedulerPeriodModel): TestSchedulerPeriod {
-		return new TestSchedulerPeriod(Number(period.id), TestId.of(period.test_id), period.available_from, period.available_to);
+		return new TestSchedulerPeriod(Number(period.id), period.test_id, period.available_from, period.available_to);
 	}
 
 	static toResponse(period: TestSchedulerResultPeriod): TestSchedulerResponsePeriod {
 		return {
 			id: period.id,
-			test_id: period.testId.value,
+			test_id: period.testId,
 			available_from: period.availableFrom,
 			available_to: period.availableTo,
 		};
@@ -29,8 +28,8 @@ export class SchedulerPeriodMapper {
 		};
 	}
 
-	static toRepositoryUpdateData(testId: TestId, data: UpdateTestSchedulerInput): ITestUpdateSchedulerPeriodsData {
-		const updateData: ITestUpdateSchedulerPeriodsData = {
+	static toRepositoryUpdateData(testId: string, data: UpdateTestSchedulerInput): TestUpdateSchedulerPeriodsData {
+		const updateData: TestUpdateSchedulerPeriodsData = {
 			add: [],
 			update: [],
 			remove: [],

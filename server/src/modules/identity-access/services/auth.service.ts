@@ -62,6 +62,11 @@ export class AuthService implements IAuthService {
 
 		const user = await User.create(email, password, this.hasher);
 		const createdUser = await this.userRepository.create(user);
+
+		if (!createdUser) {
+			throw new HttpError(500, 'Failed to create user', 'AuthService.register');
+		}
+
 		const tokens = this.tokenService.generateAuthTokensForUser(createdUser);
 
 		return toAuthResultDto(createdUser, tokens);

@@ -3,7 +3,8 @@ import type { IMiddleware } from '@shared/http/middleware.interface';
 import { parseIdParam } from '@shared/http/utils/parse-id-param';
 import type { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
-import { TM_TYPES, type QuestionRepository, QuestionEntity } from '..';
+import { TM_TYPES, QuestionEntity } from '..';
+import type { QuestionRepository } from '../interfaces/repository/question.repository.interface';
 
 @injectable()
 export class QuestionExistsGuard implements IMiddleware {
@@ -14,7 +15,7 @@ export class QuestionExistsGuard implements IMiddleware {
 
 		const question: QuestionEntity | null = await this.questionRepository.findById(questionId);
 
-		if (!question || !question.testId.equals(req.test!.id)) {
+		if (!question || question.testId !== req.test!.id) {
 			throw new HttpError(404, 'errors.question_not_found', 'QuestionExistsGuard');
 		}
 

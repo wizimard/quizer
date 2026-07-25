@@ -47,7 +47,13 @@ const createQuestion = async (testId: string, description: string): Promise<Resp
 const startTest = async (testId: string, payload: Partial<{ duration: number }> = {}): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).post(`/api/test/${testId}/start`).set('Authorization', `Bearer ${accessToken}`).send(payload);
+	return request(application.app)
+		.post(`/api/test/${testId}/start`)
+		.set('Authorization', `Bearer ${accessToken}`)
+		.send({
+			...payload,
+			run_mode: 'FREE',
+		});
 };
 
 const finishTest = async (testId: string): Promise<Response> => {
@@ -217,7 +223,6 @@ describe('POST /api/test-execute/:testId/register', () => {
 				description: questionRes.body.description,
 				config: {
 					type: 'input',
-					ignore_case: true,
 				},
 			},
 			current_question_index: 0,

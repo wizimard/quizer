@@ -1,8 +1,16 @@
 import type { TestFull, TestSchedulerPeriod } from "../model/test-full.interface";
 import type { Test } from "../model/test.interface";
 import type { TestExecution } from "../model/test-execution.interface";
+import type { TestExecutionOverview, TestExecutionOverviewRegisteredUser } from "../model/test-execution-overview.interface";
 import { normalizeScheduler } from "./normalizeScheduler";
-import { TestFullResponseStatusEnum, type TestFullResponse, type TestResponse, type TestExecuteResponse } from "@shared/api/generated";
+import {
+	TestFullResponseStatusEnum,
+	type TestFullResponse,
+	type TestResponse,
+	type TestExecuteResponse,
+	TestExecuteResponseStatusEnum,
+	type TestExecutionOverviewResponse,
+} from "@shared/api/generated";
 import { normalizeQuestion, type Question } from "@entities/question";
 import { normalizeExecutionQuestion } from "@entities/question/lib/normalizeQuestion";
 
@@ -32,9 +40,6 @@ export function normalizeTestFull(test: TestFullResponse): TestFull {
 		createdAt: new Date(test.created_at),
 		settings: {
 			...test.settings,
-			isRequiredEmail: test.settings.is_required_email,
-			isRequiredFirstName: test.settings.is_required_first_name,
-			isRequiredLastName: test.settings.is_required_last_name,
 			isShowAnswersAfterCompletion: test.settings.is_show_answers_after_completion,
 		},
 	};
@@ -44,10 +49,37 @@ export function normalizeExecutionTest(test: TestExecuteResponse): TestExecution
 	return {
 		id: test.id,
 		title: test.title,
-		isOpen: test.is_open,
+		isOpen: test.status === TestExecuteResponseStatusEnum.Open,
 		openDate: test.open_from_at,
 		closeDate: test.open_until_at,
 		questions: test.questions.map(normalizeExecutionQuestion),
-		register_credentials: test.register_credentials,
+		status: test.status,
 	};
+}
+
+export function normalizeTestExecutionOverview(response: TestExecutionOverviewResponse): TestExecutionOverview {
+	const questions = response.questions.toSorted((a, b) => a.sort_key - b.sort_key);
+
+	const registeredUsers: TestExecutionOverviewRegisteredUser[] = response.registered_users.map((user) => ({
+		...user,
+		started_from: new Date(user.started_from),
+	}));
+
+	const normalizedOverviewTest: TestExecutionOverview = {
+		id: response.id,
+		title: response.title,
+		run_mode: response.run_mode,
+		questions,
+		registered_users: registeredUsers,
+		started_from: new Date(response.started_from),
+		finished_at: response.finished_at ? new Date(response.finished_at) : null,
+	};
+
+	if (response.current_question !== undefined) {
+		normalizedOverviewTest.current_question = response.current_question ? normalizeQuestion(response.current_question) : null;
+		normalizedOverviewTest.current_question_index = response.current_question_index ?? null;
+		normalizedOverviewTest.total_questions_count = response.total_questions_count;
+	}
+
+	return normalizedOverviewTest;
 }

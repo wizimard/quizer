@@ -1,6 +1,6 @@
 import type { ILogger } from '@shared/logger';
 
-export async function repositoryCall<T>(fn: () => Promise<T>, context: string, logger?: ILogger): Promise<T> {
+export async function repositoryCall<T>(fn: () => Promise<T>, context: string, logger?: ILogger): Promise<T | null> {
 	try {
 		return await fn();
 	} catch (error: unknown) {
@@ -8,6 +8,6 @@ export async function repositoryCall<T>(fn: () => Promise<T>, context: string, l
 
 		logger?.error(`[${context}] ${message}`);
 
-		throw error;
+		return null;
 	}
 }

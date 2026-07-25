@@ -1,4 +1,3 @@
-import type { TestExecutionUser } from '@modules/test-execution/entities/test-execution-user';
 import type { TestSessionRegisteredUserModelCreateArgs, TestSessionRegisteredUserModelFindFirstArgs } from '@prisma/models';
 
 export class PrismaTestRegisterMapper {

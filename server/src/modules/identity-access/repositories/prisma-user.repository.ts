@@ -6,8 +6,8 @@ import { repositoryCall } from '@shared/http/utils/repository-call';
 import type { User } from '../entities/user.entity';
 import type { UserRepository } from '../interfaces/user.repository.interface';
 import type { Email } from '../entities/email';
-import type { UserId } from '../entities/user-id';
 import { UserMapper } from '../mappers/user.mapper';
+import type { UserModel } from '@prisma/client';
 
 @injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -16,10 +16,10 @@ export class PrismaUserRepository implements UserRepository {
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
 	) {}
 
-	async create(user: User): Promise<User> {
+	async create(user: User): Promise<User | null> {
 		const data = UserMapper.toCreateData(user);
 
-		const model = await repositoryCall(
+		const model: UserModel | null = await repositoryCall(
 			() =>
 				this.prismaService.client.userModel.create({
 					data,
@@ -28,11 +28,11 @@ export class PrismaUserRepository implements UserRepository {
 			this.logger,
 		);
 
-		return UserMapper.toDomain(model);
+		return model ? UserMapper.toDomain(model) : null;
 	}
 
 	async findByEmail(email: Email): Promise<User | null> {
-		const model = await repositoryCall(
+		const model: UserModel | null = await repositoryCall(
 			() =>
 				this.prismaService.client.userModel.findUnique({
 					where: { email: email.value },
@@ -44,11 +44,11 @@ export class PrismaUserRepository implements UserRepository {
 		return model ? UserMapper.toDomain(model) : null;
 	}
 
-	async findById(id: UserId): Promise<User | null> {
-		const model = await repositoryCall(
+	async findById(id: string): Promise<User | null> {
+		const model: UserModel | null = await repositoryCall(
 			() =>
 				this.prismaService.client.userModel.findUnique({
-					where: { id: id.value },
+					where: { id },
 				}),
 			'PrismaUserRepository.findById',
 			this.logger,
@@ -58,7 +58,7 @@ export class PrismaUserRepository implements UserRepository {
 	}
 
 	async existsByEmail(email: Email): Promise<boolean> {
-		const model = await repositoryCall(
+		const model: { id: string } | null = await repositoryCall(
 			() =>
 				this.prismaService.client.userModel.findUnique({
 					where: { email: email.value },
@@ -68,11 +68,11 @@ export class PrismaUserRepository implements UserRepository {
 			this.logger,
 		);
 
-		return model !== null;
+		return !!model;
 	}
 
-	async delete(id: UserId): Promise<boolean> {
-		const row = await repositoryCall(() => this.prismaService.client.userModel.delete({ where: { id: id.value } }), 'PrismaUserRepository.delete', this.logger);
+	async delete(id: string): Promise<boolean> {
+		const row: UserModel | null = await repositoryCall(() => this.prismaService.client.userModel.delete({ where: { id } }), 'PrismaUserRepository.delete', this.logger);
 
 		return !!row;
 	}

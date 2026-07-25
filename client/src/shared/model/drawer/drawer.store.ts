@@ -4,7 +4,6 @@ import { immer } from "zustand/middleware/immer";
 interface DrawerState<T = unknown> {
 	_key: string;
 	_open: boolean;
-	isOpen: (key: string) => boolean;
 	setOpen: (key: string, open: boolean) => void;
 	lock: boolean;
 	setLock: (key: string, lock: boolean) => void;
@@ -19,9 +18,6 @@ export const useDrawerStore = create<DrawerState<unknown>>()(
 		_key: "",
 		_open: false,
 		lock: false,
-		isOpen: (key) => {
-			return get()._key === key && get()._open;
-		},
 		setOpen: (key, open) => {
 			const state: DrawerState = get();
 
@@ -56,6 +52,13 @@ export const useDrawerStore = create<DrawerState<unknown>>()(
 			const state: DrawerState = get();
 
 			if (!state._open || state._key !== key) {
+				return;
+			}
+
+			if (typeof data === "function") {
+				set((state: DrawerState) => {
+					state._data = data.call(undefined, state._data);
+				});
 				return;
 			}
 

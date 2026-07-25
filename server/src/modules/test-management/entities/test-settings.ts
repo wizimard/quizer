@@ -1,11 +1,9 @@
-import type { TestId } from './value-object/test-id';
-
 export class TestSettings {
-	public readonly testId: TestId;
+	public readonly testId: string;
 
 	public isShowAnswersAfterCompletion: boolean;
 
-	constructor(testId: TestId, isShowAnswersAfterCompletion: boolean = false) {
+	constructor(testId: string, isShowAnswersAfterCompletion: boolean = false) {
 		this.testId = testId;
 		this.isShowAnswersAfterCompletion = isShowAnswersAfterCompletion;
 	}

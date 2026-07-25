@@ -5,14 +5,11 @@ import { TestCreateRequestDto } from '../dto/http/request/test-create.request-dt
 import { TestUpdateRequestDto } from '../dto/http/request/test-update.request-dto';
 import type { IRoute } from '@shared/http/route.interface';
 import { APP_TYPES } from '@app/app.types';
-import type { IMiddlewareFactory } from '@shared/http/middleware.factory.interface';
 import { TestSettingsUpdateRequestDto } from '../dto/http/request/test-settings-update.request-dto';
 import { TestSchedulerPeriodsEditRequestDto } from '../dto/http/request/test-scheduler-periods-edit.request-dto';
 import { TM_TYPES } from '../test-management.types';
 import { TestStartRequestDto } from '../dto/http/request/test-start.request-dto';
 import type { ParamsDictionary } from 'express-serve-static-core';
-import type { ITestService } from '../interfaces/services/test.service.interface';
-import type { ITestSessionService } from '../interfaces/services/test-session.service.interface';
 import type { TestResponse } from '../dto/http/response/test.response-dto';
 import type { TestFullResponse } from '../dto/http/response/test-full.response-dto';
 import { TestMapper } from '../mappers/test.mapper';
@@ -21,14 +18,27 @@ import { TestInputMapper } from '../mappers/input/test-input.mapper';
 import type { TestSchedulerResponse } from '../dto/http/response/test-scheduler.response-dto';
 import { SchedulerMapper } from '../mappers/scheduler.mapper';
 import type { ILogger } from '@shared/logger';
+import type { TestExecutionOverviewResponse } from '../dto/http/response/test-execution-overview-response.dto';
+import type { TestService } from '../interfaces/services/test.service.interface';
+import type { TestSessionService } from '../interfaces/services/test-session.service.interface';
+import { AuthGuard } from '@modules/identity-access/middleware/auth.guard';
+import type { IMiddleware } from '@shared/http/middleware.interface';
+import { ValidateMiddleware } from '@shared/http/validate.middleware';
+import { TestOwnershipGuard } from '../middlewares/test-ownership.guard';
+import type { TestOverviewService } from '../interfaces/services/test-overview.service.interface';
+import { TestNextQuestionRequestDto } from '../dto/http/request/test-next-question-request.dto';
 
 @injectable()
 export class TestController extends BaseController {
+	private readonly authGuard: AuthGuard = new AuthGuard();
+	private readonly testOwnershipGuard: TestOwnershipGuard = new TestOwnershipGuard();
+
 	constructor(
-		@inject(TM_TYPES.TEST_SERVICE) private readonly testService: ITestService,
-		@inject(TM_TYPES.TEST_SESSION_SERVICE) private readonly testSessionService: ITestSessionService,
-		@inject(APP_TYPES.MIDDLEWARE_FACTORY) private readonly middlewareFactory: IMiddlewareFactory,
+		@inject(TM_TYPES.TEST_SERVICE) private readonly testService: TestService,
+		@inject(TM_TYPES.TEST_SESSION_SERVICE) private readonly testSessionService: TestSessionService,
+		@inject(TM_TYPES.TEST_OVERVIEW_SERVICE) private readonly testOverviewService: TestOverviewService,
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
+		@inject(TM_TYPES.TEST_MIDDLEWARE) private readonly testMiddleware: IMiddleware,
 	) {
 		super();
 
@@ -37,75 +47,67 @@ export class TestController extends BaseController {
 				url: '/:testId',
 				method: 'get',
 				handler: this.getTestById,
-				middlewares: [this.middlewareFactory.authGuard(), this.middlewareFactory.testMiddleware(), this.middlewareFactory.testOwnershipGuard()],
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard],
 			},
 			{
 				url: '/',
 				method: 'get',
 				handler: this.getUserTest,
-				middlewares: [this.middlewareFactory.authGuard()],
+				middlewares: [this.authGuard],
 			},
 			{
 				url: '/',
 				method: 'post',
 				handler: this.createTest,
-				middlewares: [this.middlewareFactory.authGuard(), this.middlewareFactory.validate(TestCreateRequestDto)],
+				middlewares: [this.authGuard, new ValidateMiddleware(TestCreateRequestDto)],
 			},
 			{
 				url: '/:testId',
 				method: 'patch',
 				handler: this.updateTest,
-				middlewares: [
-					this.middlewareFactory.authGuard(),
-					this.middlewareFactory.testMiddleware(),
-					this.middlewareFactory.testOwnershipGuard(),
-					this.middlewareFactory.validate(TestUpdateRequestDto),
-				],
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, new ValidateMiddleware(TestUpdateRequestDto)],
 			},
 			{
 				url: '/:testId',
 				method: 'delete',
 				handler: this.deleteTest,
-				middlewares: [this.middlewareFactory.authGuard(), this.middlewareFactory.testMiddleware(), this.middlewareFactory.testOwnershipGuard()],
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard],
 			},
 			{
 				url: '/:testId/settings',
 				method: 'patch',
 				handler: this.updateTestSettings,
-				middlewares: [
-					this.middlewareFactory.authGuard(),
-					this.middlewareFactory.testMiddleware(),
-					this.middlewareFactory.testOwnershipGuard(),
-					this.middlewareFactory.validate(TestSettingsUpdateRequestDto),
-				],
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, new ValidateMiddleware(TestSettingsUpdateRequestDto)],
 			},
 			{
 				url: '/:testId/scheduler/periods',
 				method: 'patch',
 				handler: this.updateTestSchedulerPeriods,
-				middlewares: [
-					this.middlewareFactory.authGuard(),
-					this.middlewareFactory.testMiddleware(),
-					this.middlewareFactory.testOwnershipGuard(),
-					this.middlewareFactory.validate(TestSchedulerPeriodsEditRequestDto),
-				],
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, new ValidateMiddleware(TestSchedulerPeriodsEditRequestDto)],
 			},
 			{
 				url: '/:testId/start',
 				method: 'post',
 				handler: this.startTest,
-				middlewares: [
-					this.middlewareFactory.authGuard(),
-					this.middlewareFactory.testMiddleware(),
-					this.middlewareFactory.testOwnershipGuard(),
-					this.middlewareFactory.validate(TestStartRequestDto),
-				],
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, new ValidateMiddleware(TestStartRequestDto)],
 			},
 			{
 				url: '/:testId/finish',
 				method: 'post',
 				handler: this.finishTest,
-				middlewares: [this.middlewareFactory.authGuard(), this.middlewareFactory.testMiddleware(), this.middlewareFactory.testOwnershipGuard()],
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard],
+			},
+			{
+				url: '/:testId/execution-overview',
+				method: 'get',
+				handler: this.getTestExecutionOverview,
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard],
+			},
+			{
+				url: '/:testId/next-question',
+				method: 'post',
+				handler: this.nextQuestion,
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, new ValidateMiddleware(TestNextQuestionRequestDto)],
 			},
 		];
 
@@ -115,7 +117,7 @@ export class TestController extends BaseController {
 	async getTestById(req: Request, res: Response, _next: NextFunction): Promise<void> {
 		this.logger.info('[TestController getTestById] start');
 
-		const dto = await this.testService.getFullById(TestInputMapper.toGetFullByIdInput(req.test!.id.value, req.user!.id));
+		const dto = await this.testService.getFullByIdAndCheckOwnership(TestInputMapper.toGetFullByIdInput(req.test!.id, req.user!.id));
 
 		this.logger.info({ message: '[TestController getTestById] got test by id:', data: dto });
 
@@ -131,7 +133,7 @@ export class TestController extends BaseController {
 
 		const dtos = await this.testService.getByAuthor(TestInputMapper.toGetByAuthorInput(req.user!.id));
 
-		const tests: TestResponse[] = dtos.map((dto: TestResult) => TestMapper.toResponse(dto));
+		const tests: TestResponse[] = dtos.map((test: TestResult) => TestMapper.toResponse(test));
 
 		this.logger.info({ message: '[TestController getUserTest] end:', data: tests });
 
@@ -203,7 +205,7 @@ export class TestController extends BaseController {
 
 		this.logger.info({ message: '[TestController startTest] end:', data: isStarted });
 
-		this.ok(res, { message: isStarted ? 'Test started successfully' : 'test not started' });
+		this.ok(res, { message: isStarted ? 'Test started successfully' : 'Test not started' });
 	}
 
 	async finishTest(req: Request, res: Response, _next: NextFunction): Promise<void> {
@@ -214,5 +216,29 @@ export class TestController extends BaseController {
 		this.logger.info({ message: '[TestController finishTest] send is finished response:', data: isFinished });
 
 		this.ok(res, { message: isFinished ? 'Test finished successfully' : 'Test not finished' });
+	}
+
+	async getTestExecutionOverview(req: Request, res: Response, _next: NextFunction): Promise<void> {
+		this.logger.info('[TestController getTestExecutionOverview] start');
+
+		const state = await this.testOverviewService.getTestExecutionOverview(TestInputMapper.toGetOverviewInput(req.test!.id, req.user!.id));
+
+		const response: TestExecutionOverviewResponse = TestMapper.toTestExecutionOverviewResponse(state);
+
+		this.logger.info({ message: '[TestController getTestExecutionOverview] end:', data: response });
+
+		this.ok(res, response);
+	}
+
+	async nextQuestion(req: Request<ParamsDictionary, any, TestNextQuestionRequestDto>, res: Response, _next: NextFunction): Promise<void> {
+		this.logger.info('[TestController nextQuestion] start');
+
+		const state = await this.testSessionService.nextQuestion(TestInputMapper.toNextQuestionInput(req.test!.id, req.body.question_id, req.user!.id));
+
+		const response: TestExecutionOverviewResponse = TestMapper.toTestExecutionOverviewResponse(state);
+
+		this.logger.info({ message: '[TestController nextQuestion] end:', data: response });
+
+		this.ok(res, response);
 	}
 }

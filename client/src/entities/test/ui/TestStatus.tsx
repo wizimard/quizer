@@ -6,6 +6,7 @@ const STATUS_LABEL_KEYS: Record<TestFullResponseStatusEnum, string> = {
 	[TestFullResponseStatusEnum.Open]: "test.status.open",
 	[TestFullResponseStatusEnum.OpenByScheduler]: "test.status.open_by_scheduler",
 	[TestFullResponseStatusEnum.Closed]: "test.status.closed",
+	[TestFullResponseStatusEnum.Finished]: "test.status.finished",
 };
 
 const STATUS_STYLES: Record<TestFullResponseStatusEnum, { text: string; dot: string }> = {
@@ -18,6 +19,10 @@ const STATUS_STYLES: Record<TestFullResponseStatusEnum, { text: string; dot: str
 		dot: "bg-green-500 dark:bg-green-400",
 	},
 	[TestFullResponseStatusEnum.Closed]: {
+		text: "text-muted-foreground",
+		dot: "bg-muted-foreground",
+	},
+	[TestFullResponseStatusEnum.Finished]: {
 		text: "text-muted-foreground",
 		dot: "bg-muted-foreground",
 	},

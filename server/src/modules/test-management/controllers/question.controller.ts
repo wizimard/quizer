@@ -1,13 +1,11 @@
 import { TM_TYPES } from '../test-management.types';
 import { BaseController } from '@shared/http/controller.base';
 import { inject, injectable } from 'inversify';
-import type { QuestionService } from '../services/question.service';
 import type { NextFunction, Request, Response } from 'express';
 import type { ParamsDictionary } from 'express-serve-static-core';
 import { QuestionCreateRequestDto } from '../dto/http/request/question-create.request-dto';
 import { QuestionUpdateRequestDto } from '../dto/http/request/question-update.request-dto';
 import { APP_TYPES } from '@app/app.types';
-import type { IMiddlewareFactory } from '@shared/http/middleware.factory.interface';
 import type { QuestionChangeOrderRequestDto } from '../dto/http/request/question-change-order.request-dto';
 import { QuestionInputMapper } from '../mappers/input/question-input.mapper';
 import type { QuestionResponse } from '../dto/http/response/question.response-dto';
@@ -15,14 +13,21 @@ import { QuestionMapper } from '../mappers/question.mapper';
 import type { QuestionResult } from '../interfaces/services/results/question.result';
 import type { ILogger } from '@shared/logger';
 import type { IMiddleware } from '@shared/http/middleware.interface';
+import type { QuestionService } from '../interfaces/services/question.service.interface';
+import { AuthGuard } from '@modules/identity-access/middleware/auth.guard';
+import { TestOwnershipGuard } from '../middlewares/test-ownership.guard';
+import { ValidateMiddleware } from '@shared/http/validate.middleware';
 
 @injectable()
 export class QuestionController extends BaseController {
+	private readonly authGuard: AuthGuard = new AuthGuard();
+	private readonly testOwnershipGuard: TestOwnershipGuard = new TestOwnershipGuard();
+
 	constructor(
 		@inject(TM_TYPES.QUESTION_SERVICE) private readonly questionService: QuestionService,
-		@inject(APP_TYPES.MIDDLEWARE_FACTORY) private readonly middlewareFactory: IMiddlewareFactory,
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
 		@inject(TM_TYPES.QUESTION_EXISTS_GUARD) private readonly questionExistsGuard: IMiddleware,
+		@inject(TM_TYPES.TEST_MIDDLEWARE) private readonly testMiddleware: IMiddleware,
 	) {
 		super();
 
@@ -30,36 +35,25 @@ export class QuestionController extends BaseController {
 			{
 				url: '/:testId/questions',
 				method: 'post',
-				middlewares: [
-					this.middlewareFactory.authGuard(),
-					this.middlewareFactory.testMiddleware(),
-					this.middlewareFactory.testOwnershipGuard(),
-					this.middlewareFactory.validate(QuestionCreateRequestDto),
-				],
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, new ValidateMiddleware(QuestionCreateRequestDto)],
 				handler: this.createQuestion.bind(this),
 			},
 			{
 				url: '/:testId/questions/:questionId',
 				method: 'patch',
-				middlewares: [
-					this.middlewareFactory.authGuard(),
-					this.middlewareFactory.testMiddleware(),
-					this.middlewareFactory.testOwnershipGuard(),
-					this.questionExistsGuard,
-					this.middlewareFactory.validate(QuestionUpdateRequestDto),
-				],
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, this.questionExistsGuard, new ValidateMiddleware(QuestionUpdateRequestDto)],
 				handler: this.updateQuestion.bind(this),
 			},
 			{
 				url: '/:testId/questions/:questionId',
 				method: 'delete',
-				middlewares: [this.middlewareFactory.authGuard(), this.middlewareFactory.testMiddleware(), this.middlewareFactory.testOwnershipGuard(), this.questionExistsGuard],
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, this.questionExistsGuard],
 				handler: this.deleteQuestion.bind(this),
 			},
 			{
 				url: '/:testId/questions/:questionId/order',
 				method: 'patch',
-				middlewares: [this.middlewareFactory.authGuard(), this.middlewareFactory.testMiddleware(), this.middlewareFactory.testOwnershipGuard(), this.questionExistsGuard],
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, this.questionExistsGuard],
 				handler: this.changeQuestionOrder.bind(this),
 			},
 		]);

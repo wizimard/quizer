@@ -210,6 +210,7 @@ export const DateTimeField = ({ label, value, onChange, id, disabled, allowEmpty
 							mode="single"
 							required={!allowEmpty}
 							selected={isValidDate(value) ? value : undefined}
+							defaultMonth={isValidDate(value) ? value : undefined}
 							onSelect={handleDateSelect}
 							locale={ru}
 							disabled={disabled ? true : minDate ? { before: startOfDay(minDate) } : undefined}

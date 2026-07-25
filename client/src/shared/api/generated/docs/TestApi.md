@@ -7,8 +7,10 @@ All URIs are relative to *http://localhost:8031/api*
 |[**testGet**](#testget) | **GET** /test | Get author\&#39;s tests|
 |[**testPost**](#testpost) | **POST** /test | Create test|
 |[**testTestIdDelete**](#testtestiddelete) | **DELETE** /test/{testId} | Delete test|
+|[**testTestIdExecutionOverviewGet**](#testtestidexecutionoverviewget) | **GET** /test/{testId}/execution-overview | Get test execution overview|
 |[**testTestIdFinishPost**](#testtestidfinishpost) | **POST** /test/{testId}/finish | Finish test|
 |[**testTestIdGet**](#testtestidget) | **GET** /test/{testId} | Get test by id|
+|[**testTestIdNextQuestionPost**](#testtestidnextquestionpost) | **POST** /test/{testId}/next-question | Move to next question|
 |[**testTestIdPatch**](#testtestidpatch) | **PATCH** /test/{testId} | Update test|
 |[**testTestIdSchedulerPeriodsPatch**](#testtestidschedulerperiodspatch) | **PATCH** /test/{testId}/scheduler/periods | Update test scheduler periods|
 |[**testTestIdSettingsPatch**](#testtestidsettingspatch) | **PATCH** /test/{testId}/settings | Update test settings|
@@ -164,6 +166,61 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **testTestIdExecutionOverviewGet**
+> TestExecutionOverviewResponse testTestIdExecutionOverviewGet()
+
+Get execution overview for a test owned by the current user, including questions and registered users with their answers. MANUAL run mode also includes current question progress fields.
+
+### Example
+
+```typescript
+import {
+    TestApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new TestApi(configuration);
+
+let testId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.testTestIdExecutionOverviewGet(
+    testId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **testId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**TestExecutionOverviewResponse**
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Test execution overview |  -  |
+|**400** | Test is closed or has no active session |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden |  -  |
+|**404** | Not found |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **testTestIdFinishPost**
 > MessageResponse testTestIdFinishPost()
 
@@ -268,6 +325,66 @@ const { status, data } = await apiInstance.testTestIdGet(
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden |  -  |
 |**404** | Not found |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **testTestIdNextQuestionPost**
+> TestExecutionOverviewResponse testTestIdNextQuestionPost(testNextQuestionRequestBody)
+
+Set the current question for a MANUAL run mode session and return the updated execution overview.
+
+### Example
+
+```typescript
+import {
+    TestApi,
+    Configuration,
+    TestNextQuestionRequestBody
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new TestApi(configuration);
+
+let testId: string; // (default to undefined)
+let testNextQuestionRequestBody: TestNextQuestionRequestBody; //
+
+const { status, data } = await apiInstance.testTestIdNextQuestionPost(
+    testId,
+    testNextQuestionRequestBody
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **testNextQuestionRequestBody** | **TestNextQuestionRequestBody**|  | |
+| **testId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**TestExecutionOverviewResponse**
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Updated test execution overview |  -  |
+|**400** | Test is closed or has no active session |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden |  -  |
+|**404** | Not found |  -  |
+|**422** | Validation failed |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

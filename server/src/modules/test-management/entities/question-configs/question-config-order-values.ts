@@ -65,4 +65,12 @@ export class QuestionConfigOrderValues extends QuestionConfigBase<IQuestionConfi
 
 		return errors;
 	}
+
+	public isValidAnswer(answer: string): boolean {
+		return this.options.find((option) => option.id === answer) !== undefined;
+	}
+
+	public isCorrectAnswer(answer: string): boolean {
+		throw new Error('Method not implemented.');
+	}
 }

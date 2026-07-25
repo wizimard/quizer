@@ -1,8 +1,6 @@
-import type { QuestionId, TestId } from '@modules/test-management';
-
 export interface ChangeQuestionOrderInput {
-	testId: TestId;
-	questionId: QuestionId;
+	testId: string;
+	questionId: string;
 	previousQuestionId: string | null;
 	nextQuestionId: string | null;
 }

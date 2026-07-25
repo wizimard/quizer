@@ -4,8 +4,6 @@ import type { TestSchedulerPeriodsEditRequestDto } from '../../dto/http/request/
 import type { TestUpdateRequestDto } from '../../dto/http/request/test-update.request-dto';
 import type { TestStartRequestDto } from '../../dto/http/request/test-start.request-dto';
 import type { TestEntity } from '../../entities/test.entity';
-import type { FinishTestInput } from '@modules/test-execution/types/finish-test.input';
-import type { StartTestInput } from '@modules/test-execution/types/start-test.input';
 import type { CreateTestInput } from '@modules/test-management/interfaces/services/input/create-test.input';
 import type { UpdateTestSchedulerInput } from '@modules/test-management/interfaces/services/input/update-test-scheduler.input';
 import type { UpdateTestSettingsInput } from '@modules/test-management/interfaces/services/input/update-test-settings.input';
@@ -13,34 +11,36 @@ import type { UpdateTestInput } from '@modules/test-management/interfaces/servic
 import type { DeleteTestInput } from '@modules/test-management/interfaces/services/input/delete-test.input';
 import type { GetTestByIdInput } from '@modules/test-management/interfaces/services/input/get-test-by-id.input';
 import type { GetAuthorTestsInput } from '@modules/test-management/interfaces/services/input/get-author-tests.input';
-import { TestId } from '@modules/test-management';
-import { UserId } from '@modules/identity-access';
 import type { GetFullTestByIdInput } from '@modules/test-management/interfaces/services/input/get-full-test-by-id.input';
+import type { StartTestInput } from '@modules/test-management/interfaces/services/input/start-test.input';
+import type { FinishTestInput } from '@modules/test-management/interfaces/services/input/finish-test.input';
+import type { NextQuestionInput } from '@modules/test-management/interfaces/services/input/next-question.input';
+import type { TestGetOverviewInput } from '@modules/test-management/interfaces/services/input/test-get-overview.input';
 
 export class TestInputMapper {
 	static toGetByIdInput(testId: string): GetTestByIdInput {
 		return {
-			testId: TestId.of(testId),
+			testId,
 		};
 	}
 
 	static toGetFullByIdInput(testId: string, userId: string): GetFullTestByIdInput {
 		return {
-			testId: TestId.of(testId),
-			userId: UserId.of(userId),
+			testId,
+			userId,
 		};
 	}
 
 	static toGetByAuthorInput(authorId: string): GetAuthorTestsInput {
 		return {
-			authorId: UserId.of(authorId),
+			authorId,
 		};
 	}
 
 	static toCreateInput(dto: TestCreateRequestDto, authorId: string): CreateTestInput {
 		return {
 			title: dto.title,
-			authorId: UserId.of(authorId),
+			authorId,
 		};
 	}
 
@@ -111,6 +111,7 @@ export class TestInputMapper {
 	static toStartInput(test: TestEntity, dto: TestStartRequestDto): StartTestInput {
 		const startInput: StartTestInput = {
 			test,
+			runMode: dto.run_mode,
 		};
 
 		if (dto.duration) {
@@ -123,6 +124,21 @@ export class TestInputMapper {
 	static toFinishInput(test: TestEntity): FinishTestInput {
 		return {
 			test,
+		};
+	}
+
+	static toGetOverviewInput(testId: string, userId: string): TestGetOverviewInput {
+		return {
+			testId,
+			userId,
+		};
+	}
+
+	static toNextQuestionInput(testId: string, questionId: string, userId: string): NextQuestionInput {
+		return {
+			testId,
+			questionId,
+			userId,
 		};
 	}
 }

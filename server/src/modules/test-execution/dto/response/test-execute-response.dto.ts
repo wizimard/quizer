@@ -1,4 +1,4 @@
-import type { TestStatus } from '@modules/test-management/entities/test.entity';
+import type { TestStatus } from '@modules/test-management';
 import type { QuestionExecuteResponse } from './question-execute-response.dto';
 
 export interface TestExecuteResponse {

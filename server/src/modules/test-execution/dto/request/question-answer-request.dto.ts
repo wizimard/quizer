@@ -8,7 +8,7 @@ export class QuestionAnswerRequestDto {
 	@IsNotEmpty()
 	user_id: string;
 
-	@IsDefined()
+	@IsOptional()
 	@IsString()
 	@Trim()
 	@IsNotEmpty()

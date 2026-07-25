@@ -1,3 +1,4 @@
+import type { TestSessionEntity } from '@modules/test-management';
 import type { QuestionResult } from './question.result';
 import type { TestSchedulerResult } from './test-scheduler.result';
 import type { TestResult } from './test.result';
@@ -10,4 +11,5 @@ export interface TestFullResult extends TestResult {
 	questions: Array<QuestionResult>;
 	settings: TestFullResultSettings;
 	scheduler: TestSchedulerResult;
+	session: TestSessionEntity | null;
 }

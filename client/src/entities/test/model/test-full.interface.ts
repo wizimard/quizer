@@ -7,9 +7,6 @@ export interface TestSchedulerPeriod extends Pick<TestSchedulerPeriodResponse, "
 }
 
 export interface TestSettings extends TestSettingsResponse {
-	isRequiredEmail: boolean;
-	isRequiredFirstName: boolean;
-	isRequiredLastName: boolean;
 	isShowAnswersAfterCompletion: boolean;
 }
 

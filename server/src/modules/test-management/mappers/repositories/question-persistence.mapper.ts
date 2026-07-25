@@ -6,7 +6,7 @@ import { QuestionConfigMapper } from '../question-config.mapper';
 export const QuestionPersistenceMapper = {
 	toCreateData(entity: QuestionEntity): TestQuestionModelCreateManyInput {
 		return {
-			test_id: entity.testId.value,
+			test_id: entity.testId,
 			description: entity.description,
 			config: QuestionConfigMapper.toHttp(entity.config) as JsonObject,
 			sort_key: entity.sortKey,
@@ -22,7 +22,7 @@ export const QuestionPersistenceMapper = {
 
 	toUpdateOrderData(question: QuestionEntity): TestQuestionModelUpdateArgs {
 		return {
-			where: { id: question.id.value },
+			where: { id: question.id },
 			data: { sort_key: question.sortKey },
 		};
 	},

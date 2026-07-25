@@ -4,7 +4,7 @@ import type { ChangeQuestionOrderInput } from './input/update-question-order.inp
 import type { UpdateQuestionInput } from './input/update-question.input';
 import type { QuestionResult } from './results/question.result';
 
-export interface IQuestionService {
+export interface QuestionService {
 	create(input: CreateQuestionInput): Promise<QuestionResult>;
 	update(input: UpdateQuestionInput): Promise<QuestionResult>;
 	delete(input: DeleteQuestionInput): Promise<void>;

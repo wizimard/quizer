@@ -14,10 +14,11 @@ export interface IUseGetTests {
 export const useGetTestes = (): IUseGetTests => {
 	const { data, isLoading, error } = useQuery<Array<Test>>({
 		queryKey: [QUERY_KEYS.GET_AUTHOR_TESTS],
-		queryFn: async () => {
-			const response: AxiosResponse<Array<TestResponse>> = await testApi.testGet();
+		queryFn: async ({ signal }) => {
+			const response: AxiosResponse<Array<TestResponse>> = await testApi.testGet({ signal });
 			return response.data.map(normalizeTest);
 		},
+		retry: 3,
 	});
 
 	return { isLoading, error, tests: data };

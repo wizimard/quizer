@@ -13,9 +13,10 @@ let container: BootResult['container'];
 let authUtils: AuthUtils;
 let testUtils: TestUtils;
 
-type StartPayload = Partial<{ duration: number }>;
+type StartPayload = Partial<{ run_mode: 'MANUAL' | 'FREE'; duration: number }>;
 
 const startPayload = (overrides: StartPayload = {}): StartPayload => ({
+	run_mode: 'MANUAL',
 	...overrides,
 });
 
@@ -82,6 +83,29 @@ describe('POST /api/test/:testId/start', () => {
 		await otherAuthUtils.deleteUser();
 	});
 
+	it('returns 422 for missing run_mode', async () => {
+		const createRes = await testUtils.createTest('Original title');
+		const { accessToken } = await authUtils.login();
+
+		const res = await request(application.app).post(`/api/test/${createRes.body.id}/start`).set('Authorization', `Bearer ${accessToken}`).send({});
+
+		expect(res.statusCode).toBe(422);
+		expect(res.body.message).toBe('validation_failed');
+	});
+
+	it('returns 422 for invalid run_mode', async () => {
+		const createRes = await testUtils.createTest('Original title');
+		const { accessToken } = await authUtils.login();
+
+		const res = await request(application.app)
+			.post(`/api/test/${createRes.body.id}/start`)
+			.set('Authorization', `Bearer ${accessToken}`)
+			.send({ run_mode: 'INVALID' });
+
+		expect(res.statusCode).toBe(422);
+		expect(res.body.message).toBe('validation_failed');
+	});
+
 	it('returns 422 for invalid duration type', async () => {
 		const createRes = await testUtils.createTest('Original title');
 		const { accessToken } = await authUtils.login();
@@ -95,10 +119,21 @@ describe('POST /api/test/:testId/start', () => {
 		expect(res.body.message).toBe('validation_failed');
 	});
 
-	it('starts test without duration', async () => {
+	it('starts test in MANUAL mode without duration', async () => {
 		const createRes = await testUtils.createTest('Start test');
 
-		const res = await startTest(createRes.body.id);
+		const res = await startTest(createRes.body.id, { run_mode: 'MANUAL' });
+
+		expect(res.statusCode).toBe(200);
+		expect(res.body).toEqual({ message: 'Test started successfully' });
+
+		await finishTest(createRes.body.id);
+	});
+
+	it('starts test in FREE mode without duration', async () => {
+		const createRes = await testUtils.createTest('Start test free');
+
+		const res = await startTest(createRes.body.id, { run_mode: 'FREE' });
 
 		expect(res.statusCode).toBe(200);
 		expect(res.body).toEqual({ message: 'Test started successfully' });
@@ -109,10 +144,26 @@ describe('POST /api/test/:testId/start', () => {
 	it('starts test with duration', async () => {
 		const createRes = await testUtils.createTest('Start test with duration');
 
-		const res = await startTest(createRes.body.id, { duration: 3600 });
+		const res = await startTest(createRes.body.id, { run_mode: 'MANUAL', duration: 3600 });
 
 		expect(res.statusCode).toBe(200);
 		expect(res.body).toEqual({ message: 'Test started successfully' });
+
+		await finishTest(createRes.body.id);
+	});
+
+	it('returns 400 when starting an already open test', async () => {
+		const createRes = await testUtils.createTest('Start twice');
+
+		const firstStartRes = await startTest(createRes.body.id);
+
+		expect(firstStartRes.statusCode).toBe(200);
+		expect(firstStartRes.body).toEqual({ message: 'Test started successfully' });
+
+		const secondStartRes = await startTest(createRes.body.id);
+
+		expect(secondStartRes.statusCode).toBe(400);
+		expect(secondStartRes.body.message).toBe('errors.start_test_open');
 
 		await finishTest(createRes.body.id);
 	});

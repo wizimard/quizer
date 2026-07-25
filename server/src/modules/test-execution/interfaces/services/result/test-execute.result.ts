@@ -1,8 +1,7 @@
-import type { QuestionEntity, TestId } from '@modules/test-management';
-import type { TestStatus } from '@modules/test-management/entities/test.entity';
+import type { QuestionEntity, TestStatus } from '@modules/test-management';
 
 export interface TestExecuteResult {
-	id: TestId;
+	id: string;
 	title: string;
 	status: TestStatus;
 	openFromAt?: Date;

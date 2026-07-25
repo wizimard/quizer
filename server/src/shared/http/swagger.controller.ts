@@ -3,6 +3,7 @@ import { BaseController } from './controller.base';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from '../../../swagger.json';
 
+// TODO: move from shared
 @injectable()
 export class SwaggerController extends BaseController {
 	constructor() {

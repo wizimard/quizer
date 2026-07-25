@@ -69,18 +69,46 @@
 		"add_question_button": "Добавить вопрос",
 		"status": {
 			"scheduler": "По расписанию",
-			"open_by_scheduler": "Открыт",
-			"manual_open": "Открыт вручную",
-			"closed": "Закрыт"
+			"open": "Открыт",
+			"closed": "Закрыт",
+			"finished": "Завершен"
 		},
 		"start": "Открыть тест",
-		"close": "Закрыть тест"
-	},
-	"header": {
-		"tests_link": "тесты",
-		"user_menu": {
-			"logout": "Выйти"
+		"close": "Закрыть тест",
+		"execution_overview": {
+			"text": "Тест в данный момент открыт,",
+			"link": "открыть страницу управления тестом"
 		}
+	},
+	"test_start": {
+		"dialog": {
+			"title": "Запуск теста",
+			"description": "Укажите, сколько времени тест будет открыт для прохождения. После истечения срока он закроется автоматически.",
+			"run_mode": {
+				"label": "Способ запуска",
+				"hint": "Свободный — участники проходят тест самостоятельно. Ручной — вопросы выдаёт организатор.",
+				"options": {
+					"free": "Свободный",
+					"manual": "Ручной"
+				}
+			},
+			"duration": {
+				"label": "Длительность",
+				"placeholder": "Без ограничения",
+				"unit": "мин",
+				"hint": "Оставьте поле пустым, чтобы тест оставался открытым до ручного закрытия."
+			},
+			"presets": {
+				"m30": "30 мин",
+				"h1": "1 час",
+				"h2": "2 часа"
+			},
+			"button_start": "Запустить"
+		}
+	},
+	"sidebar": {
+		"tests_link": "тесты",
+		"logout": "Выйти"
 	},
 	"question_types": {
 		"input": "Ввод значения",
@@ -203,7 +231,39 @@
 		"scheduler.period_not_found": "Период не найден",
 		"test_not_author": "Вам запрещено в доступе к тесту",
 		"test_validation_failed": "Ошибка валидации",
-		"unknown_question_type": "Неподерживаемый тип вопроса"
+		"unknown_question_type": "Неподерживаемый тип вопроса",
+		"test_not_opened": "Тест в данный момент не открыт для выполнения"
+	},
+	"test_manage": {
+		"participants_title": "Участники",
+		"participants_count": "{{count}} зарегистрировано",
+		"timer": {
+			"label": "Время выполнения теста"
+		},
+		"current_question": {
+			"waiting": {
+				"title": "Участники ожидают",
+				"description": "Все зарегистрированные участники ждут начала. Нажмите «Начать», чтобы показать первый вопрос."
+			},
+			"start": "Начать",
+			"next": "Следующий вопрос",
+			"progress": "{{current}} из {{total}}"
+		},
+		"table": {
+			"columns": {
+				"name": "Участник",
+				"started_at": "Начало",
+				"question": "{{number}}"
+			},
+			"empty_title": "Пока никого нет",
+			"empty_description": "Зарегистрированные участники появятся здесь, как только начнут прохождение теста."
+		},
+		"answer": {
+			"correct": "Верно",
+			"incorrect": "Неверно",
+			"skipped": "Пропущено",
+			"pending": "Ещё нет ответа"
+		}
 	},
 	"test_execute": {
 		"waiting": {
@@ -211,6 +271,58 @@
 			"title": "Тест ещё не открыт",
 			"description": "Как только преподаватель откроет тест, вы сможете начать. Страница обновится автоматически.",
 			"refreshing": "Проверяем статус"
+		},
+		"register": {
+			"badge": "Регистрация",
+			"description": "Заполните данные, чтобы начать выполнение теста"
+		},
+		"question": {
+			"progress": "{{current}} из {{total}}",
+			"submit": "Ответить",
+			"skip": "Пропустить",
+			"input_placeholder": "Введите ответ",
+			"validation_errors": {
+				"input_required": "Введите ответ",
+				"single_choice_required": "Выберите правильный ответ",
+				"multiple_choice_required": "Выберите правильные ответы"
+			}
+		},
+		"question_waiting": {
+			"badge": "Пауза",
+			"title": "Ждём следующий вопрос",
+			"description": "Ответ принят. Как только преподаватель откроет следующий вопрос, он появится здесь автоматически.",
+			"progress": "Отвечено {{answered}} из {{total}}",
+			"next": "Следующий — вопрос {{number}}",
+			"refreshing": "Ожидаем"
+		},
+		"completed": {
+			"badge": "Завершено",
+			"title": "Тест пройден!",
+			"questions_answered": "вопросов отвечено",
+			"thank_you": "Спасибо за участие!",
+			"thank_you_named": "Спасибо, {{name}}!",
+			"description": "Вы ответили на все вопросы.\nМожете закрыть эту страницу."
+		}
+	},
+	"test_execution_register": {
+		"submit": "Начать тест",
+		"fields": {
+			"email": {
+				"label": "Email",
+				"placeholder": "Введите email"
+			},
+			"first_name": {
+				"label": "Имя",
+				"placeholder": "Введите имя"
+			},
+			"last_name": {
+				"label": "Фамилия",
+				"placeholder": "Введите фамилию"
+			}
+		},
+		"validation_errors": {
+			"required": "Обязательное поле",
+			"email": "Значение в поле не email"
 		}
 	},
 	"not_found": {

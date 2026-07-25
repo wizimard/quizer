@@ -11,9 +11,8 @@ import type { GetAuthorTestsInput } from '../interfaces/services/input/get-autho
 import type { UpdateTestSchedulerInput } from '../interfaces/services/input/update-test-scheduler.input';
 import type { UpdateTestSettingsInput } from '../interfaces/services/input/update-test-settings.input';
 import type { UpdateTestInput } from '../interfaces/services/input/update-test.input';
-import { TestNotFoundError, type TestEntity, TestNotOwnedError } from '..';
 import type { ITestValidationError } from '../interfaces/error/test-validation.error.interface';
-import type { ITestService } from '../interfaces/services/test.service.interface';
+import type { TestService } from '../interfaces/services/test.service.interface';
 import type { TestFullResult } from '../interfaces/services/results/test-full.result';
 import type { TestResult } from '../interfaces/services/results/test.result';
 import type { TestSchedulerResultPeriod } from '../interfaces/services/results/test-scheduler.result';
@@ -26,11 +25,19 @@ import { TestOpenError } from '../utils/errors/test-open.error';
 import type { ILogger } from '@shared/logger';
 import { APP_TYPES } from '@app/app.types';
 import type { GetFullTestByIdInput } from '../interfaces/services/input/get-full-test-by-id.input';
+import { HttpError } from '@shared/error';
+import type { TestSettingsRepository } from '../interfaces/repository/test-settings.repository.interface';
+import type { TestSchedulerRepository } from '../interfaces/repository/test-scheduler.repository.interface';
+import type { TestEntity } from '../entities/test.entity';
+import { TestNotFoundError } from '../utils/errors/test-not-found.error';
+import { TestNotOwnedError } from '../utils/errors/test-not-owned.error';
 
 @injectable()
-export class TestService implements ITestService {
+export class DefaultTestService implements TestService {
 	constructor(
 		@inject(TM_TYPES.TEST_REPOSITORY) private readonly testRepository: TestRepository,
+		@inject(TM_TYPES.TEST_SETTINGS_REPOSITORY) private readonly testSettingsRepository: TestSettingsRepository,
+		@inject(TM_TYPES.TEST_SCHEDULER_REPOSITORY) private readonly testSchedulerRepository: TestSchedulerRepository,
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
 	) {}
 
@@ -44,7 +51,11 @@ export class TestService implements ITestService {
 			throw new TestValidationFailedError(errors, 'TestService.create');
 		}
 
-		const createdTest: TestEntity = await this.testRepository.create(testEntity);
+		const createdTest: TestEntity | null = await this.testRepository.create(testEntity);
+
+		if (!createdTest) {
+			throw new HttpError(500, 'test_not_created', 'TestService.create');
+		}
 
 		this.logger.info({ message: '[TestService create] test created', data: createdTest });
 
@@ -60,7 +71,11 @@ export class TestService implements ITestService {
 			test.title = input.changes.title;
 		}
 
-		const updatedTest: TestEntity = await this.testRepository.update(test);
+		const updatedTest: TestEntity | null = await this.testRepository.update(test);
+
+		if (!updatedTest) {
+			throw new HttpError(500, 'test_not_updated', 'TestService.update');
+		}
 
 		this.logger.info({ message: '[TestService update] test updated', data: updatedTest });
 
@@ -76,13 +91,13 @@ export class TestService implements ITestService {
 
 		this.logger.info('[TestService delete] test deleted');
 
-		await this.testRepository.delete(input.test.id.value);
+		await this.testRepository.delete(input.test.id);
 	}
 
 	async getByAuthor(input: GetAuthorTestsInput): Promise<TestResult[]> {
 		this.logger.info({ message: '[TestService getByAuthor] start', data: input });
 
-		const tests: TestEntity[] = await this.testRepository.findByAuthor(input.authorId.value);
+		const tests: TestEntity[] = await this.testRepository.findByAuthor(input.authorId);
 
 		return tests.map(TestMapper.toResult);
 	}
@@ -92,7 +107,11 @@ export class TestService implements ITestService {
 
 		const test: TestEntity = input.test;
 
-		const updatedTest: TestEntity = await this.testRepository.updateSettings(test.id.value, input);
+		const updatedTest: TestEntity | null = await this.testSettingsRepository.updateSettings(test.id, input);
+
+		if (!updatedTest) {
+			throw new HttpError(500, 'test_not_updated', 'TestService.updateSettings');
+		}
 
 		this.logger.info({ message: '[TestService updateSettings] test updated', data: updatedTest });
 
@@ -102,7 +121,7 @@ export class TestService implements ITestService {
 	async updateSchedulerPeriods(input: UpdateTestSchedulerInput): Promise<Array<TestSchedulerResultPeriod>> {
 		this.logger.info({ message: '[TestService updateSchedulerPeriods] start', data: input });
 
-		const schedulerPeriods: Array<TestSchedulerPeriod> = (await this.testRepository.getScheduler(input.test.id.value)).map(SchedulerPeriodMapper.toDomain);
+		const schedulerPeriods: Array<TestSchedulerPeriod> = (await this.testSchedulerRepository.getScheduler(input.test.id)).map(SchedulerPeriodMapper.toDomain);
 
 		const checkDate = new Date();
 		checkDate.setTime(checkDate.getTime() + 5 * 60 * 1000);
@@ -133,23 +152,26 @@ export class TestService implements ITestService {
 
 		const test: TestEntity = input.test;
 
-		const updatedSchedulerPeriods: Array<TestSchedulerPeriodModel> = await this.testRepository.updateSchedulerPeriods(test.id.value, SchedulerPeriodMapper.toRepositoryUpdateData(test.id, input));
+		const updatedSchedulerPeriods: Array<TestSchedulerPeriodModel> = await this.testSchedulerRepository.updateSchedulerPeriods(
+			test.id,
+			SchedulerPeriodMapper.toRepositoryUpdateData(test.id, input),
+		);
 
 		this.logger.info({ message: '[TestService updateSchedulerPeriods] scheduler periods updated', data: updatedSchedulerPeriods });
 
 		return updatedSchedulerPeriods.map(SchedulerPeriodMapper.toDomain).map(SchedulerPeriodMapper.toResult);
 	}
 
-	async getFullById(input: GetFullTestByIdInput): Promise<TestFullResult> {
+	async getFullByIdAndCheckOwnership(input: GetFullTestByIdInput): Promise<TestFullResult> {
 		this.logger.info({ message: '[TestService getFullById] start', data: input });
 
-		const test: TestEntity | null = await this.testRepository.findFullById(input.testId.value);
+		const test: TestEntity | null = await this.getFullById(input.testId);
 
 		if (!test) {
 			throw new TestNotFoundError('TestService.getFullById');
 		}
 
-		if (!test.authorId.equals(input.userId)) {
+		if (test.authorId !== input.userId) {
 			throw new TestNotOwnedError('TestService.getFullById');
 		}
 
@@ -158,10 +180,16 @@ export class TestService implements ITestService {
 		return TestMapper.toFullResult(test);
 	}
 
+	async getFullById(testId: string): Promise<TestEntity | null> {
+		const test: TestEntity | null = await this.testRepository.findFullById(testId);
+
+		return test;
+	}
+
 	async getById(input: GetTestByIdInput): Promise<TestResult> {
 		this.logger.info({ message: '[TestService getById] start', data: input });
 
-		const test: TestEntity | null = await this.testRepository.findById(input.testId.value);
+		const test: TestEntity | null = await this.testRepository.findById(input.testId);
 
 		if (!test) {
 			throw new TestNotFoundError('TestService.getById');

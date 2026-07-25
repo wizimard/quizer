@@ -8,7 +8,7 @@ import type { CreateQuestionInput } from '../interfaces/services/input/create-qu
 import type { DeleteQuestionInput } from '../interfaces/services/input/delete-question.input';
 import type { ChangeQuestionOrderInput } from '../interfaces/services/input/update-question-order.input';
 import type { UpdateQuestionInput } from '../interfaces/services/input/update-question.input';
-import type { IQuestionService } from '../interfaces/services/question.service.interface';
+import type { QuestionService } from '../interfaces/services/question.service.interface';
 import { QuestionMapper } from '../mappers/question.mapper';
 import type { QuestionResult } from '../interfaces/services/results/question.result';
 import { QuestionNotFoundError } from '../utils/errors/question-not-found.error';
@@ -18,7 +18,7 @@ import type { TestRepository } from '../interfaces/repository/test.repository.in
 import type { TestEntity } from '../entities/test.entity';
 
 @injectable()
-export class QuestionService implements IQuestionService {
+export class DefaultQuestionService implements QuestionService {
 	constructor(
 		@inject(TM_TYPES.QUESTION_REPOSITORY) private readonly questionRepository: QuestionRepository,
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
@@ -28,7 +28,7 @@ export class QuestionService implements IQuestionService {
 	async create(input: CreateQuestionInput): Promise<QuestionResult> {
 		this.logger.info({ message: '[QuestionService create] start', data: input });
 
-		const questions = await this.questionRepository.findByTestId(input.testId.value);
+		const questions = await this.questionRepository.findByTestId(input.testId);
 
 		const questionEntity = QuestionMapper.buildQuestionFromCreateInput(input, (questions.length + 1) * 1000);
 
@@ -39,6 +39,10 @@ export class QuestionService implements IQuestionService {
 		}
 
 		const createdQuestion = await this.questionRepository.create(questionEntity);
+
+		if (!createdQuestion) {
+			throw new HttpError(500, 'question_not_created', 'QuestionService.create');
+		}
 
 		this.logger.info({ message: '[QuestionService create] question created', data: createdQuestion });
 
@@ -57,6 +61,10 @@ export class QuestionService implements IQuestionService {
 
 		const updatedQuestion = await this.questionRepository.update(questionEntity);
 
+		if (!updatedQuestion) {
+			throw new HttpError(500, 'question_not_updated', 'QuestionService.update');
+		}
+
 		this.logger.info({ message: '[QuestionService update] question updated', data: updatedQuestion });
 
 		return QuestionMapper.toResult(updatedQuestion);
@@ -65,7 +73,7 @@ export class QuestionService implements IQuestionService {
 	async delete(input: DeleteQuestionInput): Promise<void> {
 		this.logger.info({ message: '[QuestionService delete] start', data: input });
 
-		const isDeleted = await this.questionRepository.delete(input.id.value, input.testId.value);
+		const isDeleted = await this.questionRepository.delete(input.id, input.testId);
 
 		if (!isDeleted) {
 			throw new QuestionNotFoundError('QuestionService.delete');
@@ -81,7 +89,7 @@ export class QuestionService implements IQuestionService {
 
 		const { testId, questionId, previousQuestionId, nextQuestionId } = input;
 
-		const test: TestEntity = (await this.testRepository.findFullById(testId.value))!;
+		const test: TestEntity = (await this.testRepository.findFullById(testId))!;
 
 		if (!previousQuestionId && !nextQuestionId) {
 			return test.questions.map(QuestionMapper.toResult);
@@ -90,7 +98,7 @@ export class QuestionService implements IQuestionService {
 		let newSortKey: number = 0;
 
 		if (previousQuestionId) {
-			const previousQuestionIndex = test.questions.findIndex((question) => question.id.value === previousQuestionId);
+			const previousQuestionIndex = test.questions.findIndex((question) => question.id === previousQuestionId);
 
 			if (previousQuestionIndex === -1) {
 				throw new HttpError(422, 'previous_question_not_found', 'QuestionService.changeOrder');
@@ -101,7 +109,7 @@ export class QuestionService implements IQuestionService {
 
 			newSortKey = nextSortKey - (nextSortKey - prevSortKey) / 2;
 		} else if (nextQuestionId) {
-			const nextQuestionIndex = test.questions.findIndex((question) => question.id.value === nextQuestionId);
+			const nextQuestionIndex = test.questions.findIndex((question) => question.id === nextQuestionId);
 
 			if (nextQuestionIndex === -1) {
 				throw new HttpError(422, 'next_question_not_found', 'QuestionService.changeOrder');
@@ -119,7 +127,7 @@ export class QuestionService implements IQuestionService {
 
 		newSortKey = Math.round(newSortKey);
 
-		const question: QuestionEntity = test.questions.find((question) => questionId.equals(question.id))!;
+		const question: QuestionEntity = test.questions.find((question) => questionId === question.id)!;
 
 		question.sortKey = newSortKey;
 

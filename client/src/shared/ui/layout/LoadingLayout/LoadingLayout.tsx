@@ -1,6 +1,6 @@
 import { AxiosError } from "axios";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Loading } from "@shared/ui/loading";
 import { ErrorCard } from "@shared/ui/error";
 
@@ -12,18 +12,23 @@ export interface ILoadingLayoutProps {
 
 export const LoadingLayout = ({ isLoading, children, error }: ILoadingLayoutProps) => {
 	const navigate = useNavigate();
+	const { t } = useTranslation();
 
-	useEffect(() => {
-		if (error instanceof AxiosError) {
-			if (error.status === 404) {
-				navigate("/404");
-				return;
-			}
-			if (error.status === 401) {
-				navigate("/login");
-			}
+	let errorMessage: string | null = null;
+
+	if (error && error instanceof AxiosError) {
+		if (error.response?.data?.message) {
+			errorMessage = error.response.data.message;
 		}
-	}, [navigate, error]);
 
-	return <>{isLoading ? <Loading /> : <>{error ? <ErrorCard message={error.message} /> : <>{children}</>}</>}</>;
+		if (error.status === 404) {
+			navigate("/404");
+			return;
+		}
+		if (error.status === 401) {
+			navigate("/login");
+		}
+	}
+
+	return <>{isLoading ? <Loading /> : <>{errorMessage ? <ErrorCard message={t(errorMessage)} /> : <>{children}</>}</>}</>;
 };

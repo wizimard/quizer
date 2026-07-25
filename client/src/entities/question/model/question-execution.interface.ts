@@ -1,7 +1,6 @@
 import type { Question } from "./question.interface";
-
-export type QuestionExecutionConfig = Omit<Question["config"], "answer">;
+import type { QuestionExecuteConfig } from "@shared/api/generated";
 
 export interface QuestionExecution extends Omit<Question, "config"> {
-	config: QuestionExecutionConfig;
+	config: QuestionExecuteConfig;
 }

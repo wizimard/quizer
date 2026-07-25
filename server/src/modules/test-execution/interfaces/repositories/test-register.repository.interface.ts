@@ -8,4 +8,5 @@ export interface TestRegisterRepository {
 	registerUserForTest(sessionId: string, firstName: string, lastName: string): Promise<TestExecutionUser | null>;
 	findRegisteredUser(sessionId: string, firstName: string, lastName: string): Promise<TestExecutionUser | null>;
 	findRegisteredUserById(userId: string): Promise<TestExecutionUser | null>;
+	findSessionRegisteredUsers(sessionId: string): Promise<Array<TestExecutionUser>>;
 }

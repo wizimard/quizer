@@ -3,12 +3,14 @@ import { QuestionListItem } from "./ui/QuestionListItem";
 import { type Question } from "@entities/question";
 import { useChangeQuestionOrder } from "@features/question/change-question-order";
 import { DRAWER_KEYS, useOpenDrawer } from "@shared/model";
+import type { TestFull } from "@entities/test";
 
-export interface IQuestionsListProps {
+export interface QuestionsListProps {
 	questions: Question[];
+	test: TestFull;
 }
-// TODO: review
-export const QuestionsList = ({ questions }: IQuestionsListProps) => {
+
+export const QuestionsList = ({ questions, test }: QuestionsListProps) => {
 	const { handleChangeQuestionOrder } = useChangeQuestionOrder();
 
 	const openDrawer = useOpenDrawer(DRAWER_KEYS.QUESTION_SETTINGS);
@@ -21,16 +23,16 @@ export const QuestionsList = ({ questions }: IQuestionsListProps) => {
 
 	const handleClickEdit = useCallback(
 		(question: Question) => {
-			openDrawer(question);
+			openDrawer({ question, test });
 		},
-		[openDrawer],
+		[openDrawer, test],
 	);
 
 	const handleClickUp = useCallback(
 		(question: Question) => {
 			const prevQuestion = questionsRef.current[questionsRef.current.findIndex((q) => q.id === question.id) - 1];
 
-			handleChangeQuestionOrder({ question, previousQuestionId: prevQuestion.id });
+			handleChangeQuestionOrder({ question, nextQuestionId: prevQuestion.id });
 		},
 		[handleChangeQuestionOrder],
 	);
@@ -39,7 +41,7 @@ export const QuestionsList = ({ questions }: IQuestionsListProps) => {
 		(question: Question) => {
 			const nextQuestion = questionsRef.current[questionsRef.current.findIndex((q) => q.id === question.id) + 1];
 
-			handleChangeQuestionOrder({ question, nextQuestionId: nextQuestion.id });
+			handleChangeQuestionOrder({ question, previousQuestionId: nextQuestion.id });
 		},
 		[handleChangeQuestionOrder],
 	);

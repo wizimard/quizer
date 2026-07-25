@@ -1,4 +1,6 @@
+import type { TQuestionFormOption } from "./question-form";
 import { QUESTION_TYPES } from "@entities/question";
+import type { QuestionConfigOption } from "@shared/api/generated";
 import type { ISelectOption } from "@shared/ui/form/FormSelectField";
 
 export const QUESTION_TYPES_OPTIONS: ISelectOption[] = [
@@ -15,3 +17,11 @@ export const QUESTION_TYPES_OPTIONS: ISelectOption[] = [
 		value: QUESTION_TYPES.MULTIPLE_CHOICE,
 	},
 ];
+
+export const normalizeOptionsForm = (options: QuestionConfigOption[]): TQuestionFormOption[] => {
+	return options.map((option) => ({
+		id: option.id,
+		optionId: option.id,
+		value: option.value,
+	}));
+};

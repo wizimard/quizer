@@ -1,5 +1,6 @@
 import zod from "zod";
 import type { Control } from "react-hook-form";
+import { normalizeOptionsForm } from "./question-type-options";
 import type { Question } from "@entities/question";
 
 export type TQuestionFormModel = Omit<Question, "id" | "testId" | "sortKey">;
@@ -48,4 +49,21 @@ export type TQuestionForm = zod.infer<typeof questionFormModelSchema>;
 
 export type QuestionFormComponentProps<T> = T & {
 	control: Control<TQuestionForm>;
+};
+
+export const getFormQuestionValues = (question: Question): TQuestionForm => {
+	if (!("options" in question.config)) {
+		return {
+			description: question.description,
+			config: question.config as TQuestionForm["config"],
+		};
+	}
+
+	return {
+		description: question.description,
+		config: {
+			...question.config,
+			options: normalizeOptionsForm(question.config.options),
+		} as TQuestionForm["config"],
+	};
 };

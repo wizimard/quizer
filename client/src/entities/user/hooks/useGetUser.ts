@@ -18,11 +18,12 @@ export const useGetUser = () => {
 		isFetched,
 	} = useQuery<UserAuthResponseUser>({
 		queryKey: [QUERY_KEYS.GET_ME],
-		queryFn: async () => {
-			const response = await userApi.userMeGet();
+		queryFn: async ({ signal }) => {
+			const response = await userApi.userMeGet({ signal });
 			return response.data;
 		},
 		enabled: hasAccessToken,
+		retry: 3,
 	});
 
 	useEffect(() => {

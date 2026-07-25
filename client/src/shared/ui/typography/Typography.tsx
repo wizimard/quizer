@@ -44,7 +44,7 @@ const Typography = ({ children, variant = "body1", component, className, align, 
 	return (
 		<Component
 			className={cn(
-				"text-muted-foreground text-foreground",
+				"text-muted-foreground text-foreground [&_a]:text-green-600 [&_a]:underline-offset-4 [&_a]:hover:underline dark:[&_a]:text-green-500",
 				variantClasses[variant],
 				align && alignClasses[align],
 				color === "error" && "text-destructive",

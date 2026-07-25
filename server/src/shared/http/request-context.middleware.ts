@@ -6,6 +6,7 @@ import { APP_TYPES } from '@app/app.types';
 import type { ILogger } from '@shared/logger';
 import { inject } from 'inversify';
 
+// TODO: review
 @injectable()
 export class RequestContextMiddleware implements IMiddleware {
 	constructor(@inject(APP_TYPES.LOGGER) private readonly logger: ILogger) {}

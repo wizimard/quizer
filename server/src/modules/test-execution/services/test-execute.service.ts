@@ -1,4 +1,4 @@
-import { QuestionEntity, TM_TYPES, TestEntity, TestNotFoundError, type TestRepository } from '@modules/test-management';
+import { QuestionEntity, TM_TYPES, TestEntity, TestNotFoundError, type TestService } from '@modules/test-management';
 import { inject, injectable } from 'inversify';
 import type { TestExecuteGetInput } from '../interfaces/services/input/test-execute-get.input';
 import type { TestExecuteResult } from '../interfaces/services/result/test-execute.result';
@@ -8,24 +8,30 @@ import type { TestRegisteredUserResult } from '../interfaces/services/result/tes
 import { TestExecutionUser } from '../entities/test-execution-user';
 import { TE_TYPES } from '../test-execution.types';
 import type { TestRegisterRepository } from '../interfaces/repositories/test-register.repository.interface';
-import { TestClosedError } from '@modules/test-management/utils/errors/test-closed.error';
 import type { Answer } from '../entities/answer';
 import { HttpError } from '@shared/error';
 import { TestExecutionUserMapper } from '../mappers/test-execution-user.mapper';
 import type { AnswerQuestionInput } from '../interfaces/services/input/answer-question.input';
-import { QuestionNotFoundError } from '@modules/test-management/utils/errors/question-not-found.error';
 import type { AnswerRepository } from '../interfaces/repositories/answer.repository';
+import type { TestExecuteService } from '../interfaces/services/test-execute.service.interface';
+import { QuestionNotFoundError } from '@modules/test-management/utils/errors/question-not-found.error'; // TODO
+import { TestClosedError } from '@modules/test-management/utils/errors/test-closed.error'; // TODO
+import { TestSessionRunMode } from '@prisma/client';
+import type { TestSessionEntity } from '@modules/test-management';
+import type { ILogger } from '@shared/logger';
+import { APP_TYPES } from '@app/app.types';
 
 @injectable()
-export class TestExecuteService {
+export class DefaultTestExecuteService implements TestExecuteService {
 	constructor(
-		@inject(TM_TYPES.TEST_REPOSITORY) private readonly testRepository: TestRepository,
 		@inject(TE_TYPES.TEST_REGISTER_REPOSITORY) private readonly testRegisterRepository: TestRegisterRepository,
+		@inject(TM_TYPES.TEST_SERVICE) private readonly testService: TestService,
 		@inject(TE_TYPES.ANSWER_REPOSITORY) private readonly answerRepository: AnswerRepository,
+		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
 	) {}
 
 	async getTest(input: TestExecuteGetInput): Promise<TestExecuteResult> {
-		const test: TestEntity | null = await this.testRepository.findFullById(input.testId.value);
+		const test: TestEntity | null = await this.testService.getFullById(input.testId);
 
 		if (!test) {
 			throw new TestNotFoundError('TestExecuteService getTest');
@@ -35,68 +41,102 @@ export class TestExecuteService {
 	}
 
 	async registerUserForTest(input: TestRegisterUserInput): Promise<TestRegisteredUserResult> {
-		const test: TestEntity | null = await this.testRepository.findFullById(input.test.id.value);
+		const test: TestEntity | null = await this.testService.getFullById(input.test.id);
 
 		if (!test) {
 			throw new TestNotFoundError('TestExecuteService registerUserForTest');
 		}
 
-		const sessionId: string | undefined = test.sessions[0]?.id;
+		const session: TestSessionEntity | undefined = test.sessions[0];
 
-		if (!sessionId) {
+		if (!session) {
 			throw new TestClosedError('TestExecuteService registerUserForTest');
 		}
 
-		const registeredUser: TestExecutionUser | null = await this.testRegisterRepository.findRegisteredUser(sessionId, input.firstName, input.lastName);
+		const registeredUser: TestExecutionUser | null = await this.testRegisterRepository.findRegisteredUser(session.id, input.firstName, input.lastName);
 
 		if (registeredUser) {
-			return TestExecutionUserMapper.toTestRegisteredUserResult(registeredUser, test, this.getCurrentQuestion(test.questions, registeredUser.answers));
+			const { question, questionIndex } = this.getCurrentQuestion(session, test.questions, registeredUser.answers);
+			return TestExecutionUserMapper.toTestRegisteredUserResult(registeredUser, test, question, questionIndex);
 		}
 
-		const newRegisteredUser: TestExecutionUser | null = await this.testRegisterRepository.registerUserForTest(sessionId, input.firstName, input.lastName);
+		const newRegisteredUser: TestExecutionUser | null = await this.testRegisterRepository.registerUserForTest(session.id, input.firstName, input.lastName);
 
 		if (!newRegisteredUser) {
 			throw new HttpError(500, 'Error registering user for test in database', 'TestExecuteService registerUserForTest');
 		}
 
-		return TestExecutionUserMapper.toTestRegisteredUserResult(newRegisteredUser, test, test.questions[0] ?? null);
+		const { question, questionIndex } = this.getCurrentQuestion(session, test.questions, newRegisteredUser.answers);
+
+		return TestExecutionUserMapper.toTestRegisteredUserResult(newRegisteredUser, test, question, questionIndex);
 	}
 
-	private getCurrentQuestion(questions: Array<QuestionEntity>, answers: Array<Answer>): QuestionEntity | null {
+	private getCurrentQuestion(session: TestSessionEntity, questions: Array<QuestionEntity>, answers: Array<Answer>): { question: QuestionEntity | null; questionIndex: number } {
+		if (session.runMode === TestSessionRunMode.MANUAL) {
+			this.logger.info(`[DefaultTestExecuteService getCurrentQuestion] session ${session.id} run mode is manual`);
+
+			if (!session.currentQuestionId) {
+				this.logger.info(`[DefaultTestExecuteService getCurrentQuestion] no current question for session ${session.id}`);
+				return { question: null, questionIndex: 0 };
+			}
+
+			const questionIndex = questions.findIndex((question) => question.id === session.currentQuestionId);
+
+			if (questionIndex === -1) {
+				this.logger.error(`[DefaultTestExecuteService getCurrentQuestion] current question not found ${session.currentQuestionId} for session ${session.id}`);
+				return { question: null, questionIndex: 0 };
+			}
+
+			if (answers.find((answer) => answer.questionId === questions[questionIndex]!.id)) {
+				this.logger.info(`[DefaultTestExecuteService getCurrentQuestion] current question already answered ${questions[questionIndex]!.id} for session ${session.id}`);
+				return { question: null, questionIndex: questionIndex + 1 };
+			}
+
+			this.logger.info(`[DefaultTestExecuteService getCurrentQuestion] found current question ${questions[questionIndex]!.id} for session ${session.id}`);
+
+			return { question: questions[questionIndex]!, questionIndex: questionIndex + 1 };
+		}
+
+		this.logger.info(`[DefaultTestExecuteService getCurrentQuestion] session ${session.id} run mode is free`);
+
 		for (const question of questions) {
-			if (!answers.find((answer) => answer.questionId.equals(question.id))) {
-				return question;
+			if (!answers.find((answer) => answer.questionId === question.id)) {
+				this.logger.info(`[DefaultTestExecuteService getCurrentQuestion] found current question ${question.id} for session ${session.id}`);
+				return { question: question, questionIndex: questions.findIndex((question) => question.id === question.id) + 1 };
 			}
 		}
 
-		return null;
+		this.logger.info(`[DefaultTestExecuteService getCurrentQuestion] user answered all questions for session ${session.id}`);
+
+		return { question: null, questionIndex: questions.length };
 	}
 
+	// TODO: move to separate service
 	async answerQuestion(input: AnswerQuestionInput): Promise<TestRegisteredUserResult> {
-		const test: TestEntity | null = await this.testRepository.findFullById(input.testId.value);
+		const test: TestEntity | null = await this.testService.getFullById(input.testId);
 
 		if (!test) {
 			throw new TestNotFoundError('TestExecuteService registerUserForTest');
 		}
 
-		const sessionId: string | undefined = test.sessions[0]?.id;
+		const session: TestSessionEntity | undefined = test.sessions[0];
 
-		if (!sessionId) {
+		if (!session) {
 			throw new TestClosedError('TestExecuteService registerUserForTest');
 		}
-		const registeredUser: TestExecutionUser | null = await this.testRegisterRepository.findRegisteredUserById(input.userId.value);
+		const registeredUser: TestExecutionUser | null = await this.testRegisterRepository.findRegisteredUserById(input.userId);
 
 		if (!registeredUser) {
 			throw new TestNotFoundError('TestExecuteService answerQuestion');
 		}
 
-		const question: QuestionEntity | undefined = test.questions.find((question) => question.id.equals(input.answer.questionId));
+		const question: QuestionEntity | undefined = test.questions.find((question) => question.id === input.answer.questionId);
 
 		if (!question) {
 			throw new QuestionNotFoundError('TestExecuteService answerQuestion');
 		}
 
-		const answer: Answer | null = await this.answerRepository.createAnswer(input.answer, registeredUser.id.value);
+		const answer: Answer | null = await this.answerRepository.createAnswer(input.answer, registeredUser.id);
 
 		if (!answer) {
 			throw new HttpError(500, 'Error creating answer in database', 'TestExecuteService answerQuestion');
@@ -104,6 +144,12 @@ export class TestExecuteService {
 
 		registeredUser.answers.push(answer);
 
-		return TestExecutionUserMapper.toTestRegisteredUserResult(registeredUser, test, this.getCurrentQuestion(test.questions, registeredUser.answers));
+		const { question: userQuestion, questionIndex: userQuestionIndex } = this.getCurrentQuestion(session, test.questions, registeredUser.answers);
+
+		return TestExecutionUserMapper.toTestRegisteredUserResult(registeredUser, test, userQuestion, userQuestionIndex);
+	}
+
+	async getRegisteredSessionUsers(sessionId: string): Promise<Array<TestExecutionUser>> {
+		return this.testRegisterRepository.findSessionRegisteredUsers(sessionId);
 	}
 }

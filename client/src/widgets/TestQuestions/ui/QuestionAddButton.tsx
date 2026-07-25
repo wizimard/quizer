@@ -13,7 +13,7 @@ export const QuestionAddButton = ({ test }: QuestionAddButtonProps) => {
 	const handleAddQuestion = () => {
 		const newQuestion: Question = createNewQuestion({ testId: test.id, order: test.questions.length });
 
-		openDrawer(newQuestion);
+		openDrawer({ question: newQuestion, test });
 	};
 
 	return (

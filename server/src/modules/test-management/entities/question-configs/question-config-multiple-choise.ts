@@ -60,4 +60,14 @@ export class QuestionConfigMultipleChoise extends QuestionConfigBase<IQuestionCo
 			return false;
 		}
 	}
+
+	public isCorrectAnswer(answer: string): boolean {
+		try {
+			const ids: string[] = JSON.parse(answer) as string[];
+
+			return ids.every((id) => !!this.answer.find((answerId) => answerId === id));
+		} catch {
+			return false;
+		}
+	}
 }
