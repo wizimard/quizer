@@ -16,6 +16,8 @@ import type { StartTestInput } from '@modules/test-management/interfaces/service
 import type { FinishTestInput } from '@modules/test-management/interfaces/services/input/finish-test.input';
 import type { NextQuestionInput } from '@modules/test-management/interfaces/services/input/next-question.input';
 import type { TestGetOverviewInput } from '@modules/test-management/interfaces/services/input/test-get-overview.input';
+import type { GetTestHistoryInput } from '@modules/test-management/interfaces/services/input/get-test-history.input';
+import type { GetTestSessionOverviewInput } from '@modules/test-management/interfaces/services/input/get-test-session-overview.input';
 
 export class TestInputMapper {
 	static toGetByIdInput(testId: string): GetTestByIdInput {
@@ -139,6 +141,19 @@ export class TestInputMapper {
 			testId,
 			questionId,
 			userId,
+		};
+	}
+
+	static toGetTestHistoryInput(testId: string): GetTestHistoryInput {
+		return {
+			testId,
+		};
+	}
+
+	static toGetTestSessionOverviewInput(testId: string, sessionId: string): GetTestSessionOverviewInput {
+		return {
+			testId,
+			sessionId,
 		};
 	}
 }

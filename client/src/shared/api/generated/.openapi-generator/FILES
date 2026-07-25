@@ -34,7 +34,9 @@ docs/TestExecutionOverviewAnswerResponse.md
 docs/TestExecutionOverviewQuestionResponse.md
 docs/TestExecutionOverviewRegisteredUserResponse.md
 docs/TestExecutionOverviewResponse.md
+docs/TestFinishResponse.md
 docs/TestFullResponse.md
+docs/TestLaunchResponse.md
 docs/TestNextQuestionRequestBody.md
 docs/TestRegisterRequestBody.md
 docs/TestRegisteredUserResponse.md
@@ -44,6 +46,7 @@ docs/TestSchedulerPeriodEditDto.md
 docs/TestSchedulerPeriodResponse.md
 docs/TestSchedulerPeriodsEditRequestBody.md
 docs/TestSchedulerResponse.md
+docs/TestSessionOverviewResponse.md
 docs/TestSettings.md
 docs/TestSettingsUpdateRequestBody.md
 docs/TestStartRequestBody.md

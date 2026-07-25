@@ -4,7 +4,7 @@ import type { IPrismaService } from '@shared/persistence';
 import type { ILogger } from '@shared/logger';
 import { repositoryCall } from '@shared/http/utils/repository-call';
 import type { TestEntity } from '../entities/test.entity';
-import type { TestRepository, TestModelAll, TestModelWithSessions } from '../interfaces/repository/test.repository.interface';
+import type { TestRepository, TestModelAll, TestModelWithSessions, TestModelLaunch } from '../interfaces/repository/test.repository.interface';
 import { TestMapper } from '../mappers/test.mapper';
 import { TestPersistenceMapper } from '../mappers/repositories/test-persistence.mapper';
 import { FULL_TEST_INCLUDE, SHORT_TEST_INCLUDE } from './test-include.constant';
@@ -86,7 +86,7 @@ export class PrismaTestRepository implements TestRepository {
 		return row ? TestMapper.toDomain(row) : null;
 	}
 
-	async findByAuthor(authorId: string): Promise<TestEntity[]> {
+	async findByAuthor(authorId: string): Promise<Array<TestEntity>> {
 		const rows: TestModelWithSessions[] | null = await repositoryCall(
 			() =>
 				this.prismaService.client.testModel.findMany({

@@ -14,6 +14,8 @@ export type TestModelAll = TestModel &
 
 export type TestModelWithSessions = TestModel & TestModelGetPayload<{ select: { test_sessions: true } }>;
 
+export type TestModelLaunch = TestModel & TestModelGetPayload<{ select: { test_sessions: { include: { _count: { select: { registered_users: true } } } } } }>;
+
 export interface TestRepository {
 	create(data: TestEntity): Promise<TestEntity | null>;
 	update(data: TestEntity): Promise<TestEntity | null>;

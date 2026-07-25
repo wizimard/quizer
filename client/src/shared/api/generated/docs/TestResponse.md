@@ -9,6 +9,8 @@ Name | Type | Description | Notes
 **author_id** | **string** |  | [default to undefined]
 **isOpen** | **boolean** |  | [default to undefined]
 **title** | **string** |  | [default to undefined]
+**launches_count** | **number** |  | [default to undefined]
+**last_launch_date** | **string** |  | [default to undefined]
 **updated_at** | **string** |  | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
 
@@ -22,6 +24,8 @@ const instance: TestResponse = {
     author_id,
     isOpen,
     title,
+    launches_count,
+    last_launch_date,
     updated_at,
     created_at,
 };

@@ -1,6 +1,7 @@
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Clock } from "lucide-react";
+import { useEffect } from "react";
 import { useStartTestForm } from "../hooks/useStartTestForm";
 import { DURATION_PRESETS, RUN_MODE_OPTIONS } from "../model/startTestForm";
 import { TestStartRequestBodyRunModeEnum } from "@shared/api/generated";
@@ -37,6 +38,13 @@ export const StartTestDialog = ({ testId }: StartTestDialogProps) => {
 	const handleClickPreset = (minutes: number) => {
 		setValue("durationMinutes", String(minutes));
 	};
+
+	useEffect(() => {
+		return () => {
+			console.log(closeDialog);
+			closeDialog();
+		};
+	}, []);
 
 	return (
 		<Dialog open={isOpen} onOpenChange={closeDialog}>

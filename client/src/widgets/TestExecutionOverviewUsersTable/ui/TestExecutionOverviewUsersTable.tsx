@@ -1,29 +1,25 @@
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { AnswerResultCell } from "./AnswerResultCell";
-import type { TestExecutionOverview } from "@entities/test";
+import { type UsersTableEmptyVariant, UsersTableEmpty } from "./UsersTableEmpty";
+import type { TestExecutionOverview, TestExecutionOverviewRegisteredUser } from "@entities/test";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@shared/ui/kit/table";
-import { Typography } from "@shared/ui/typography";
+
+export type TestExecutionOverviewUsersTableData = Pick<TestExecutionOverview, "questions"> & {
+	registered_users: TestExecutionOverviewRegisteredUser[];
+};
 
 interface TestExecutionOverviewUsersTableProps {
-	testOverview: TestExecutionOverview;
+	testOverview: TestExecutionOverviewUsersTableData;
+	emptyVariant?: UsersTableEmptyVariant;
 }
 
-export const TestExecutionOverviewUsersTable = ({ testOverview }: TestExecutionOverviewUsersTableProps) => {
+export const TestExecutionOverviewUsersTable = ({ testOverview, emptyVariant = "execution" }: TestExecutionOverviewUsersTableProps) => {
 	const { t } = useTranslation();
 	const { questions, registered_users: users } = testOverview;
 
 	if (users.length === 0) {
-		return (
-			<div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/80 bg-muted/20 px-6 py-16 text-center">
-				<Typography variant="subtitle1" className="text-foreground">
-					{t("test_manage.table.empty_title")}
-				</Typography>
-				<Typography variant="body2" className="mt-1.5 max-w-sm text-muted-foreground">
-					{t("test_manage.table.empty_description")}
-				</Typography>
-			</div>
-		);
+		return <UsersTableEmpty variant={emptyVariant} />;
 	}
 
 	return (

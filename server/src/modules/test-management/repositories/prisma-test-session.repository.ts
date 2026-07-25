@@ -4,8 +4,7 @@ import type { IPrismaService } from '@shared/persistence';
 import type { ILogger } from '@shared/logger';
 import { repositoryCall } from '@shared/http/utils/repository-call';
 import { TestSessionRunMode, type TestSessionModel } from '@prisma/client';
-import type { BatchPayload } from '@prisma/internal/prismaNamespace';
-import type { TestSessionRepository } from '../interfaces/repository/test-session.repository.interface';
+import type { TestSessionHistoryModel, TestSessionRepository } from '../interfaces/repository/test-session.repository.interface';
 
 @injectable()
 export class PrismaTestSessionRepository implements TestSessionRepository {
@@ -27,10 +26,10 @@ export class PrismaTestSessionRepository implements TestSessionRepository {
 		return row;
 	}
 
-	async finishTest(testId: string): Promise<number> {
-		const rows: BatchPayload | null = await repositoryCall(
+	async finishTest(testId: string): Promise<TestSessionModel | null> {
+		const rows: TestSessionModel[] | null = await repositoryCall(
 			() =>
-				this.prismaService.client.testSessionModel.updateMany({
+				this.prismaService.client.testSessionModel.updateManyAndReturn({
 					where: { status: 'ACTIVE', test_id: testId },
 					data: { status: 'FINISHED', finished_at: new Date() },
 				}),
@@ -38,7 +37,7 @@ export class PrismaTestSessionRepository implements TestSessionRepository {
 			this.logger,
 		);
 
-		return rows ? rows.count : 0;
+		return rows && rows[0] ? rows[0] : null;
 	}
 
 	async nextQuestion(sessionId: string, questionId: string): Promise<TestSessionModel | null> {
@@ -54,5 +53,65 @@ export class PrismaTestSessionRepository implements TestSessionRepository {
 		);
 
 		return row;
+	}
+
+	async getTestHistory(testId: string): Promise<Array<TestSessionHistoryModel> | null> {
+		const rows = await repositoryCall(
+			() => {
+				return this.prismaService.client.testSessionModel.findMany({
+					where: { test_id: testId, finished_at: { not: null } },
+					include: {
+						test: true,
+						_count: {
+							select: {
+								registered_users: true,
+							},
+						},
+					},
+					orderBy: {
+						started_at: 'desc',
+					},
+				});
+			},
+			'PrismaTestSessionRepository getTestHistory',
+			this.logger,
+		);
+
+		return rows;
+	}
+
+	async findById(sessionId: string, testId: string): Promise<TestSessionModel | null> {
+		const row: TestSessionModel | null = await repositoryCall(
+			() => this.prismaService.client.testSessionModel.findUnique({ where: { id: sessionId, test_id: testId } }),
+			'PrismaTestSessionRepository findById',
+			this.logger,
+		);
+
+		return row;
+	}
+
+	async getTestsHistory(authorId: string): Promise<Array<TestSessionHistoryModel> | null> {
+		const rows: TestSessionHistoryModel[] | null = await repositoryCall(
+			() => {
+				return this.prismaService.client.testSessionModel.findMany({
+					where: { test: { author_id: authorId }, finished_at: { not: null } },
+					include: {
+						test: true,
+						_count: {
+							select: {
+								registered_users: true,
+							},
+						},
+					},
+					orderBy: {
+						started_at: 'desc',
+					},
+				});
+			},
+			'PrismaTestSessionRepository getTestHistory',
+			this.logger,
+		);
+
+		return rows;
 	}
 }

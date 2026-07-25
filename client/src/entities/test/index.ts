@@ -2,6 +2,8 @@ export type { TestFull, TestSettings, TestSchedulerPeriod } from "./model/test-f
 export { type Test } from "./model/test.interface";
 export { type TestExecution } from "./model/test-execution.interface";
 export type { TestExecutionOverview, TestExecutionOverviewRegisteredUser } from "./model/test-execution-overview.interface";
+export type { TestSessionOverview } from "./model/test-session-overview.interface";
+export type { TestLaunchHistory } from "./model/test-lauch-history.interface";
 export { useTestExecutionStore, type TestExecutionUser } from "./model/test-execution.store";
 
 export { useGetTestes } from "./hooks/useGetTests";
@@ -9,6 +11,9 @@ export { useGetFullTest } from "./hooks/useGetFullTest";
 export { useGetExecutionTest } from "./hooks/useGetExecutionTest";
 export { useGetTestOverview } from "./hooks/useGetTestOverview";
 export { useSetExecutionState } from "./hooks/userSetExecutionState";
+export { useGetTestHistory } from "./hooks/useGetTestHistory";
+export { useGetTestSessionOverview } from "./hooks/useGetTestSessionOverview";
+export { useGetHistory } from "./hooks/useGetHistory";
 
 export { normalizeTest, normalizeTestFull, normalizeExecutionTest, normalizeTestExecutionOverview } from "./lib/normalizeTest";
 export { getOpenPeriod } from "./lib/getOpenPeriod";

@@ -1,11 +1,14 @@
 import type { LucideIcon } from "lucide-react";
-import { ClipboardList } from "lucide-react";
+import { ClipboardList, History } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
 import { cn } from "@shared/lib/utils";
 import { Typography } from "@shared/ui/typography";
 
-const navItems: { to: string; labelKey: string; icon: LucideIcon }[] = [{ to: "/", labelKey: "sidebar.tests_link", icon: ClipboardList }];
+const navItems: { to: string; labelKey: string; icon: LucideIcon }[] = [
+	{ to: "/", labelKey: "sidebar.tests_link", icon: ClipboardList },
+	{ to: "/history", labelKey: "sidebar.history_link", icon: History },
+];
 
 export const SidebarNav = () => {
 	const { t } = useTranslation();

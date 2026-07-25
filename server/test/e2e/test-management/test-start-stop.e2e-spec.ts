@@ -228,7 +228,10 @@ describe('POST /api/test/:testId/finish', () => {
 		const finishRes = await finishTest(createRes.body.id);
 
 		expect(finishRes.statusCode).toBe(200);
-		expect(finishRes.body).toEqual({ message: 'Test finished successfully' });
+		expect(finishRes.body).toEqual({
+			message: 'Test finished successfully',
+			session_id: expect.any(String),
+		});
 	});
 
 	it('returns not finished when finishing an already finished session', async () => {
@@ -239,7 +242,10 @@ describe('POST /api/test/:testId/finish', () => {
 		const firstFinishRes = await finishTest(createRes.body.id);
 
 		expect(firstFinishRes.statusCode).toBe(200);
-		expect(firstFinishRes.body).toEqual({ message: 'Test finished successfully' });
+		expect(firstFinishRes.body).toEqual({
+			message: 'Test finished successfully',
+			session_id: expect.any(String),
+		});
 
 		const secondFinishRes = await finishTest(createRes.body.id);
 

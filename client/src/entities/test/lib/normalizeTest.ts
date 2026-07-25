@@ -2,6 +2,9 @@ import type { TestFull, TestSchedulerPeriod } from "../model/test-full.interface
 import type { Test } from "../model/test.interface";
 import type { TestExecution } from "../model/test-execution.interface";
 import type { TestExecutionOverview, TestExecutionOverviewRegisteredUser } from "../model/test-execution-overview.interface";
+
+import type { TestSessionOverview } from "../model/test-session-overview.interface";
+import type { TestLaunchHistory } from "../model/test-lauch-history.interface";
 import { normalizeScheduler } from "./normalizeScheduler";
 import {
 	TestFullResponseStatusEnum,
@@ -10,6 +13,8 @@ import {
 	type TestExecuteResponse,
 	TestExecuteResponseStatusEnum,
 	type TestExecutionOverviewResponse,
+	type TestSessionOverviewResponse,
+	type TestLaunchResponse,
 } from "@shared/api/generated";
 import { normalizeQuestion, type Question } from "@entities/question";
 import { normalizeExecutionQuestion } from "@entities/question/lib/normalizeQuestion";
@@ -42,6 +47,7 @@ export function normalizeTestFull(test: TestFullResponse): TestFull {
 			...test.settings,
 			isShowAnswersAfterCompletion: test.settings.is_show_answers_after_completion,
 		},
+		last_launch_date: test.last_launch_date ? new Date(test.last_launch_date) : null,
 	};
 }
 
@@ -82,4 +88,35 @@ export function normalizeTestExecutionOverview(response: TestExecutionOverviewRe
 	}
 
 	return normalizedOverviewTest;
+}
+
+export function normalizeTestLaunch(response: TestLaunchResponse): TestLaunchHistory {
+	return {
+		testId: response.test_id,
+		testTitle: response.test_title,
+		sessionId: response.session_id,
+		userRegisteredCount: response.user_registered_count,
+		runMode: response.run_mode,
+		startedAt: new Date(response.started_at),
+		finishedAt: new Date(response.finished_at),
+	};
+}
+
+export function normalizeTestSessionOverview(response: TestSessionOverviewResponse): TestSessionOverview {
+	const questions = response.questions.toSorted((a, b) => a.sort_key - b.sort_key);
+
+	const registeredUsers: TestExecutionOverviewRegisteredUser[] = response.registered_users.map((user) => ({
+		...user,
+		started_from: new Date(user.started_from),
+	}));
+
+	return {
+		id: response.id,
+		title: response.title,
+		run_mode: response.run_mode,
+		questions,
+		registered_users: registeredUsers,
+		started_at: new Date(response.started_at),
+		finished_at: new Date(response.finished_at),
+	};
 }

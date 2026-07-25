@@ -1,7 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { useGeneralSettingsTestForm } from "../../hooks/useGeneralSettingsQuizForm";
-import { TestSettingsAfterCompletion } from "./ui/TestSettingsAfterCompletion";
-import { Separator } from "@shared/ui/kit/separator";
 import { DefaultButton } from "@shared/ui/button";
 import { FormTextField } from "@shared/ui/form";
 import { Typography } from "@shared/ui/typography";
@@ -19,9 +17,6 @@ export const TestGeneralSettingsForm = ({ test }: TestGeneralSettingsFormProps) 
 	return (
 		<form onSubmit={submitHandler} className="flex flex-col gap-2.5">
 			<FormTextField control={control} name="title" placeholder="test_general_settings_form.title.placeholder" label="test_general_settings_form.title.label" className="mb-5" />
-			<Separator className="mt-2" />
-
-			<TestSettingsAfterCompletion control={control} />
 
 			{formError?.message && <Typography color="error">{t(formError.message)}</Typography>}
 

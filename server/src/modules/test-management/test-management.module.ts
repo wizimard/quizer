@@ -20,6 +20,7 @@ import type { TestSchedulerRepository } from './interfaces/repository/test-sched
 import { PrismaTestSchedulerRepository } from './repositories/prisma-test-scheduler.repository';
 import { DefaultTestOverviewService } from './services/test-overview.service';
 
+// TODO: refactor
 const testManagementModule: ContainerModule = new ContainerModule((options: ContainerModuleLoadOptions) => {
 	options.bind<TestRepository>(TM_TYPES.TEST_REPOSITORY).to(PrismaTestRepository).inSingletonScope();
 	options.bind<TestSessionRepository>(TM_TYPES.TEST_SESSION_REPOSITORY).to(PrismaTestSessionRepository).inSingletonScope();

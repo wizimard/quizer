@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { TestToolbar } from "./ui/TestToolbar";
+import { TestLaunchOverview } from "./ui/TestLaunchOverview";
 import { LoadingLayout } from "@shared/ui/layout";
 import { Separator } from "@shared/ui/kit/separator";
 import { useGetFullTest } from "@entities/test";
@@ -28,6 +29,8 @@ export const Test = () => {
 								<Separator />
 							</>
 						)}
+						<TestLaunchOverview testId={test.id} launch_count={test.launches_count} last_launch_date={test.last_launch_date} />
+						<Separator />
 						<QuestionsWidget test={test} />
 					</div>
 				)}

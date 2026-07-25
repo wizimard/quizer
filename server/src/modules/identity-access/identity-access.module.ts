@@ -16,6 +16,7 @@ import { AuthMiddleware } from './middleware/auth.middleware';
 import { AuthGuard } from './middleware/auth.guard';
 import { UserService } from './services/user.service';
 
+// TODO: refactor
 const identityAccessModule: ContainerModule = new ContainerModule((options: ContainerModuleLoadOptions) => {
 	options.bind<IHashService>(APP_TYPES.HASH_SERVICE).to(HashService).inSingletonScope();
 	options.bind<UserRepository>(IA_TYPES.USER_REPOSITORY).to(PrismaUserRepository).inSingletonScope();

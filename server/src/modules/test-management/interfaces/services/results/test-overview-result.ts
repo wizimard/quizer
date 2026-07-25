@@ -2,29 +2,29 @@ import type { TestFullResult } from './test-full.result';
 import type { QuestionResult } from './question.result';
 import type { TestSessionRunMode } from '@prisma/client';
 
-export interface TestExecutionOverviewAnswerResult {
+export interface TestOverviewAnswerResult {
 	questionId: string;
 	isCorrect: boolean;
 	skipped: boolean;
 	value: string;
 }
 
-export interface TestExecutionOverviewUserResult {
+export interface TestOverviewUserResult {
 	id: string;
 	firstName: string;
 	lastName: string;
-	answers: TestExecutionOverviewAnswerResult[];
+	answers: TestOverviewAnswerResult[];
 	startedFrom: Date;
 }
 
-export interface TestExecutionOverview extends TestFullResult {
+export interface TestOverviewResult extends TestFullResult {
 	runMode: TestSessionRunMode;
 	startedFrom: Date;
 }
 
 export interface TestExecutionFreeModeOverviewResult {
-	test: TestExecutionOverview;
-	users: TestExecutionOverviewUserResult[];
+	test: TestOverviewResult;
+	users: TestOverviewUserResult[];
 	questions: QuestionResult[];
 }
 
@@ -35,3 +35,9 @@ export interface TestExecutionManualModeOverviewResult extends TestExecutionFree
 }
 
 export type TestExecutionOverviewResult = TestExecutionFreeModeOverviewResult | TestExecutionManualModeOverviewResult;
+
+export interface TestSessionOverviewResult {
+	test: TestOverviewResult & { finishedAt: Date };
+	users: TestOverviewUserResult[];
+	questions: QuestionResult[];
+}

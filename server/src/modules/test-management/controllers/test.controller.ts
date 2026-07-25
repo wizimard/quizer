@@ -18,7 +18,7 @@ import { TestInputMapper } from '../mappers/input/test-input.mapper';
 import type { TestSchedulerResponse } from '../dto/http/response/test-scheduler.response-dto';
 import { SchedulerMapper } from '../mappers/scheduler.mapper';
 import type { ILogger } from '@shared/logger';
-import type { TestExecutionOverviewResponse } from '../dto/http/response/test-execution-overview-response.dto';
+import type { TestExecutionOverviewResponse } from '../dto/http/response/test-execution-overview.response-dto';
 import type { TestService } from '../interfaces/services/test.service.interface';
 import type { TestSessionService } from '../interfaces/services/test-session.service.interface';
 import { AuthGuard } from '@modules/identity-access/middleware/auth.guard';
@@ -27,6 +27,12 @@ import { ValidateMiddleware } from '@shared/http/validate.middleware';
 import { TestOwnershipGuard } from '../middlewares/test-ownership.guard';
 import type { TestOverviewService } from '../interfaces/services/test-overview.service.interface';
 import { TestNextQuestionRequestDto } from '../dto/http/request/test-next-question-request.dto';
+import { parseIdParam } from '@shared/http/utils/parse-id-param';
+import type { TestSessionOverviewResponse } from '../dto/http/response/test-session-overview.response-dto';
+import { HttpError } from '@shared/error';
+import type { TestFinishResult } from '../interfaces/services/results/test-finish.result';
+import type { TestLaunchResponse } from '../dto/http/response/test-launch.response-dto';
+import type { TestLaunchResult } from '../interfaces/services/results/test-launch.result';
 
 @injectable()
 export class TestController extends BaseController {
@@ -43,6 +49,12 @@ export class TestController extends BaseController {
 		super();
 
 		const routes: IRoute[] = [
+			{
+				url: '/history',
+				method: 'get',
+				handler: this.getTestsHistory,
+				middlewares: [this.authGuard],
+			},
 			{
 				url: '/:testId',
 				method: 'get',
@@ -108,6 +120,18 @@ export class TestController extends BaseController {
 				method: 'post',
 				handler: this.nextQuestion,
 				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, new ValidateMiddleware(TestNextQuestionRequestDto)],
+			},
+			{
+				url: '/:testId/history',
+				method: 'get',
+				handler: this.getTestHistory,
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard],
+			},
+			{
+				url: '/:testId/history/:sessionId',
+				method: 'get',
+				handler: this.getTestSessionOverview,
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard],
 			},
 		];
 
@@ -211,11 +235,11 @@ export class TestController extends BaseController {
 	async finishTest(req: Request, res: Response, _next: NextFunction): Promise<void> {
 		this.logger.info('[TestController finishTest] start');
 
-		const isFinished: boolean = await this.testSessionService.finishTest(TestInputMapper.toFinishInput(req.test!));
+		const finishResult: TestFinishResult = await this.testSessionService.finishTest(TestInputMapper.toFinishInput(req.test!));
 
-		this.logger.info({ message: '[TestController finishTest] send is finished response:', data: isFinished });
+		this.logger.info({ message: '[TestController finishTest] send is finished response:', data: finishResult });
 
-		this.ok(res, { message: isFinished ? 'Test finished successfully' : 'Test not finished' });
+		this.ok(res, { message: 'Test finished successfully', session_id: finishResult.sessionId });
 	}
 
 	async getTestExecutionOverview(req: Request, res: Response, _next: NextFunction): Promise<void> {
@@ -238,6 +262,48 @@ export class TestController extends BaseController {
 		const response: TestExecutionOverviewResponse = TestMapper.toTestExecutionOverviewResponse(state);
 
 		this.logger.info({ message: '[TestController nextQuestion] end:', data: response });
+
+		this.ok(res, response);
+	}
+
+	async getTestHistory(req: Request, res: Response, _next: NextFunction): Promise<void> {
+		this.logger.info('[TestController getTestHistory] start');
+
+		const state = await this.testOverviewService.getTestHistory(TestInputMapper.toGetTestHistoryInput(req.test!.id));
+
+		const response: Array<TestLaunchResponse> = state.map((launch: TestLaunchResult) => TestMapper.toTestLaunchResponse(launch));
+
+		this.logger.info({ message: '[TestController getTestHistory] end:', data: response });
+
+		this.ok(res, response);
+	}
+
+	async getTestSessionOverview(req: Request, res: Response, _next: NextFunction): Promise<void> {
+		this.logger.info('[TestController getTestSessionOverview] start');
+
+		const sessionId = parseIdParam(req, 'sessionId');
+
+		if (!sessionId) {
+			throw new HttpError(400, 'errors.session_id_required', '[TestController getTestSessionOverview]');
+		}
+
+		const state = await this.testOverviewService.getTestSessionOverview(TestInputMapper.toGetTestSessionOverviewInput(req.test!.id, sessionId));
+
+		const response: TestSessionOverviewResponse = TestMapper.toTestSessionOverviewResponse(state);
+
+		this.logger.info({ message: '[TestController getTestSessionOverview] end:', data: response });
+
+		this.ok(res, response);
+	}
+
+	async getTestsHistory(req: Request, res: Response, _next: NextFunction): Promise<void> {
+		this.logger.info('[TestController getTestsHistory] start');
+
+		const state = await this.testOverviewService.getTestsHistory({ authorId: req.user!.id });
+
+		const response: Array<TestLaunchResponse> = state.map((launch: TestLaunchResult) => TestMapper.toTestLaunchResponse(launch));
+
+		this.logger.info({ message: '[TestController getTestsHistory] end:', data: response });
 
 		this.ok(res, response);
 	}

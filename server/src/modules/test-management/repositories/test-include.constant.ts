@@ -12,7 +12,6 @@ export const FULL_TEST_INCLUDE = {
 export const SHORT_TEST_INCLUDE = {
 	test_sessions: {
 		orderBy: { started_at: 'desc' },
-		take: 1,
 	},
 	test_settings: true,
 } as const;

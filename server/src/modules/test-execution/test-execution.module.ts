@@ -5,6 +5,7 @@ import { DefaultTestExecuteService } from './services/test-execute.service';
 import { PrismaTestRegisterRepository } from './repositories/prisma-test-register.repository';
 import { PrismaAnswerRepository } from './repositories/prisma-answer.repository';
 
+// TODO: refactor
 const testExecutionModule: ContainerModule = new ContainerModule((options: ContainerModuleLoadOptions) => {
 	options.bind(TE_TYPES.TEST_EXECUTE_CONTROLLER).to(TestExecuteController).inSingletonScope();
 	options.bind(TE_TYPES.TEST_EXECUTION_SERVICE).to(DefaultTestExecuteService).inSingletonScope();

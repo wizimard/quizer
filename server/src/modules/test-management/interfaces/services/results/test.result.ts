@@ -5,6 +5,8 @@ export interface TestResult {
 	authorId: string;
 	status: TestStatus;
 	title: string;
+	launchesCount: number;
+	lastLaunchDate: Date | null;
 	updatedAt: Date;
 	createdAt: Date;
 }

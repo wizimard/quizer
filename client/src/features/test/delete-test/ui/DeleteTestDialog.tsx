@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 import { useTestDelete } from "../api/test-delete";
 import { DefaultButton } from "@shared/ui/button";
 import { Dialog, DialogContent, DialogFooter } from "@shared/ui/kit/dialog";
@@ -18,6 +19,12 @@ export const DeleteTestDialog = ({ testId }: DeleteTestDialogProps) => {
 	const handleRemove = async () => {
 		handleDelete(testId);
 	};
+
+	useEffect(() => {
+		return () => {
+			closeDialog();
+		};
+	}, []);
 
 	return (
 		<Dialog open={isOpen} onOpenChange={closeDialog}>

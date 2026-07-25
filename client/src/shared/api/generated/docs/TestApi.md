@@ -5,11 +5,14 @@ All URIs are relative to *http://localhost:8031/api*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**testGet**](#testget) | **GET** /test | Get author\&#39;s tests|
+|[**testHistoryGet**](#testhistoryget) | **GET** /test/history | Get tests history|
 |[**testPost**](#testpost) | **POST** /test | Create test|
 |[**testTestIdDelete**](#testtestiddelete) | **DELETE** /test/{testId} | Delete test|
 |[**testTestIdExecutionOverviewGet**](#testtestidexecutionoverviewget) | **GET** /test/{testId}/execution-overview | Get test execution overview|
 |[**testTestIdFinishPost**](#testtestidfinishpost) | **POST** /test/{testId}/finish | Finish test|
 |[**testTestIdGet**](#testtestidget) | **GET** /test/{testId} | Get test by id|
+|[**testTestIdHistoryGet**](#testtestidhistoryget) | **GET** /test/{testId}/history | Get test history|
+|[**testTestIdHistorySessionIdGet**](#testtestidhistorysessionidget) | **GET** /test/{testId}/history/{sessionId} | Get test session overview|
 |[**testTestIdNextQuestionPost**](#testtestidnextquestionpost) | **POST** /test/{testId}/next-question | Move to next question|
 |[**testTestIdPatch**](#testtestidpatch) | **PATCH** /test/{testId} | Update test|
 |[**testTestIdSchedulerPeriodsPatch**](#testtestidschedulerperiodspatch) | **PATCH** /test/{testId}/scheduler/periods | Update test scheduler periods|
@@ -56,6 +59,51 @@ This endpoint does not have any parameters.
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | OK |  -  |
+|**401** | Unauthorized |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **testHistoryGet**
+> Array<TestLaunchResponse> testHistoryGet()
+
+Get finished launches across all tests owned by the current user, ordered by started_at descending.
+
+### Example
+
+```typescript
+import {
+    TestApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new TestApi(configuration);
+
+const { status, data } = await apiInstance.testHistoryGet();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**Array<TestLaunchResponse>**
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Tests history |  -  |
 |**401** | Unauthorized |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -222,9 +270,9 @@ const { status, data } = await apiInstance.testTestIdExecutionOverviewGet(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **testTestIdFinishPost**
-> MessageResponse testTestIdFinishPost()
+> TestFinishResponse testTestIdFinishPost()
 
-Close test for execution.
+Close an active test session and return the finished session id.
 
 ### Example
 
@@ -253,7 +301,7 @@ const { status, data } = await apiInstance.testTestIdFinishPost(
 
 ### Return type
 
-**MessageResponse**
+**TestFinishResponse**
 
 ### Authorization
 
@@ -269,6 +317,7 @@ const { status, data } = await apiInstance.testTestIdFinishPost(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Test finished |  -  |
+|**400** | Test is closed or has no active session |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden |  -  |
 |**404** | Not found |  -  |
@@ -322,6 +371,118 @@ const { status, data } = await apiInstance.testTestIdGet(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Test found |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden |  -  |
+|**404** | Not found |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **testTestIdHistoryGet**
+> Array<TestLaunchResponse> testTestIdHistoryGet()
+
+Get finished launches for a test owned by the current user, ordered by started_at descending.
+
+### Example
+
+```typescript
+import {
+    TestApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new TestApi(configuration);
+
+let testId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.testTestIdHistoryGet(
+    testId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **testId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**Array<TestLaunchResponse>**
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Test history |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden |  -  |
+|**404** | Not found |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **testTestIdHistorySessionIdGet**
+> TestSessionOverviewResponse testTestIdHistorySessionIdGet()
+
+Get overview for a finished test session owned by the current user, including questions and registered users with their answers.
+
+### Example
+
+```typescript
+import {
+    TestApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new TestApi(configuration);
+
+let testId: string; // (default to undefined)
+let sessionId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.testTestIdHistorySessionIdGet(
+    testId,
+    sessionId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **testId** | [**string**] |  | defaults to undefined|
+| **sessionId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**TestSessionOverviewResponse**
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Test session overview |  -  |
+|**400** | Invalid or missing session id |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden |  -  |
 |**404** | Not found |  -  |

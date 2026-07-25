@@ -19,6 +19,9 @@ const TestPage = lazy(() => import("@pages/Test"));
 const TestQrCodePage = lazy(() => import("@pages/TestQrCode"));
 const TestExecutePage = lazy(() => import("@pages/TestExecute"));
 const TestExecutionOverviewPage = lazy(() => import("@pages/TestExecutionOverviewPage"));
+const TestHistoryPage = lazy(() => import("@pages/TestHistory"));
+const TestSessionOverviewPage = lazy(() => import("@pages/TestSessionOverview"));
+const HistoryPage = lazy(() => import("@pages/History"));
 
 export const appRoutes: IAppRoutes = {
 	public: [
@@ -35,6 +38,18 @@ export const appRoutes: IAppRoutes = {
 		{
 			path: "/test-execution-overview/:id",
 			element: TestExecutionOverviewPage,
+		},
+		{
+			path: "/test-history/:testId/:sessionId",
+			element: TestSessionOverviewPage,
+		},
+		{
+			path: "/test-history/:testId",
+			element: TestHistoryPage,
+		},
+		{
+			path: "/history",
+			element: HistoryPage,
 		},
 		{
 			path: "/test/:id",

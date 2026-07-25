@@ -16,9 +16,12 @@ import type { QuestionResult } from '../interfaces/services/results/question.res
 import type { TestSchedulerResultPeriod } from '../interfaces/services/results/test-scheduler.result';
 import { SchedulerPeriodMapper } from './scheduler-period.mapper';
 import type { CreateTestInput } from '../interfaces/services/input/create-test.input';
-import type { TestExecutionOverviewResult } from '../interfaces/services/results/test-overview-result';
-import type { TestExecutionOverviewManualModeResponse, TestExecutionOverviewResponse } from '../dto/http/response/test-execution-overview-response.dto';
+import type { TestExecutionOverviewResult, TestSessionOverviewResult } from '../interfaces/services/results/test-overview-result';
+import type { TestExecutionOverviewManualModeResponse, TestExecutionOverviewResponse } from '../dto/http/response/test-execution-overview.response-dto';
 import { Helper } from '@shared/utils/helper';
+import type { TestSessionOverviewResponse } from '../dto/http/response/test-session-overview.response-dto';
+import type { TestLaunchResult } from '../interfaces/services/results/test-launch.result';
+import type { TestLaunchResponse } from '../dto/http/response/test-launch.response-dto';
 
 export class TestMapper {
 	static toDomain(testModel: TestModelAll | TestModel): TestEntity {
@@ -56,6 +59,8 @@ export class TestMapper {
 			authorId: test.authorId,
 			title: test.title,
 			status: test.status,
+			launchesCount: test.sessions.length,
+			lastLaunchDate: test.sessions[0]?.startedAt ?? null,
 			createdAt: test.createdAt,
 			updatedAt: test.updatedAt,
 		};
@@ -83,6 +88,8 @@ export class TestMapper {
 			author_id: test.authorId,
 			title: test.title,
 			isOpen: test.status === 'open' || test.status === 'open_by_scheduler',
+			launches_count: test.launchesCount,
+			last_launch_date: test.lastLaunchDate,
 			updated_at: test.updatedAt,
 			created_at: test.createdAt,
 		};
@@ -98,6 +105,8 @@ export class TestMapper {
 			author_id: test.authorId,
 			title: test.title,
 			status: test.status,
+			launches_count: test.launchesCount,
+			last_launch_date: test.lastLaunchDate,
 			questions: test.questions.map(
 				(question: QuestionResult): QuestionResponse => ({
 					id: question.id,
@@ -163,5 +172,48 @@ export class TestMapper {
 		}
 
 		return overviewResponse;
+	}
+
+	static toTestLaunchResponse(testLaunch: TestLaunchResult): TestLaunchResponse {
+		return {
+			test_id: testLaunch.testId,
+			test_title: testLaunch.testTitle,
+			session_id: testLaunch.sessionId,
+			run_mode: testLaunch.runMode,
+			user_registered_count: testLaunch.userRegisteredCount,
+			started_at: testLaunch.startedAt,
+			finished_at: testLaunch.finishedAt,
+		};
+	}
+
+	static toTestSessionOverviewResponse(testSessionOverview: TestSessionOverviewResult): TestSessionOverviewResponse {
+		return {
+			id: testSessionOverview.test.id,
+			title: testSessionOverview.test.title,
+			run_mode: testSessionOverview.test.runMode,
+			questions: testSessionOverview.questions.map((question) => {
+				return {
+					id: question.id,
+					sort_key: question.sortKey,
+				};
+			}),
+			registered_users: testSessionOverview.users.map((user) => {
+				return {
+					id: user.id,
+					first_name: user.firstName,
+					last_name: user.lastName,
+					started_from: user.startedFrom,
+					answers: user.answers.map((answer) => {
+						return {
+							question_id: answer.questionId,
+							is_correct: answer.isCorrect,
+							skipped: answer.skipped,
+						};
+					}),
+				};
+			}),
+			started_at: testSessionOverview.test.startedFrom,
+			finished_at: testSessionOverview.test.finishedAt,
+		};
 	}
 }

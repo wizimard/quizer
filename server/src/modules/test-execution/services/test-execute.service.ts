@@ -99,10 +99,11 @@ export class DefaultTestExecuteService implements TestExecuteService {
 
 		this.logger.info(`[DefaultTestExecuteService getCurrentQuestion] session ${session.id} run mode is free`);
 
+		// TODO: optimize
 		for (const question of questions) {
 			if (!answers.find((answer) => answer.questionId === question.id)) {
 				this.logger.info(`[DefaultTestExecuteService getCurrentQuestion] found current question ${question.id} for session ${session.id}`);
-				return { question: question, questionIndex: questions.findIndex((question) => question.id === question.id) + 1 };
+				return { question: question, questionIndex: questions.findIndex((item) => item.id === question.id) + 1 };
 			}
 		}
 

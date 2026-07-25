@@ -13,6 +13,7 @@ import type { TestExecutionManualModeOverviewResult, TestExecutionOverviewResult
 import type { TestOverviewService } from '../interfaces/services/test-overview.service.interface';
 import { TestSessionRunMode, type TestSessionModel } from '@prisma/client';
 import { HttpError } from '@shared/error';
+import type { TestFinishResult } from '../interfaces/services/results/test-finish.result';
 
 @injectable()
 export class DefaultTestSessionService implements TestSessionService {
@@ -36,22 +37,22 @@ export class DefaultTestSessionService implements TestSessionService {
 		return !!test;
 	}
 
-	async finishTest(input: FinishTestInput): Promise<boolean> {
+	async finishTest(input: FinishTestInput): Promise<TestFinishResult> {
 		this.logger.info({ message: '[TestSessionService finishTest] start', data: input });
 
 		if (!input.test.isOpen) {
 			throw new TestClosedError('TestSessionService finishTest', 'errors.finish_test_closed');
 		}
 
-		const count = await this.testSessionRepository.finishTest(input.test.id);
+		const session = await this.testSessionRepository.finishTest(input.test.id);
 
-		if (count > 0) {
-			this.logger.info(`Test ${input.test.id} has a few active sessions, finished ${count} sessions`);
+		if (!session) {
+			throw new HttpError(400, 'TestSessionService finishTest', 'errors.test_not_opened');
 		}
 
-		this.logger.info({ message: '[TestSessionService finishTest] test finished', data: count });
+		this.logger.info({ message: '[TestSessionService finishTest] test finished', data: session });
 
-		return count > 0;
+		return { sessionId: session.id };
 	}
 
 	async nextQuestion(input: NextQuestionInput): Promise<TestExecutionOverviewResult> {

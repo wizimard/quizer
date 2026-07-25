@@ -11,4 +11,6 @@ export const QUERY_KEYS = {
 	GET_TEST_EXECUTION: "test-execution",
 	GET_AUTHOR_TESTS: "author-tests",
 	GET_TEST_EXECUTION_OVERVIEW: "test-execution-overview",
+	GET_TEST_HISTORY: "test-history",
+	GET_HISTORY: "history",
 } as const;

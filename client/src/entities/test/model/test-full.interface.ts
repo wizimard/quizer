@@ -10,7 +10,7 @@ export interface TestSettings extends TestSettingsResponse {
 	isShowAnswersAfterCompletion: boolean;
 }
 
-export interface TestFull extends Omit<TestFullResponse, "settings" | "scheduler" | "author_id" | "updated_at" | "created_at" | "questions"> {
+export interface TestFull extends Omit<TestFullResponse, "settings" | "scheduler" | "author_id" | "updated_at" | "created_at" | "questions" | "last_launch_date"> {
 	isOpen: boolean;
 	authorId: string;
 	settings: TestSettings;
@@ -18,4 +18,5 @@ export interface TestFull extends Omit<TestFullResponse, "settings" | "scheduler
 	updatedAt: Date;
 	createdAt: Date;
 	questions: Array<Question>;
+	last_launch_date: Date | null;
 }

@@ -4,6 +4,7 @@ import { TestSchedulerPeriods } from "./ui/TestAvailablePeriods";
 import { DefaultButton } from "@shared/ui/button";
 import { type TestFull } from "@entities/test";
 import { Typography } from "@shared/ui/typography";
+import { SectionUnderDevelopment } from "@shared/ui/placeholder";
 
 export interface TestScheduleFormProps {
 	test: TestFull;
@@ -14,20 +15,28 @@ export const TestScheduleForm = ({ test }: TestScheduleFormProps) => {
 
 	const { control, submitHandler, resetForm, isSubmitting, isDirty, formError, remove } = useTestScheduleForm(test);
 
+	const isEnabled = false;
+
 	return (
 		<form onSubmit={submitHandler} className="flex flex-col gap-2.5">
-			<TestSchedulerPeriods control={control} remove={remove} />
+			{isEnabled ? (
+				<>
+					<TestSchedulerPeriods control={control} remove={remove} />
 
-			{formError?.message && <Typography color="error">{t(formError.message)}</Typography>}
+					{formError?.message && <Typography color="error">{t(formError.message)}</Typography>}
 
-			<div className="mt-2.5 flex gap-2.5">
-				<DefaultButton type="submit" isLoading={isSubmitting} disabled={!isDirty} onClick={submitHandler}>
-					{t("common.button_save")}
-				</DefaultButton>
-				<DefaultButton variant="ghost" className="text-zinc-900" disabled={!isDirty} onClick={resetForm}>
-					{t("common.button_cancel")}
-				</DefaultButton>
-			</div>
+					<div className="mt-2.5 flex gap-2.5">
+						<DefaultButton type="submit" isLoading={isSubmitting} disabled={!isDirty} onClick={submitHandler}>
+							{t("common.button_save")}
+						</DefaultButton>
+						<DefaultButton variant="ghost" className="text-zinc-900" disabled={!isDirty} onClick={resetForm}>
+							{t("common.button_cancel")}
+						</DefaultButton>
+					</div>
+				</>
+			) : (
+				<SectionUnderDevelopment />
+			)}
 		</form>
 	);
 };
