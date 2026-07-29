@@ -19,7 +19,7 @@ import { QuestionMapper } from '../mappers/question.mapper';
 import { TestMapper } from '../mappers/test.mapper';
 import { TestClosedError } from '../utils/errors/test-closed.error';
 import { APP_TYPES } from '@app/app.types';
-import { TE_TYPES, type TestExecuteService } from '@modules/test-execution';
+import { TE_TYPES, type TestRegisterService } from '@modules/test-execution';
 import { TestSessionEntity } from '../entities/test-session.entity';
 import { TestSessionRunMode } from '@prisma/client';
 import type { GetTestHistoryInput } from '../interfaces/services/input/get-test-history.input';
@@ -33,7 +33,7 @@ import type { TestLaunchResult } from '../interfaces/services/results/test-launc
 export class DefaultTestOverviewService implements TestOverviewService {
 	constructor(
 		@inject(TM_TYPES.TEST_REPOSITORY) private readonly testRepository: TestRepository,
-		@inject(TE_TYPES.TEST_EXECUTION_SERVICE) private readonly testExecuteService: TestExecuteService,
+		@inject(TE_TYPES.TEST_REGISTER_SERVICE) private readonly testRegisterService: TestRegisterService,
 		@inject(TM_TYPES.TEST_SESSION_REPOSITORY) private readonly testSessionRepository: TestSessionRepository,
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
 	) {}
@@ -57,7 +57,7 @@ export class DefaultTestOverviewService implements TestOverviewService {
 			throw new TestClosedError('DefaultTestOverviewService getTestExecutionOverview', 'errors.test_not_opened');
 		}
 
-		const registeredUsers: TestExecutionUser[] = await this.testExecuteService.getRegisteredSessionUsers(session.id);
+		const registeredUsers: TestExecutionUser[] = await this.testRegisterService.getRegisteredSessionUsers(session.id);
 
 		const users: TestOverviewUserResult[] = registeredUsers.map((user) => {
 			const answers: TestOverviewAnswerResult[] = [];
@@ -179,7 +179,7 @@ export class DefaultTestOverviewService implements TestOverviewService {
 			throw new HttpError(400, 'errors.session_not_finished', '[DefaultTestOverviewService getTestSessionOverview]');
 		}
 
-		const registeredUsers: TestExecutionUser[] = await this.testExecuteService.getRegisteredSessionUsers(session.id);
+		const registeredUsers: TestExecutionUser[] = await this.testRegisterService.getRegisteredSessionUsers(session.id);
 
 		const users: TestOverviewUserResult[] = registeredUsers.map((user) => {
 			const answers: TestOverviewAnswerResult[] = [];

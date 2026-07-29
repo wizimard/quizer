@@ -3,31 +3,21 @@ import { TM_TYPES } from '../test-management.types';
 import { TestValidationFailedError } from '../utils/errors/test-validation-failed.error';
 import type { TestRepository } from '../interfaces/repository/test.repository.interface';
 import { TestValidator } from '../utils/validators/test.validator';
-import { SchedulerPeriodMapper } from '../mappers/scheduler-period.mapper';
-import type { TestSchedulerPeriodModel } from '@prisma/client';
 import type { DeleteTestInput } from '../interfaces/services/input/delete-test.input';
 import type { CreateTestInput } from '../interfaces/services/input/create-test.input';
 import type { GetAuthorTestsInput } from '../interfaces/services/input/get-author-tests.input';
-import type { UpdateTestSchedulerInput } from '../interfaces/services/input/update-test-scheduler.input';
-import type { UpdateTestSettingsInput } from '../interfaces/services/input/update-test-settings.input';
 import type { UpdateTestInput } from '../interfaces/services/input/update-test.input';
 import type { ITestValidationError } from '../interfaces/error/test-validation.error.interface';
 import type { TestService } from '../interfaces/services/test.service.interface';
 import type { TestFullResult } from '../interfaces/services/results/test-full.result';
 import type { TestResult } from '../interfaces/services/results/test.result';
-import type { TestSchedulerResultPeriod } from '../interfaces/services/results/test-scheduler.result';
 import { TestMapper } from '../mappers/test.mapper';
 import type { GetTestByIdInput } from '../interfaces/services/input/get-test-by-id.input';
-import { SchedulerEditPeriodsValidationFailedError } from '../utils/errors/scheduler-edit-periods-validation-failed.error';
-import type { TestSchedulerPeriod } from '../entities/test-scheduler-period';
-import { SchedulerPeriodNotFoundError } from '../utils/errors/scheduler-period-not-found.error';
 import { TestOpenError } from '../utils/errors/test-open.error';
 import type { ILogger } from '@shared/logger';
 import { APP_TYPES } from '@app/app.types';
 import type { GetFullTestByIdInput } from '../interfaces/services/input/get-full-test-by-id.input';
 import { HttpError } from '@shared/error';
-import type { TestSettingsRepository } from '../interfaces/repository/test-settings.repository.interface';
-import type { TestSchedulerRepository } from '../interfaces/repository/test-scheduler.repository.interface';
 import type { TestEntity } from '../entities/test.entity';
 import { TestNotFoundError } from '../utils/errors/test-not-found.error';
 import { TestNotOwnedError } from '../utils/errors/test-not-owned.error';
@@ -36,8 +26,6 @@ import { TestNotOwnedError } from '../utils/errors/test-not-owned.error';
 export class DefaultTestService implements TestService {
 	constructor(
 		@inject(TM_TYPES.TEST_REPOSITORY) private readonly testRepository: TestRepository,
-		@inject(TM_TYPES.TEST_SETTINGS_REPOSITORY) private readonly testSettingsRepository: TestSettingsRepository,
-		@inject(TM_TYPES.TEST_SCHEDULER_REPOSITORY) private readonly testSchedulerRepository: TestSchedulerRepository,
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
 	) {}
 
@@ -100,66 +88,6 @@ export class DefaultTestService implements TestService {
 		const tests: TestEntity[] = await this.testRepository.findByAuthor(input.authorId);
 
 		return tests.map(TestMapper.toResult);
-	}
-
-	async updateSettings(input: UpdateTestSettingsInput): Promise<TestFullResult> {
-		this.logger.info({ message: '[TestService updateSettings] start', data: input });
-
-		const test: TestEntity = input.test;
-
-		const updatedTest: TestEntity | null = await this.testSettingsRepository.updateSettings(test.id, input);
-
-		if (!updatedTest) {
-			throw new HttpError(500, 'test_not_updated', 'TestService.updateSettings');
-		}
-
-		this.logger.info({ message: '[TestService updateSettings] test updated', data: updatedTest });
-
-		return TestMapper.toFullResult(updatedTest);
-	}
-
-	async updateSchedulerPeriods(input: UpdateTestSchedulerInput): Promise<Array<TestSchedulerResultPeriod>> {
-		this.logger.info({ message: '[TestService updateSchedulerPeriods] start', data: input });
-
-		const schedulerPeriods: Array<TestSchedulerPeriod> = (await this.testSchedulerRepository.getScheduler(input.test.id)).map(SchedulerPeriodMapper.toDomain);
-
-		const checkDate = new Date();
-		checkDate.setTime(checkDate.getTime() + 5 * 60 * 1000);
-
-		for (const period of input.schedulerPeriods.update ?? []) {
-			const currentPeriod = schedulerPeriods.find((p) => p.id === period.id);
-
-			if (!currentPeriod) {
-				throw new SchedulerPeriodNotFoundError('TestService.updateSchedulerPeriods');
-			}
-
-			if (currentPeriod.availableFrom <= checkDate) {
-				throw new SchedulerEditPeriodsValidationFailedError('errors.scheduler_update_periods_time');
-			}
-		}
-
-		for (const deletePeriodId of input.schedulerPeriods.remove ?? []) {
-			const currentPeriod = schedulerPeriods.find((p) => p.id === deletePeriodId);
-
-			if (!currentPeriod) {
-				throw new SchedulerPeriodNotFoundError('TestService.updateSchedulerPeriods');
-			}
-
-			if (currentPeriod.availableFrom <= checkDate) {
-				throw new SchedulerEditPeriodsValidationFailedError('errors.scheduler_update_periods_time');
-			}
-		}
-
-		const test: TestEntity = input.test;
-
-		const updatedSchedulerPeriods: Array<TestSchedulerPeriodModel> = await this.testSchedulerRepository.updateSchedulerPeriods(
-			test.id,
-			SchedulerPeriodMapper.toRepositoryUpdateData(test.id, input),
-		);
-
-		this.logger.info({ message: '[TestService updateSchedulerPeriods] scheduler periods updated', data: updatedSchedulerPeriods });
-
-		return updatedSchedulerPeriods.map(SchedulerPeriodMapper.toDomain).map(SchedulerPeriodMapper.toResult);
 	}
 
 	async getFullByIdAndCheckOwnership(input: GetFullTestByIdInput): Promise<TestFullResult> {

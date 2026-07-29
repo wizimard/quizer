@@ -26,6 +26,8 @@ import type { IMiddleware } from '@shared/http/middleware.interface';
 import { ValidateMiddleware } from '@shared/http/validate.middleware';
 import { TestOwnershipGuard } from '../middlewares/test-ownership.guard';
 import type { TestOverviewService } from '../interfaces/services/test-overview.service.interface';
+import type { TestSettingsService } from '../interfaces/services/test-settings.service.interface';
+import type { TestSchedulerService } from '../interfaces/services/test-scheduler.service.interface';
 import { TestNextQuestionRequestDto } from '../dto/http/request/test-next-question-request.dto';
 import { parseIdParam } from '@shared/http/utils/parse-id-param';
 import type { TestSessionOverviewResponse } from '../dto/http/response/test-session-overview.response-dto';
@@ -43,6 +45,8 @@ export class TestController extends BaseController {
 		@inject(TM_TYPES.TEST_SERVICE) private readonly testService: TestService,
 		@inject(TM_TYPES.TEST_SESSION_SERVICE) private readonly testSessionService: TestSessionService,
 		@inject(TM_TYPES.TEST_OVERVIEW_SERVICE) private readonly testOverviewService: TestOverviewService,
+		@inject(TM_TYPES.TEST_SETTINGS_SERVICE) private readonly testSettingsService: TestSettingsService,
+		@inject(TM_TYPES.TEST_SCHEDULER_SERVICE) private readonly testSchedulerService: TestSchedulerService,
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
 		@inject(TM_TYPES.TEST_MIDDLEWARE) private readonly testMiddleware: IMiddleware,
 	) {
@@ -201,7 +205,7 @@ export class TestController extends BaseController {
 	async updateTestSettings(req: Request<any, object, TestSettingsUpdateRequestDto>, res: Response, _next: NextFunction): Promise<void> {
 		this.logger.info('[TestController updateTestSettings] start');
 
-		const dto = await this.testService.updateSettings(TestInputMapper.toUpdateSettingsInput(req.test!, req.body));
+		const dto = await this.testSettingsService.updateSettings(TestInputMapper.toUpdateSettingsInput(req.test!, req.body));
 
 		const updatedTest: TestFullResponse = TestMapper.toFullResponse(dto);
 
@@ -213,7 +217,7 @@ export class TestController extends BaseController {
 	async updateTestSchedulerPeriods(req: Request<any, object, TestSchedulerPeriodsEditRequestDto>, res: Response, _next: NextFunction): Promise<void> {
 		this.logger.info('[TestController updateTestSchedulerPeriods] start');
 
-		const dto = await this.testService.updateSchedulerPeriods(TestInputMapper.toUpdateSchedulerPeriodsInput(req.test!, req.body));
+		const dto = await this.testSchedulerService.updateSchedulerPeriods(TestInputMapper.toUpdateSchedulerPeriodsInput(req.test!, req.body));
 
 		const schedulerResponse: TestSchedulerResponse = SchedulerMapper.toResponse(dto);
 

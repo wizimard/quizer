@@ -12,6 +12,8 @@ import { TestOpenGuard } from '../middlewares/test-open.guard';
 import { QuestionAnswerRequestDto } from '../dto/request/question-answer-request.dto';
 import { ValidateMiddleware } from '@shared/http/validate.middleware';
 import type { TestExecuteService } from '../interfaces/services/test-execute.service.interface';
+import type { TestRegisterService } from '../interfaces/services/test-register.service.interface';
+import type { TestAnswerService } from '../interfaces/services/test-answer.service.interface';
 
 @injectable()
 export class TestExecuteController extends BaseController {
@@ -19,6 +21,8 @@ export class TestExecuteController extends BaseController {
 
 	constructor(
 		@inject(TE_TYPES.TEST_EXECUTION_SERVICE) private readonly testExecutionService: TestExecuteService,
+		@inject(TE_TYPES.TEST_REGISTER_SERVICE) private readonly testRegisterService: TestRegisterService,
+		@inject(TE_TYPES.TEST_ANSWER_SERVICE) private readonly testAnswerService: TestAnswerService,
 		@inject(TM_TYPES.TEST_MIDDLEWARE) private readonly testMiddleware: IMiddleware,
 	) {
 		super();
@@ -53,7 +57,7 @@ export class TestExecuteController extends BaseController {
 	}
 
 	async registerUserForTest(req: Request<unknown, unknown, TestRegisterRequestDto>, res: Response, _next: NextFunction): Promise<void> {
-		const result = await this.testExecutionService.registerUserForTest(TestExecutionUserMapper.toTestRegisterUserInput(req.test!, req.body));
+		const result = await this.testRegisterService.registerUserForTest(TestExecutionUserMapper.toTestRegisterUserInput(req.test!, req.body));
 
 		this.ok(res, TestExecutionUserMapper.toResponse(result));
 	}
@@ -61,7 +65,7 @@ export class TestExecuteController extends BaseController {
 	async answerQuestion(req: Request<any, unknown, QuestionAnswerRequestDto>, res: Response, _next: NextFunction): Promise<void> {
 		const questionId = parseIdParam(req, 'questionId');
 
-		const result = await this.testExecutionService.answerQuestion(TestExecutionUserMapper.toAnswerQuestionInput(req.test!.id, questionId, req.body));
+		const result = await this.testAnswerService.answerQuestion(TestExecutionUserMapper.toAnswerQuestionInput(req.test!.id, questionId, req.body));
 
 		this.ok(res, TestExecutionUserMapper.toResponse(result));
 	}

@@ -19,6 +19,8 @@ import { PrismaTestSettingsRepository } from './repositories/prisma-test-setting
 import type { TestSchedulerRepository } from './interfaces/repository/test-scheduler.repository.interface';
 import { PrismaTestSchedulerRepository } from './repositories/prisma-test-scheduler.repository';
 import { DefaultTestOverviewService } from './services/test-overview.service';
+import { DefaultTestSettingsService } from './services/test-settings.service';
+import { DefaultTestSchedulerService } from './services/test-scheduler.service';
 
 // TODO: refactor
 const testManagementModule: ContainerModule = new ContainerModule((options: ContainerModuleLoadOptions) => {
@@ -36,6 +38,8 @@ const testManagementModule: ContainerModule = new ContainerModule((options: Cont
 	options.bind(TM_TYPES.TEST_SESSION_SERVICE).to(DefaultTestSessionService).inSingletonScope();
 	options.bind(TM_TYPES.QUESTION_EXISTS_GUARD).to(QuestionExistsGuard).inSingletonScope();
 	options.bind(TM_TYPES.TEST_OVERVIEW_SERVICE).to(DefaultTestOverviewService).inSingletonScope();
+	options.bind(TM_TYPES.TEST_SETTINGS_SERVICE).to(DefaultTestSettingsService).inSingletonScope();
+	options.bind(TM_TYPES.TEST_SCHEDULER_SERVICE).to(DefaultTestSchedulerService).inSingletonScope();
 });
 
 export { testManagementModule, TM_TYPES };
