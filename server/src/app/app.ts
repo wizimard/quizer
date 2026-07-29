@@ -10,6 +10,7 @@ import cookieParser from 'cookie-parser';
 import type { IMiddleware } from '@shared/http/middleware.interface';
 import type { IConfigService } from '@shared/config';
 import type { IExceptionFilter } from '@shared/error';
+import type { IWebSocketService } from '@shared/websocket';
 import cors from 'cors';
 import { TM_TYPES } from '@modules/test-management/test-management.types';
 import { TE_TYPES } from '@modules/test-execution/test-execution.types';
@@ -31,6 +32,7 @@ export class App {
 		@inject(APP_TYPES.CONFIG) private readonly configService: IConfigService,
 		@inject(APP_TYPES.EXCEPTION_FILTER) private readonly exceptionFilter: IExceptionFilter,
 		@inject(APP_TYPES.SWAGGER) private readonly swaggerController: IController,
+		@inject(APP_TYPES.WEBSOCKET) private readonly webSocketService: IWebSocketService,
 		@inject(TM_TYPES.TEST_CONTROLLER) private readonly testController: IController,
 		@inject(TM_TYPES.QUESTION_CONTROLLER) private readonly questionController: IController,
 		@inject(TE_TYPES.TEST_EXECUTE_CONTROLLER) private readonly testExecuteController: IController,
@@ -51,12 +53,16 @@ export class App {
 				resolve();
 			});
 		});
+
+		this.webSocketService.start(this.server!);
 	}
 
 	public async stop(): Promise<void> {
 		if (!this.server) {
 			return;
 		}
+
+		await this.webSocketService.stop();
 
 		await new Promise<void>((resolve, reject) => {
 			this.server!.close((error) => {
