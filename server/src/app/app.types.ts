@@ -1,6 +1,7 @@
 export const APP_TYPES = {
 	APP: Symbol('APP'),
 	PRISMA: Symbol('PRISMA'),
+	POSTGRES_LISTEN: Symbol('POSTGRES_LISTEN'),
 	LOGGER: Symbol('LOGGER'),
 	CONFIG: Symbol('CONFIG'),
 	WEBSOCKET: Symbol('WEBSOCKET'),

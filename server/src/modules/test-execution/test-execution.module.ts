@@ -6,6 +6,8 @@ import { DefaultTestRegisterService } from './services/test-register.service';
 import { DefaultTestAnswerService } from './services/test-answer.service';
 import { PrismaTestRegisterRepository } from './repositories/prisma-test-register.repository';
 import { PrismaAnswerRepository } from './repositories/prisma-answer.repository';
+import { TestRegistrationListener } from './listeners/test-registration.listener';
+import { TestAnswerListener } from './listeners/test-answer.listener';
 
 // TODO: refactor
 const testExecutionModule: ContainerModule = new ContainerModule((options: ContainerModuleLoadOptions) => {
@@ -15,6 +17,8 @@ const testExecutionModule: ContainerModule = new ContainerModule((options: Conta
 	options.bind(TE_TYPES.TEST_ANSWER_SERVICE).to(DefaultTestAnswerService).inSingletonScope();
 	options.bind(TE_TYPES.TEST_REGISTER_REPOSITORY).to(PrismaTestRegisterRepository).inSingletonScope();
 	options.bind(TE_TYPES.ANSWER_REPOSITORY).to(PrismaAnswerRepository).inSingletonScope();
+	options.bind(TE_TYPES.TEST_REGISTRATION_LISTENER).to(TestRegistrationListener).inSingletonScope();
+	options.bind(TE_TYPES.TEST_ANSWER_LISTENER).to(TestAnswerListener).inSingletonScope();
 });
 
 export { testExecutionModule, TE_TYPES };

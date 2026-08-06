@@ -2,7 +2,7 @@ import { ContainerModule, type ContainerModuleLoadOptions } from 'inversify';
 import { APP_TYPES } from './app.types';
 import { App } from './app';
 import { LoggerService } from '@shared/logger';
-import { PrismaService } from '@shared/persistence';
+import { PostgresListenService, PrismaService } from '@shared/persistence';
 import { ConfigService } from '@shared/config';
 import { WebSocketService } from '@shared/websocket';
 import { RequestLoggerMiddleware } from '@shared/http/request-logger.middleware';
@@ -18,6 +18,7 @@ const coreModule: ContainerModule = new ContainerModule((options: ContainerModul
 	options.bind(APP_TYPES.LOGGER).to(LoggerService).inSingletonScope();
 	options.bind(APP_TYPES.CONFIG).to(ConfigService).inSingletonScope();
 	options.bind(APP_TYPES.PRISMA).to(PrismaService).inSingletonScope();
+	options.bind(APP_TYPES.POSTGRES_LISTEN).to(PostgresListenService).inSingletonScope();
 	options.bind(APP_TYPES.WEBSOCKET).to(WebSocketService).inSingletonScope();
 	options.bind(APP_TYPES.REQUEST_CONTEXT_MIDDLEWARE).to(RequestContextMiddleware).inSingletonScope();
 	options.bind(APP_TYPES.REQUEST_LOGGER_MIDDLEWARE).to(RequestLoggerMiddleware).inSingletonScope();
