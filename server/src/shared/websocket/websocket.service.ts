@@ -99,7 +99,7 @@ export class WebSocketService implements IWebSocketService {
 	private resolveConnectionParams(request: IncomingMessage): WebSocketConnectionParams | undefined {
 		const host = request.headers.host ?? 'localhost';
 		const url = new URL(request.url ?? '', `http://${host}`);
-		const testId = url.searchParams.get('testId');
+		const testId = url.searchParams.get('test_id');
 		const group = url.searchParams.get('group');
 
 		if (!testId || !group || !isWebSocketGroup(group)) {

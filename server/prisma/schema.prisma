@@ -8,99 +8,105 @@ datasource db {
 }
 
 model UserModel {
-  id          String @id @default(uuid())
-  email       String @unique
-  password    String
-
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-
-  tests       TestModel[]
+  id         String      @id @default(uuid())
+  email      String      @unique
+  password   String
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+  tests      TestModel[]
 }
 
 model TestModel {
-  id                String  @id @default(uuid())
+  id                String                     @id @default(uuid())
   title             String
   image             String?
-
   author_id         String
-  author            UserModel @relation(fields: [author_id], references: [id])
-
-  created_at        DateTime @default(now())
-  updated_at        DateTime @updatedAt
-
+  created_at        DateTime                   @default(now())
+  updated_at        DateTime                   @updatedAt
+  author            UserModel                  @relation(fields: [author_id], references: [id])
+  questions         TestQuestionModel[]
+  scheduler_periods TestSchedulerPeriodModel[]
+  test_sessions     TestSessionModel[]
   test_settings     TestSettingsModel?
 
-  questions         TestQuestionModel[]
-  test_sessions     TestSessionModel[]
-  scheduler_periods TestSchedulerPeriodModel[]
-  
   @@index([author_id])
 }
 
 model TestSettingsModel {
-  id                            String @id @default(uuid())
-
+  id                            String    @id @default(uuid())
   test_id                       String    @unique
+  show_answers_after_completion Boolean   @default(false)
+  created_at                    DateTime  @default(now())
+  updated_at                    DateTime  @updatedAt
   test                          TestModel @relation(fields: [test_id], references: [id], onDelete: Cascade)
-
-  show_answers_after_completion Boolean @default(false)
-
-  created_at                    DateTime @default(now())
-  updated_at                    DateTime @updatedAt
 }
 
 model TestQuestionModel {
-  id          String @id @default(uuid())
-
-  test_id     String
-  test        TestModel @relation(fields: [test_id], references: [id], onDelete: Cascade)
-
-  description String
-  sort_key    Int
-  config      Json?
-
-  answers         TestSessionAnswerModel[]
-
-  test_session    TestSessionModel[]
+  id           String                   @id @default(uuid())
+  test_id      String
+  description  String
+  sort_key     Int
+  config       Json?
+  test         TestModel                @relation(fields: [test_id], references: [id], onDelete: Cascade)
+  answers      TestSessionAnswerModel[]
+  test_session TestSessionModel[]
 
   @@index([test_id])
 }
 
 model TestSchedulerPeriodModel {
-  id              BigInt @id @default(autoincrement())
-
-  test_id         String
-  test            TestModel @relation(fields: [test_id], references: [id], onDelete: Cascade)
-
-  available_from  DateTime
-  available_to    DateTime?
+  id             BigInt    @id @default(autoincrement())
+  test_id        String
+  available_from DateTime
+  available_to   DateTime?
+  test           TestModel @relation(fields: [test_id], references: [id], onDelete: Cascade)
 
   @@index([test_id])
   @@index([available_from])
 }
 
 model TestSessionModel {
-  id          String @id @default(uuid())
-
-  test_id     String
-  test        TestModel @relation(fields: [test_id], references: [id], onDelete: Cascade)
-
-  started_at  DateTime  @default(now())
-  finished_at DateTime?
-
-  status      TestSessionStatus  @default(ACTIVE)
-  start_by    TestSessionStartBy @default(MANUALLY)
-
-  run_mode    TestSessionRunMode @default(FREE)
-
+  id                  String                           @id @default(uuid())
+  test_id             String
+  started_at          DateTime                         @default(now())
+  finished_at         DateTime?
+  status              TestSessionStatus                @default(ACTIVE)
+  start_by            TestSessionStartBy               @default(MANUALLY)
   current_question_id String?
-  current_question    TestQuestionModel? @relation(fields: [current_question_id], references: [id], onDelete: Cascade)
-
-  registered_users TestSessionRegisteredUserModel[]
+  run_mode            TestSessionRunMode               @default(FREE)
+  current_question    TestQuestionModel?               @relation(fields: [current_question_id], references: [id], onDelete: Cascade)
+  test                TestModel                        @relation(fields: [test_id], references: [id], onDelete: Cascade)
+  registered_users    TestSessionRegisteredUserModel[]
 
   @@index([test_id])
   @@index([test_id, status])
+}
+
+model TestSessionRegisteredUserModel {
+  id              String                   @id @default(uuid())
+  test_session_id String
+  created_at      DateTime                 @default(now())
+  first_name      String
+  last_name       String
+  answers         TestSessionAnswerModel[]
+  test_session    TestSessionModel         @relation(fields: [test_session_id], references: [id], onDelete: Cascade)
+
+  @@index([test_session_id])
+}
+
+model TestSessionAnswerModel {
+  id                              String                         @id @default(uuid())
+  test_session_registered_user_id String
+  created_at                      DateTime                       @default(now())
+  skipped                         Boolean                        @default(false)
+  questionId                      String
+  value                           String?
+  question                        TestQuestionModel              @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  test_session_registered_user    TestSessionRegisteredUserModel @relation(fields: [test_session_registered_user_id], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, test_session_registered_user_id])
+  @@index([test_session_registered_user_id])
+  @@index([questionId])
 }
 
 enum TestSessionStatus {
@@ -115,43 +121,6 @@ enum TestSessionStartBy {
 }
 
 enum TestSessionRunMode {
-  MANUAL   @map("manual")
-  FREE  @map("free")
-}
-
-model TestSessionRegisteredUserModel {
-  id          String @id @default(uuid())
-
-  first_name  String
-  last_name   String
-
-  test_session_id String
-  test_session    TestSessionModel @relation(fields: [test_session_id], references: [id], onDelete: Cascade)
-
-  answers         TestSessionAnswerModel[]
-
-  created_at      DateTime @default(now())
-
-  @@index([test_session_id])
-}
-
-model TestSessionAnswerModel {
-  id          String @id @default(uuid())
-
-  questionId String
-  question   TestQuestionModel @relation(fields: [questionId], references: [id], onDelete: Cascade)
-
-  test_session_registered_user_id String
-  test_session_registered_user    TestSessionRegisteredUserModel @relation(fields: [test_session_registered_user_id], references: [id], onDelete: Cascade)
-
-  value String?
-
-  skipped Boolean @default(false)
-
-  created_at      DateTime @default(now())
-
-  @@index([test_session_registered_user_id])
-  @@index([questionId])
-  
-  @@unique([questionId, test_session_registered_user_id])
+  MANUAL @map("manual")
+  FREE   @map("free")
 }

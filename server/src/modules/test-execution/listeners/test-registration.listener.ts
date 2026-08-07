@@ -20,6 +20,10 @@ type TestRegistrationChangePayload = {
 	data: TestRegistrationChangeData;
 };
 
+type TestRegistrationWsData = Omit<TestRegistrationChangeData, 'test_session_id' | 'created_at'> & {
+	started_from: string;
+};
+
 @injectable()
 export class TestRegistrationListener {
 	constructor(
@@ -54,9 +58,17 @@ export class TestRegistrationListener {
 			return;
 		}
 
+		const sendData: TestRegistrationWsData = {
+			id: payload.data.id,
+			test_id: payload.data.test_id,
+			first_name: payload.data.first_name,
+			last_name: payload.data.last_name,
+			started_from: payload.data.created_at + 'Z',
+		};
+
 		this.webSocketService.send(testId, 'teacher', {
 			type,
-			data: payload.data,
+			data: sendData,
 		});
 	}
 
