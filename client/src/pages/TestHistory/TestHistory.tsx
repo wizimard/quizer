@@ -4,6 +4,7 @@ import { ChevronRight, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useGetTestHistory } from "@entities/test";
 import { LoadingLayout } from "@shared/ui/layout";
+import { DotSeparator } from "@shared/ui/separator";
 import { Typography } from "@shared/ui/typography";
 import { TestLaunchResponseRunModeEnum } from "@shared/api/generated";
 
@@ -41,15 +42,11 @@ export const TestHistory = () => {
 									>
 										<div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-0.5 text-sm text-muted-foreground">
 											<span className="font-medium text-foreground">{format(launch.startedAt, "dd.MM.yyyy HH:mm")}</span>
-											<span aria-hidden className="text-lg leading-none text-muted-foreground">
-												•
-											</span>
+											<DotSeparator />
 											<span className="inline-block w-18 shrink-0">
 												{t(launch.runMode === TestLaunchResponseRunModeEnum.Manual ? "test_history.run_mode.manual" : "test_history.run_mode.free")}
 											</span>
-											<span aria-hidden className="text-lg leading-none text-muted-foreground">
-												•
-											</span>
+											<DotSeparator />
 											<span className="inline-flex items-center gap-1">
 												<Users className="size-3.5 shrink-0" aria-hidden />
 												{t("test_history.participants", { count: launch.userRegisteredCount })}

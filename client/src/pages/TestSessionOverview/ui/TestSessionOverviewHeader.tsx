@@ -22,10 +22,7 @@ export const TestSessionOverviewHeader = ({ sessionOverview }: TestSessionOvervi
 	return (
 		<div className="flex flex-col gap-5">
 			<div className="flex flex-col gap-1.5">
-				<Link
-					to={`/test-history/${testId}`}
-					className="mb-1 inline-flex w-fit items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-				>
+				<Link to={`/test-history/${testId}`} className="mb-1 inline-flex w-fit items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground">
 					<ChevronLeft className="size-4" aria-hidden />
 					{t("test_session_overview.back_to_history")}
 				</Link>

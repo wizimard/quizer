@@ -11,11 +11,10 @@ import { Typography } from "@shared/ui/typography";
 export const Test = () => {
 	const { t } = useTranslation();
 	const { id } = useParams();
-
-	const { isLoading, isForbidden, test } = useGetFullTest(id as string);
+	const { isLoading, error, test } = useGetFullTest(id as string);
 
 	return (
-		<LoadingLayout isLoading={isLoading} error={isForbidden ? new Error("test.errors.forbidden") : undefined}>
+		<LoadingLayout isLoading={isLoading} error={error}>
 			<>
 				{!!test && (
 					<div className="flex min-h-a w-full shrink flex-col gap-2.5 px-10 pt-5 pb-2.5">

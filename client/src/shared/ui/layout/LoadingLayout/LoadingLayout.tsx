@@ -12,21 +12,25 @@ export interface ILoadingLayoutProps {
 
 export const LoadingLayout = ({ isLoading, children, error }: ILoadingLayoutProps) => {
 	const navigate = useNavigate();
+
 	const { t } = useTranslation();
 
 	let errorMessage: string | null = null;
 
 	if (error && error instanceof AxiosError) {
-		if (error.response?.data?.message) {
-			errorMessage = error.response.data.message;
-		}
-
-		if (error.status === 404) {
-			navigate("/404");
-			return;
-		}
-		if (error.status === 401) {
-			navigate("/login");
+		switch (error.status) {
+			case 404:
+				navigate("/404");
+				return;
+			case 401:
+				navigate("/login");
+				return;
+			case 403:
+				errorMessage = "errors.forbidden";
+				break;
+			default:
+				errorMessage = "errors.unknown_error";
+				break;
 		}
 	}
 

@@ -10,6 +10,8 @@ export { useGetTestes } from "./hooks/useGetTests";
 export { useGetFullTest } from "./hooks/useGetFullTest";
 export { useGetExecutionTest } from "./hooks/useGetExecutionTest";
 export { useGetTestOverview } from "./hooks/useGetTestOverview";
+export { useTestExecutionOverviewSocket } from "./hooks/useTestExecutionOverviewSocket";
+export { useTestExecutionSocket } from "./hooks/useTestExecutionSocket";
 export { useSetExecutionState } from "./hooks/userSetExecutionState";
 export { useGetTestHistory } from "./hooks/useGetTestHistory";
 export { useGetTestSessionOverview } from "./hooks/useGetTestSessionOverview";

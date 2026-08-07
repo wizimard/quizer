@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import type { TestLaunchHistory } from "@entities/test";
 import { Typography } from "@shared/ui/typography";
+import { DotSeparator } from "@shared/ui/separator";
 import { TestLaunchResponseRunModeEnum } from "@shared/api/generated";
 
 interface HistoryListItemProps {
@@ -27,13 +28,9 @@ export const HistoryListItem = ({ launch }: HistoryListItemProps) => {
 					</Typography>
 					<div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm text-muted-foreground">
 						<span>{format(launch.startedAt, "dd.MM.yyyy HH:mm")}</span>
-						<span aria-hidden className="text-lg leading-none text-muted-foreground">
-							•
-						</span>
+						<DotSeparator />
 						<span className="inline-block w-18 shrink-0">{runModeLabel}</span>
-						<span aria-hidden className="text-lg leading-none text-muted-foreground">
-							•
-						</span>
+						<DotSeparator />
 						<span className="inline-flex items-center gap-1">
 							<Users className="size-3.5 shrink-0" aria-hidden />
 							{t("history.participants", { count: launch.userRegisteredCount })}

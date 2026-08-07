@@ -1,1 +1,1 @@
-export { TestExecutionOverviewPage as default } from "./TestExecutionOverviewPage";
+export { TestExecutionOverview as default } from "./TestExecutionOverviewPage";

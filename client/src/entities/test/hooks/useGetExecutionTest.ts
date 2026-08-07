@@ -10,7 +10,7 @@ import { QUERY_KEYS } from "@shared/constant";
 export function useGetExecutionTest(id: string) {
 	const setStatus = useTestExecutionStore((state) => state.setStatus);
 
-	const { data, isLoading, error } = useQuery<TestExecution>({
+	const { data, isLoading, error, refetch } = useQuery<TestExecution>({
 		queryKey: [QUERY_KEYS.GET_TEST_EXECUTION, id],
 		queryFn: async ({ signal }) => {
 			const response: AxiosResponse<TestExecuteResponse> = await testExecutionApi.testExecuteTestIdGet(id, { signal });
@@ -29,5 +29,5 @@ export function useGetExecutionTest(id: string) {
 		retry: 3,
 	});
 
-	return { isLoading, error, test: data as TestExecution };
+	return { isLoading, error, test: data as TestExecution, refetch };
 }

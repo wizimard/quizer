@@ -12,11 +12,6 @@ export const useGetTestOverview = (testId: string) => {
 
 			return normalizeTestExecutionOverview(response.data);
 		},
-		refetchInterval: (query) => {
-			const overview = query.state.data;
-
-			return overview && !overview.finished_at ? 5_000 : false;
-		},
 	});
 
 	return {
