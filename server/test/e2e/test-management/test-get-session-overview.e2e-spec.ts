@@ -31,13 +31,13 @@ const createQuestion = async (testId: string, description: string): Promise<Resp
 const startTest = async (testId: string, runMode: 'MANUAL' | 'FREE' = 'MANUAL'): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).post(`/api/test/${testId}/start`).set('Authorization', `Bearer ${accessToken}`).send({ run_mode: runMode });
+	return request(application.app).post(`/api/session/${testId}/start`).set('Authorization', `Bearer ${accessToken}`).send({ run_mode: runMode });
 };
 
 const finishTest = async (testId: string): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).post(`/api/test/${testId}/finish`).set('Authorization', `Bearer ${accessToken}`);
+	return request(application.app).post(`/api/session/${testId}/finish`).set('Authorization', `Bearer ${accessToken}`);
 };
 
 const registerUser = async (testId: string, firstName: string, lastName: string): Promise<Response> => {
@@ -47,7 +47,7 @@ const registerUser = async (testId: string, firstName: string, lastName: string)
 const getTestHistory = async (testId: string): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).get(`/api/test/${testId}/history`).set('Authorization', `Bearer ${accessToken}`);
+	return request(application.app).get(`/api/history/${testId}`).set('Authorization', `Bearer ${accessToken}`);
 };
 
 const getLatestSessionId = async (testId: string): Promise<string> => {
@@ -57,7 +57,7 @@ const getLatestSessionId = async (testId: string): Promise<string> => {
 		throw new Error(`Failed to get history for test ${testId}: ${historyRes.statusCode}`);
 	}
 
-	const sessionId = historyRes.body.launches[0]?.session_id;
+	const sessionId = historyRes.body[0]?.session_id;
 
 	if (!sessionId) {
 		throw new Error(`Session not found in history for test ${testId}`);
@@ -69,7 +69,7 @@ const getLatestSessionId = async (testId: string): Promise<string> => {
 const getSessionOverview = async (testId: string, sessionId: string): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).get(`/api/test/${testId}/session/${sessionId}/overview`).set('Authorization', `Bearer ${accessToken}`);
+	return request(application.app).get(`/api/history/${testId}/${sessionId}`).set('Authorization', `Bearer ${accessToken}`);
 };
 
 beforeAll(async () => {
@@ -84,16 +84,16 @@ beforeAll(async () => {
 	testUtils = new TestUtils(application, authUtils);
 });
 
-describe('GET /api/test/:testId/session/:sessionId/overview', () => {
+describe('GET /api/history/:testId/:sessionId', () => {
 	it('returns 401 without authorization', async () => {
-		const res = await request(application.app).get(`/api/test/${randomUUID()}/session/${randomUUID()}/overview`);
+		const res = await request(application.app).get(`/api/history/${randomUUID()}/${randomUUID()}`);
 
 		expect(res.statusCode).toBe(401);
 		expect(res.body.message).toBe('unauthorized');
 	});
 
 	it('returns 401 with invalid access token', async () => {
-		const res = await request(application.app).get(`/api/test/${randomUUID()}/session/${randomUUID()}/overview`).set('Authorization', 'Bearer invalid-token');
+		const res = await request(application.app).get(`/api/history/${randomUUID()}/${randomUUID()}`).set('Authorization', 'Bearer invalid-token');
 
 		expect(res.statusCode).toBe(401);
 		expect(res.body.message).toBe('unauthorized');
@@ -102,7 +102,7 @@ describe('GET /api/test/:testId/session/:sessionId/overview', () => {
 	it('returns 404 for non-existent test', async () => {
 		const { accessToken } = await authUtils.login();
 
-		const res = await request(application.app).get(`/api/test/${randomUUID()}/session/${randomUUID()}/overview`).set('Authorization', `Bearer ${accessToken}`);
+		const res = await request(application.app).get(`/api/history/${randomUUID()}/${randomUUID()}`).set('Authorization', `Bearer ${accessToken}`);
 
 		expect(res.statusCode).toBe(404);
 		expect(res.body.message).toBe('error.test_not_found');
@@ -115,7 +115,7 @@ describe('GET /api/test/:testId/session/:sessionId/overview', () => {
 		await otherAuthUtils.register();
 		const { accessToken } = await otherAuthUtils.login();
 
-		const res = await request(application.app).get(`/api/test/${createRes.body.id}/session/${randomUUID()}/overview`).set('Authorization', `Bearer ${accessToken}`);
+		const res = await request(application.app).get(`/api/history/${createRes.body.id}/${randomUUID()}`).set('Authorization', `Bearer ${accessToken}`);
 
 		expect(res.statusCode).toBe(403);
 		expect(res.body.message).toBe('error.test_not_author');

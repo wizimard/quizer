@@ -92,6 +92,8 @@ describe('POST /api/test', () => {
 			author_id: authUtils.userId,
 			title,
 			status: 'closed',
+			launches_count: 0,
+			last_launch_date: null,
 			questions: [],
 			settings: {
 				is_show_answers_after_completion: false,

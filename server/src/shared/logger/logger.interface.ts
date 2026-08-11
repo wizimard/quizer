@@ -3,7 +3,6 @@ export type LogMessage = {
 };
 
 export interface ILogger {
-	setCorrelationId(correlationId: string): void;
 	info<T extends LogMessage>(data: string | T): void;
 	error<T extends LogMessage>(data: string | T): void;
 	warn<T extends LogMessage>(data: string | T): void;

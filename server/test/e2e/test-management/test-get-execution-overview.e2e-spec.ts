@@ -31,19 +31,19 @@ const createQuestion = async (testId: string, description: string): Promise<Resp
 const startTest = async (testId: string, runMode: 'MANUAL' | 'FREE' = 'MANUAL'): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).post(`/api/test/${testId}/start`).set('Authorization', `Bearer ${accessToken}`).send({ run_mode: runMode });
+	return request(application.app).post(`/api/session/${testId}/start`).set('Authorization', `Bearer ${accessToken}`).send({ run_mode: runMode });
 };
 
 const finishTest = async (testId: string): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).post(`/api/test/${testId}/finish`).set('Authorization', `Bearer ${accessToken}`);
+	return request(application.app).post(`/api/session/${testId}/finish`).set('Authorization', `Bearer ${accessToken}`);
 };
 
 const nextQuestion = async (testId: string, questionId: string): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).post(`/api/test/${testId}/next-question`).set('Authorization', `Bearer ${accessToken}`).send({ question_id: questionId });
+	return request(application.app).post(`/api/session/${testId}/next-question`).set('Authorization', `Bearer ${accessToken}`).send({ question_id: questionId });
 };
 
 const registerUser = async (testId: string, firstName: string, lastName: string): Promise<Response> => {
@@ -53,7 +53,7 @@ const registerUser = async (testId: string, firstName: string, lastName: string)
 const getExecutionOverview = async (testId: string): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).get(`/api/test/${testId}/execution-overview`).set('Authorization', `Bearer ${accessToken}`);
+	return request(application.app).get(`/api/session/${testId}/overview`).set('Authorization', `Bearer ${accessToken}`);
 };
 
 beforeAll(async () => {
@@ -68,16 +68,16 @@ beforeAll(async () => {
 	testUtils = new TestUtils(application, authUtils);
 });
 
-describe('GET /api/test/:testId/execution-overview', () => {
+describe('GET /api/session/:testId/overview', () => {
 	it('returns 401 without authorization', async () => {
-		const res = await request(application.app).get(`/api/test/${randomUUID()}/execution-overview`);
+		const res = await request(application.app).get(`/api/session/${randomUUID()}/overview`);
 
 		expect(res.statusCode).toBe(401);
 		expect(res.body.message).toBe('unauthorized');
 	});
 
 	it('returns 401 with invalid access token', async () => {
-		const res = await request(application.app).get(`/api/test/${randomUUID()}/execution-overview`).set('Authorization', 'Bearer invalid-token');
+		const res = await request(application.app).get(`/api/session/${randomUUID()}/overview`).set('Authorization', 'Bearer invalid-token');
 
 		expect(res.statusCode).toBe(401);
 		expect(res.body.message).toBe('unauthorized');
@@ -86,7 +86,7 @@ describe('GET /api/test/:testId/execution-overview', () => {
 	it('returns 404 for non-existent test', async () => {
 		const { accessToken } = await authUtils.login();
 
-		const res = await request(application.app).get(`/api/test/${randomUUID()}/execution-overview`).set('Authorization', `Bearer ${accessToken}`);
+		const res = await request(application.app).get(`/api/session/${randomUUID()}/overview`).set('Authorization', `Bearer ${accessToken}`);
 
 		expect(res.statusCode).toBe(404);
 		expect(res.body.message).toBe('error.test_not_found');
@@ -99,7 +99,7 @@ describe('GET /api/test/:testId/execution-overview', () => {
 		await otherAuthUtils.register();
 		const { accessToken } = await otherAuthUtils.login();
 
-		const res = await request(application.app).get(`/api/test/${createRes.body.id}/execution-overview`).set('Authorization', `Bearer ${accessToken}`);
+		const res = await request(application.app).get(`/api/session/${createRes.body.id}/overview`).set('Authorization', `Bearer ${accessToken}`);
 
 		expect(res.statusCode).toBe(403);
 		expect(res.body.message).toBe('error.test_not_author');
@@ -234,7 +234,7 @@ describe('GET /api/test/:testId/execution-overview', () => {
 				sort_key: 1000,
 				description: firstQuestionRes.body.description,
 			},
-			current_question_index: 0,
+			current_question_index: 1,
 			total_questions_count: 2,
 			started_from: expect.any(String),
 		});

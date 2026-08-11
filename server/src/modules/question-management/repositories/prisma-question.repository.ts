@@ -1,11 +1,10 @@
 import { APP_TYPES } from '@app/app.types';
 import type { QuestionEntity } from '@modules/test-management/entities/question.entity';
-import type { QuestionRepository } from '@modules/test-management/interfaces/repository/question.repository.interface';
+import type { QuestionRepository } from '../interfaces/repository/question.repository.interface';
 import { repositoryCall } from '@shared/http/utils/repository-call';
 import type { ILogger } from '@shared/logger/logger.interface';
 import type { IPrismaService } from '@shared/persistence/prisma.service.interface';
 import { inject, injectable } from 'inversify';
-import { QuestionMapper } from '../mappers/question.mapper';
 import { QuestionPersistenceMapper } from '../mappers/repositories/question-persistence.mapper';
 import type { TestQuestionModel } from '@prisma/client';
 import type { BatchPayload } from '@prisma/internal/prismaNamespace';
@@ -27,7 +26,7 @@ export class PrismaQuestionRepository implements QuestionRepository {
 			this.logger,
 		);
 
-		return row ? QuestionMapper.toDomain(row) : null;
+		return row ? QuestionPersistenceMapper.toDomain(row) : null;
 	}
 
 	async update(data: QuestionEntity): Promise<QuestionEntity | null> {
@@ -41,7 +40,7 @@ export class PrismaQuestionRepository implements QuestionRepository {
 			this.logger,
 		);
 
-		return row ? QuestionMapper.toDomain(row) : null;
+		return row ? QuestionPersistenceMapper.toDomain(row) : null;
 	}
 
 	async delete(id: string, testId: string): Promise<boolean> {
@@ -59,7 +58,7 @@ export class PrismaQuestionRepository implements QuestionRepository {
 
 	async findById(id: string): Promise<QuestionEntity | null> {
 		const row: TestQuestionModel | null = await repositoryCall(() => this.prismaService.client.testQuestionModel.findUnique({ where: { id } }), 'PrismaQuestionRepository.findById', this.logger);
-		return row ? QuestionMapper.toDomain(row) : null;
+		return row ? QuestionPersistenceMapper.toDomain(row) : null;
 	}
 
 	async findByTestId(testId: string): Promise<QuestionEntity[]> {
@@ -68,7 +67,7 @@ export class PrismaQuestionRepository implements QuestionRepository {
 			'PrismaQuestionRepository.findByTestId',
 			this.logger,
 		);
-		return rows ? rows.map((row) => QuestionMapper.toDomain(row)) : [];
+		return rows ? rows.map((row) => QuestionPersistenceMapper.toDomain(row)) : [];
 	}
 
 	async updateQuestionsOrders(questions: QuestionEntity[]): Promise<boolean> {

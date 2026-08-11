@@ -4,6 +4,7 @@ import { createLogger, format, transports, type Logger } from 'winston';
 import type { ILogger, LogMessage } from './logger.interface';
 import { injectable } from 'inversify';
 import chalk from 'chalk';
+import { RequestMetadataStorage } from '@shared/http/request-metadata.storage';
 
 type LogLevel = 'info' | 'error' | 'warn' | 'success';
 
@@ -23,7 +24,6 @@ const levelColors = {
 
 @injectable()
 export class LoggerService implements ILogger {
-	private correlationId: string | undefined;
 	private readonly logger: Logger;
 
 	constructor() {
@@ -43,19 +43,16 @@ export class LoggerService implements ILogger {
 		});
 	}
 
-	setCorrelationId(correlationId: string): void {
-		this.correlationId = correlationId;
-	}
-
 	private write<T extends LogMessage>(level: LogLevel, data: string | T): void {
 		const message = typeof data === 'string' ? data : data.message;
+		const correlationId = RequestMetadataStorage.get()?.correlationId;
 
-		console.log(levelColors[level](level.toLocaleUpperCase()) + ` [${new Date().toISOString()}] ${this.correlationId} : ${message}`);
+		console.log(levelColors[level](level.toLocaleUpperCase()) + ` [${new Date().toISOString()}] ${correlationId} : ${message}`);
 
 		this.logger.log({
 			level,
 			message: this.getMessage(data),
-			correlationId: this.correlationId,
+			correlationId,
 		});
 	}
 

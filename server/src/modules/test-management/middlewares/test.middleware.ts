@@ -4,6 +4,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { TM_TYPES } from '../test-management.types';
 import type { TestRepository } from '../interfaces/repository/test.repository.interface';
+import { TestStorage } from '../storage/test.storage';
 
 @injectable()
 export class TestMiddleware implements IMiddleware {
@@ -18,7 +19,7 @@ export class TestMiddleware implements IMiddleware {
 			const test = await this.testRepository.findById(testId);
 
 			if (test) {
-				req.test = test;
+				return TestStorage.run(test, () => next());
 			}
 
 			next();

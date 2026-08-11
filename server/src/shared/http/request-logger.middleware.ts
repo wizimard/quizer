@@ -4,6 +4,8 @@ import { inject, injectable } from 'inversify';
 import type { ILogger } from '@shared/logger';
 import type { Request, Response, NextFunction } from 'express';
 import { redactSensitive } from './utils/redact-sensitive';
+import { UserStorage } from '@modules/identity-access';
+import { RequestMetadataStorage } from './request-metadata.storage';
 
 // TODO: review
 @injectable()
@@ -15,10 +17,10 @@ export class RequestLoggerMiddleware implements IMiddleware {
 
 		this.logger.info({
 			message: 'Request received',
-			correlationId: req.correlationId,
+			correlationId: RequestMetadataStorage.get()?.correlationId,
 			method: req.method,
 			url: req.url,
-			userId: req.user?.id,
+			userId: UserStorage.get()?.id,
 			body: safeBody,
 		});
 

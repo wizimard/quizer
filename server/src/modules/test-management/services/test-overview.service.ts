@@ -15,8 +15,8 @@ import type {
 	TestExecutionFreeModeOverviewResult,
 	TestSessionOverviewResult,
 } from '../interfaces/services/results/test-overview-result';
-import { QuestionMapper } from '../mappers/question.mapper';
-import { TestMapper } from '../mappers/test.mapper';
+import { QuestionResultMapper } from '@modules/question-management/mappers/result/question-result.mapper';
+import { TestResultMapper } from '../mappers/result/test-result.mapper';
 import { TestClosedError } from '../utils/errors/test-closed.error';
 import { APP_TYPES } from '@app/app.types';
 import { TE_TYPES, type TestRegisterService } from '@modules/test-execution';
@@ -87,7 +87,7 @@ export class DefaultTestOverviewService implements TestOverviewService {
 			};
 		});
 
-		const questions: QuestionResult[] = test.questions.map(QuestionMapper.toResult);
+		const questions: QuestionResult[] = test.questions.map(QuestionResultMapper.toResult);
 
 		return session.runMode === TestSessionRunMode.FREE
 			? this.getTestExecutionOverviewFreeMode(test, session, users, questions)
@@ -95,14 +95,14 @@ export class DefaultTestOverviewService implements TestOverviewService {
 	}
 
 	private getTestExecutionOverviewFreeMode(test: TestEntity, session: TestSessionEntity, users: TestOverviewUserResult[], questions: QuestionResult[]): TestExecutionFreeModeOverviewResult {
-		return { test: { ...TestMapper.toFullResult(test), startedFrom: session.startedAt, runMode: session.runMode }, users, questions };
+		return { test: { ...TestResultMapper.toFullResult(test), startedFrom: session.startedAt, runMode: session.runMode }, users, questions };
 	}
 
 	private getTestExecutionOverviewManualMode(test: TestEntity, session: TestSessionEntity, users: TestOverviewUserResult[], questions: QuestionResult[]): TestExecutionManualModeOverviewResult {
 		const currentQuestion = questions.find((question) => question.id === session.currentQuestionId) ?? null;
 
 		return {
-			test: { ...TestMapper.toFullResult(test), startedFrom: session.startedAt, runMode: session.runMode },
+			test: { ...TestResultMapper.toFullResult(test), startedFrom: session.startedAt, runMode: session.runMode },
 			users,
 			questions,
 			currentQuestion: currentQuestion,
@@ -209,9 +209,9 @@ export class DefaultTestOverviewService implements TestOverviewService {
 			};
 		});
 
-		const questions: QuestionResult[] = test.questions.map(QuestionMapper.toResult);
+		const questions: QuestionResult[] = test.questions.map(QuestionResultMapper.toResult);
 
-		return { test: { ...TestMapper.toFullResult(test), startedFrom: session.startedAt, runMode: session.runMode, finishedAt: session.finishedAt }, users, questions };
+		return { test: { ...TestResultMapper.toFullResult(test), startedFrom: session.startedAt, runMode: session.runMode, finishedAt: session.finishedAt }, users, questions };
 	}
 
 	async getTestsHistory(input: GetTestsHistoryInput): Promise<Array<TestLaunchResult>> {

@@ -6,11 +6,12 @@ import { PostgresListenService, PrismaService } from '@shared/persistence';
 import { ConfigService } from '@shared/config';
 import { WebSocketService } from '@shared/websocket';
 import { RequestLoggerMiddleware } from '@shared/http/request-logger.middleware';
-import { RequestContextMiddleware } from '@shared/http/request-context.middleware';
+import { RequestMetadataMiddleware } from '@shared/http/request-metadata.middleware';
 import { ExceptionFilter } from '@shared/error';
 import { SwaggerController } from '@shared/http/swagger.controller';
 import { identityAccessModule } from '@modules/identity-access/identity-access.module';
 import { testManagementModule } from '@modules/test-management/test-management.module';
+import { questionManagementModule } from '@modules/question-management/question-management.module';
 import { testExecutionModule } from '@modules/test-execution/test-execution.module';
 
 const coreModule: ContainerModule = new ContainerModule((options: ContainerModuleLoadOptions) => {
@@ -20,12 +21,12 @@ const coreModule: ContainerModule = new ContainerModule((options: ContainerModul
 	options.bind(APP_TYPES.PRISMA).to(PrismaService).inSingletonScope();
 	options.bind(APP_TYPES.POSTGRES_LISTEN).to(PostgresListenService).inSingletonScope();
 	options.bind(APP_TYPES.WEBSOCKET).to(WebSocketService).inSingletonScope();
-	options.bind(APP_TYPES.REQUEST_CONTEXT_MIDDLEWARE).to(RequestContextMiddleware).inSingletonScope();
+	options.bind(APP_TYPES.REQUEST_METADATA_MIDDLEWARE).to(RequestMetadataMiddleware).inSingletonScope();
 	options.bind(APP_TYPES.REQUEST_LOGGER_MIDDLEWARE).to(RequestLoggerMiddleware).inSingletonScope();
 	options.bind(APP_TYPES.EXCEPTION_FILTER).to(ExceptionFilter).inSingletonScope();
 	options.bind(APP_TYPES.SWAGGER).to(SwaggerController).inSingletonScope();
 });
 
-const appModules: ContainerModule[] = [coreModule, identityAccessModule, testManagementModule, testExecutionModule];
+const appModules: ContainerModule[] = [coreModule, identityAccessModule, testManagementModule, questionManagementModule, testExecutionModule];
 
 export { coreModule, appModules };

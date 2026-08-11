@@ -16,13 +16,13 @@ let testUtils: TestUtils;
 const startTest = async (testId: string, runMode: 'MANUAL' | 'FREE' = 'MANUAL'): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).post(`/api/test/${testId}/start`).set('Authorization', `Bearer ${accessToken}`).send({ run_mode: runMode });
+	return request(application.app).post(`/api/session/${testId}/start`).set('Authorization', `Bearer ${accessToken}`).send({ run_mode: runMode });
 };
 
 const finishTest = async (testId: string): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).post(`/api/test/${testId}/finish`).set('Authorization', `Bearer ${accessToken}`);
+	return request(application.app).post(`/api/session/${testId}/finish`).set('Authorization', `Bearer ${accessToken}`);
 };
 
 const registerUser = async (testId: string, firstName: string, lastName: string): Promise<Response> => {
@@ -32,7 +32,7 @@ const registerUser = async (testId: string, firstName: string, lastName: string)
 const getTestHistory = async (testId: string): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).get(`/api/test/${testId}/history`).set('Authorization', `Bearer ${accessToken}`);
+	return request(application.app).get(`/api/history/${testId}`).set('Authorization', `Bearer ${accessToken}`);
 };
 
 beforeAll(async () => {
@@ -47,16 +47,16 @@ beforeAll(async () => {
 	testUtils = new TestUtils(application, authUtils);
 });
 
-describe('GET /api/test/:testId/history', () => {
+describe('GET /api/history/:testId', () => {
 	it('returns 401 without authorization', async () => {
-		const res = await request(application.app).get(`/api/test/${randomUUID()}/history`);
+		const res = await request(application.app).get(`/api/history/${randomUUID()}`);
 
 		expect(res.statusCode).toBe(401);
 		expect(res.body.message).toBe('unauthorized');
 	});
 
 	it('returns 401 with invalid access token', async () => {
-		const res = await request(application.app).get(`/api/test/${randomUUID()}/history`).set('Authorization', 'Bearer invalid-token');
+		const res = await request(application.app).get(`/api/history/${randomUUID()}`).set('Authorization', 'Bearer invalid-token');
 
 		expect(res.statusCode).toBe(401);
 		expect(res.body.message).toBe('unauthorized');
@@ -65,7 +65,7 @@ describe('GET /api/test/:testId/history', () => {
 	it('returns 404 for non-existent test', async () => {
 		const { accessToken } = await authUtils.login();
 
-		const res = await request(application.app).get(`/api/test/${randomUUID()}/history`).set('Authorization', `Bearer ${accessToken}`);
+		const res = await request(application.app).get(`/api/history/${randomUUID()}`).set('Authorization', `Bearer ${accessToken}`);
 
 		expect(res.statusCode).toBe(404);
 		expect(res.body.message).toBe('error.test_not_found');
@@ -78,7 +78,7 @@ describe('GET /api/test/:testId/history', () => {
 		await otherAuthUtils.register();
 		const { accessToken } = await otherAuthUtils.login();
 
-		const res = await request(application.app).get(`/api/test/${createRes.body.id}/history`).set('Authorization', `Bearer ${accessToken}`);
+		const res = await request(application.app).get(`/api/history/${createRes.body.id}`).set('Authorization', `Bearer ${accessToken}`);
 
 		expect(res.statusCode).toBe(403);
 		expect(res.body.message).toBe('error.test_not_author');

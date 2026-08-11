@@ -13,6 +13,7 @@ import type { IExceptionFilter } from '@shared/error';
 import type { IWebSocketService } from '@shared/websocket';
 import cors from 'cors';
 import { TM_TYPES } from '@modules/test-management/test-management.types';
+import { QM_TYPES } from '@modules/question-management/question-management.types';
 import { TE_TYPES } from '@modules/test-execution/test-execution.types';
 
 @injectable()
@@ -24,7 +25,7 @@ export class App {
 
 	constructor(
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
-		@inject(APP_TYPES.REQUEST_CONTEXT_MIDDLEWARE) private readonly requestContextMiddleware: IMiddleware,
+		@inject(APP_TYPES.REQUEST_METADATA_MIDDLEWARE) private readonly requestMetadataMiddleware: IMiddleware,
 		@inject(APP_TYPES.REQUEST_LOGGER_MIDDLEWARE) private readonly requestLoggerMiddleware: IMiddleware,
 		@inject(IA_TYPES.AUTH_CONTROLLER) private readonly authController: IController,
 		@inject(IA_TYPES.AUTH_MIDDLEWARE) private readonly authMiddleware: IMiddleware,
@@ -34,7 +35,9 @@ export class App {
 		@inject(APP_TYPES.SWAGGER) private readonly swaggerController: IController,
 		@inject(APP_TYPES.WEBSOCKET) private readonly webSocketService: IWebSocketService,
 		@inject(TM_TYPES.TEST_CONTROLLER) private readonly testController: IController,
-		@inject(TM_TYPES.QUESTION_CONTROLLER) private readonly questionController: IController,
+		@inject(TM_TYPES.TEST_HISTORY_CONTROLLER) private readonly testHistoryController: IController,
+		@inject(TM_TYPES.TEST_SESSION_CONTROLLER) private readonly testSessionController: IController,
+		@inject(QM_TYPES.QUESTION_CONTROLLER) private readonly questionController: IController,
 		@inject(TE_TYPES.TEST_EXECUTE_CONTROLLER) private readonly testExecuteController: IController,
 	) {
 		this.app = express();
@@ -87,8 +90,8 @@ export class App {
 		this.app.use(bodyParser.json());
 		this.app.use(cookieParser());
 
+		this.app.use(this.requestMetadataMiddleware.execute.bind(this.requestMetadataMiddleware));
 		this.app.use(this.authMiddleware.execute.bind(this.authMiddleware));
-		this.app.use(this.requestContextMiddleware.execute.bind(this.requestContextMiddleware));
 		this.app.use(this.requestLoggerMiddleware.execute.bind(this.requestLoggerMiddleware));
 	}
 
@@ -99,6 +102,8 @@ export class App {
 		this.app.use('/api/user', this.userController.router);
 		this.app.use('/api/test-execute', this.testExecuteController.router);
 		this.app.use('/api/test', this.testController.router);
+		this.app.use('/api/history', this.testHistoryController.router);
+		this.app.use('/api/session', this.testSessionController.router);
 		this.app.use('/api/question', this.questionController.router);
 	}
 

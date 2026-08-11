@@ -1,6 +1,8 @@
 import { inject, injectable } from 'inversify';
 import { TM_TYPES } from '../test-management.types';
 import { SchedulerPeriodMapper } from '../mappers/scheduler-period.mapper';
+import { SchedulerPeriodPersistenceMapper } from '../mappers/repositories/scheduler-period-persistence.mapper';
+import { SchedulerPeriodResultMapper } from '../mappers/result/scheduler-period-result.mapper';
 import type { TestSchedulerPeriodModel } from '@prisma/client';
 import type { UpdateTestSchedulerInput } from '../interfaces/services/input/update-test-scheduler.input';
 import type { TestSchedulerService } from '../interfaces/services/test-scheduler.service.interface';
@@ -58,7 +60,7 @@ export class DefaultTestSchedulerService implements TestSchedulerService {
 
 		const updatedSchedulerPeriods: Array<TestSchedulerPeriodModel> = await this.testSchedulerRepository.updateSchedulerPeriods(
 			test.id,
-			SchedulerPeriodMapper.toRepositoryUpdateData(test.id, input),
+			SchedulerPeriodPersistenceMapper.toRepositoryUpdateData(test.id, input),
 		);
 
 		this.logger.info({
@@ -66,6 +68,6 @@ export class DefaultTestSchedulerService implements TestSchedulerService {
 			data: updatedSchedulerPeriods,
 		});
 
-		return updatedSchedulerPeriods.map(SchedulerPeriodMapper.toDomain).map(SchedulerPeriodMapper.toResult);
+		return updatedSchedulerPeriods.map(SchedulerPeriodMapper.toDomain).map(SchedulerPeriodResultMapper.toResult);
 	}
 }

@@ -18,8 +18,9 @@ export type { IQuestionInputValueConfig } from './entities/question-configs/ques
 export type { IQuestionConfigOrderValuesAnswer, QuestionConfigOrderValues } from './entities/question-configs/question-config-order-values';
 export type { TestSessionEntity } from './entities/test-session.entity';
 
+export { TestStorage } from './storage/test.storage';
+
 export type { TestService } from './interfaces/services/test.service.interface';
-export type { QuestionService } from './interfaces/services/question.service.interface';
 export type { TestSessionService } from './interfaces/services/test-session.service.interface';
 export type { TestSettingsService } from './interfaces/services/test-settings.service.interface';
 export type { TestSchedulerService } from './interfaces/services/test-scheduler.service.interface';

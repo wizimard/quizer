@@ -38,19 +38,19 @@ const createQuestion = async (testId: string, description: string): Promise<Resp
 const startTest = async (testId: string, runMode: 'MANUAL' | 'FREE' = 'MANUAL'): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).post(`/api/test/${testId}/start`).set('Authorization', `Bearer ${accessToken}`).send({ run_mode: runMode });
+	return request(application.app).post(`/api/session/${testId}/start`).set('Authorization', `Bearer ${accessToken}`).send({ run_mode: runMode });
 };
 
 const finishTest = async (testId: string): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).post(`/api/test/${testId}/finish`).set('Authorization', `Bearer ${accessToken}`);
+	return request(application.app).post(`/api/session/${testId}/finish`).set('Authorization', `Bearer ${accessToken}`);
 };
 
 const nextQuestion = async (testId: string, payload: NextQuestionPayload = {}): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).post(`/api/test/${testId}/next-question`).set('Authorization', `Bearer ${accessToken}`).send(nextQuestionPayload(payload));
+	return request(application.app).post(`/api/session/${testId}/next-question`).set('Authorization', `Bearer ${accessToken}`).send(nextQuestionPayload(payload));
 };
 
 beforeAll(async () => {
@@ -65,16 +65,16 @@ beforeAll(async () => {
 	testUtils = new TestUtils(application, authUtils);
 });
 
-describe('POST /api/test/:testId/next-question', () => {
+describe('POST /api/session/:testId/next-question', () => {
 	it('returns 401 without authorization', async () => {
-		const res = await request(application.app).post(`/api/test/${randomUUID()}/next-question`).send(nextQuestionPayload());
+		const res = await request(application.app).post(`/api/session/${randomUUID()}/next-question`).send(nextQuestionPayload());
 
 		expect(res.statusCode).toBe(401);
 		expect(res.body.message).toBe('unauthorized');
 	});
 
 	it('returns 401 with invalid access token', async () => {
-		const res = await request(application.app).post(`/api/test/${randomUUID()}/next-question`).set('Authorization', 'Bearer invalid-token').send(nextQuestionPayload());
+		const res = await request(application.app).post(`/api/session/${randomUUID()}/next-question`).set('Authorization', 'Bearer invalid-token').send(nextQuestionPayload());
 
 		expect(res.statusCode).toBe(401);
 		expect(res.body.message).toBe('unauthorized');
@@ -83,7 +83,7 @@ describe('POST /api/test/:testId/next-question', () => {
 	it('returns 404 for non-existent test', async () => {
 		const { accessToken } = await authUtils.login();
 
-		const res = await request(application.app).post(`/api/test/${randomUUID()}/next-question`).set('Authorization', `Bearer ${accessToken}`).send(nextQuestionPayload());
+		const res = await request(application.app).post(`/api/session/${randomUUID()}/next-question`).set('Authorization', `Bearer ${accessToken}`).send(nextQuestionPayload());
 
 		expect(res.statusCode).toBe(404);
 		expect(res.body.message).toBe('error.test_not_found');
@@ -96,7 +96,7 @@ describe('POST /api/test/:testId/next-question', () => {
 		await otherAuthUtils.register();
 		const { accessToken } = await otherAuthUtils.login();
 
-		const res = await request(application.app).post(`/api/test/${createRes.body.id}/next-question`).set('Authorization', `Bearer ${accessToken}`).send(nextQuestionPayload());
+		const res = await request(application.app).post(`/api/session/${createRes.body.id}/next-question`).set('Authorization', `Bearer ${accessToken}`).send(nextQuestionPayload());
 
 		expect(res.statusCode).toBe(403);
 		expect(res.body.message).toBe('error.test_not_author');
@@ -108,7 +108,7 @@ describe('POST /api/test/:testId/next-question', () => {
 		const createRes = await testUtils.createTest('Next question validation');
 		const { accessToken } = await authUtils.login();
 
-		const res = await request(application.app).post(`/api/test/${createRes.body.id}/next-question`).set('Authorization', `Bearer ${accessToken}`).send({});
+		const res = await request(application.app).post(`/api/session/${createRes.body.id}/next-question`).set('Authorization', `Bearer ${accessToken}`).send({});
 
 		expect(res.statusCode).toBe(422);
 		expect(res.body.message).toBe('validation_failed');
@@ -118,7 +118,7 @@ describe('POST /api/test/:testId/next-question', () => {
 		const createRes = await testUtils.createTest('Next question empty id');
 		const { accessToken } = await authUtils.login();
 
-		const res = await request(application.app).post(`/api/test/${createRes.body.id}/next-question`).set('Authorization', `Bearer ${accessToken}`).send({ question_id: '   ' });
+		const res = await request(application.app).post(`/api/session/${createRes.body.id}/next-question`).set('Authorization', `Bearer ${accessToken}`).send({ question_id: '   ' });
 
 		expect(res.statusCode).toBe(422);
 		expect(res.body.message).toBe('validation_failed');
@@ -128,7 +128,7 @@ describe('POST /api/test/:testId/next-question', () => {
 		const createRes = await testUtils.createTest('Next question invalid type');
 		const { accessToken } = await authUtils.login();
 
-		const res = await request(application.app).post(`/api/test/${createRes.body.id}/next-question`).set('Authorization', `Bearer ${accessToken}`).send({ question_id: 123 });
+		const res = await request(application.app).post(`/api/session/${createRes.body.id}/next-question`).set('Authorization', `Bearer ${accessToken}`).send({ question_id: 123 });
 
 		expect(res.statusCode).toBe(422);
 		expect(res.body.message).toBe('validation_failed');
@@ -171,7 +171,7 @@ describe('POST /api/test/:testId/next-question', () => {
 				sort_key: 1000,
 				description: firstQuestionRes.body.description,
 			},
-			current_question_index: 0,
+			current_question_index: 1,
 			total_questions_count: 2,
 		});
 		expect(res.body.started_from).toEqual(expect.any(String));
@@ -191,11 +191,11 @@ describe('POST /api/test/:testId/next-question', () => {
 
 		expect(firstRes.statusCode).toBe(200);
 		expect(firstRes.body.current_question.id).toBe(firstQuestionRes.body.id);
-		expect(firstRes.body.current_question_index).toBe(0);
+		expect(firstRes.body.current_question_index).toBe(1);
 
 		expect(secondRes.statusCode).toBe(200);
 		expect(secondRes.body.current_question.id).toBe(secondQuestionRes.body.id);
-		expect(secondRes.body.current_question_index).toBe(1);
+		expect(secondRes.body.current_question_index).toBe(2);
 		expect(secondRes.body.total_questions_count).toBe(2);
 
 		await finishTest(createRes.body.id);

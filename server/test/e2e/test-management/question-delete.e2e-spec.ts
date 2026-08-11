@@ -107,7 +107,7 @@ describe('DELETE /api/question/:testId/questions/:questionId', () => {
 		const res = await request(application.app).delete(`/api/question/${createRes.body.id}/questions/${randomUUID()}`).set('Authorization', `Bearer ${accessToken}`);
 
 		expect(res.statusCode).toBe(404);
-		expect(res.body.message).toBe('errors.question_not_found');
+		expect(res.body.message).toBe('error.question_not_found');
 	});
 
 	it('deletes a question', async () => {
@@ -176,7 +176,7 @@ describe('DELETE /api/question/:testId/questions/:questionId', () => {
 		const secondDeleteRes = await deleteQuestion(createRes.body.id, questionRes.body.id);
 
 		expect(secondDeleteRes.statusCode).toBe(404);
-		expect(secondDeleteRes.body.message).toBe('errors.question_not_found');
+		expect(secondDeleteRes.body.message).toBe('error.question_not_found');
 	});
 });
 

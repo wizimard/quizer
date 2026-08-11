@@ -23,13 +23,13 @@ const startPayload = (overrides: StartPayload = {}): StartPayload => ({
 const startTest = async (testId: string, payload: StartPayload = {}): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).post(`/api/test/${testId}/start`).set('Authorization', `Bearer ${accessToken}`).send(startPayload(payload));
+	return request(application.app).post(`/api/session/${testId}/start`).set('Authorization', `Bearer ${accessToken}`).send(startPayload(payload));
 };
 
 const finishTest = async (testId: string): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).post(`/api/test/${testId}/finish`).set('Authorization', `Bearer ${accessToken}`);
+	return request(application.app).post(`/api/session/${testId}/finish`).set('Authorization', `Bearer ${accessToken}`);
 };
 
 beforeAll(async () => {
@@ -44,16 +44,16 @@ beforeAll(async () => {
 	testUtils = new TestUtils(application, authUtils);
 });
 
-describe('POST /api/test/:testId/start', () => {
+describe('POST /api/session/:testId/start', () => {
 	it('returns 401 without authorization', async () => {
-		const res = await request(application.app).post(`/api/test/${randomUUID()}/start`).send(startPayload());
+		const res = await request(application.app).post(`/api/session/${randomUUID()}/start`).send(startPayload());
 
 		expect(res.statusCode).toBe(401);
 		expect(res.body.message).toBe('unauthorized');
 	});
 
 	it('returns 401 with invalid access token', async () => {
-		const res = await request(application.app).post(`/api/test/${randomUUID()}/start`).set('Authorization', 'Bearer invalid-token').send(startPayload());
+		const res = await request(application.app).post(`/api/session/${randomUUID()}/start`).set('Authorization', 'Bearer invalid-token').send(startPayload());
 
 		expect(res.statusCode).toBe(401);
 		expect(res.body.message).toBe('unauthorized');
@@ -62,7 +62,7 @@ describe('POST /api/test/:testId/start', () => {
 	it('returns 404 for non-existent test', async () => {
 		const { accessToken } = await authUtils.login();
 
-		const res = await request(application.app).post(`/api/test/${randomUUID()}/start`).set('Authorization', `Bearer ${accessToken}`).send(startPayload());
+		const res = await request(application.app).post(`/api/session/${randomUUID()}/start`).set('Authorization', `Bearer ${accessToken}`).send(startPayload());
 
 		expect(res.statusCode).toBe(404);
 		expect(res.body.message).toBe('error.test_not_found');
@@ -75,7 +75,7 @@ describe('POST /api/test/:testId/start', () => {
 		await otherAuthUtils.register();
 		const { accessToken } = await otherAuthUtils.login();
 
-		const res = await request(application.app).post(`/api/test/${createRes.body.id}/start`).set('Authorization', `Bearer ${accessToken}`).send(startPayload());
+		const res = await request(application.app).post(`/api/session/${createRes.body.id}/start`).set('Authorization', `Bearer ${accessToken}`).send(startPayload());
 
 		expect(res.statusCode).toBe(403);
 		expect(res.body.message).toBe('error.test_not_author');
@@ -87,7 +87,7 @@ describe('POST /api/test/:testId/start', () => {
 		const createRes = await testUtils.createTest('Original title');
 		const { accessToken } = await authUtils.login();
 
-		const res = await request(application.app).post(`/api/test/${createRes.body.id}/start`).set('Authorization', `Bearer ${accessToken}`).send({});
+		const res = await request(application.app).post(`/api/session/${createRes.body.id}/start`).set('Authorization', `Bearer ${accessToken}`).send({});
 
 		expect(res.statusCode).toBe(422);
 		expect(res.body.message).toBe('validation_failed');
@@ -98,7 +98,7 @@ describe('POST /api/test/:testId/start', () => {
 		const { accessToken } = await authUtils.login();
 
 		const res = await request(application.app)
-			.post(`/api/test/${createRes.body.id}/start`)
+			.post(`/api/session/${createRes.body.id}/start`)
 			.set('Authorization', `Bearer ${accessToken}`)
 			.send({ run_mode: 'INVALID' });
 
@@ -111,7 +111,7 @@ describe('POST /api/test/:testId/start', () => {
 		const { accessToken } = await authUtils.login();
 
 		const res = await request(application.app)
-			.post(`/api/test/${createRes.body.id}/start`)
+			.post(`/api/session/${createRes.body.id}/start`)
 			.set('Authorization', `Bearer ${accessToken}`)
 			.send(startPayload({ duration: 'invalid' as never }));
 
@@ -169,16 +169,16 @@ describe('POST /api/test/:testId/start', () => {
 	});
 });
 
-describe('POST /api/test/:testId/finish', () => {
+describe('POST /api/session/:testId/finish', () => {
 	it('returns 401 without authorization', async () => {
-		const res = await request(application.app).post(`/api/test/${randomUUID()}/finish`);
+		const res = await request(application.app).post(`/api/session/${randomUUID()}/finish`);
 
 		expect(res.statusCode).toBe(401);
 		expect(res.body.message).toBe('unauthorized');
 	});
 
 	it('returns 401 with invalid access token', async () => {
-		const res = await request(application.app).post(`/api/test/${randomUUID()}/finish`).set('Authorization', 'Bearer invalid-token');
+		const res = await request(application.app).post(`/api/session/${randomUUID()}/finish`).set('Authorization', 'Bearer invalid-token');
 
 		expect(res.statusCode).toBe(401);
 		expect(res.body.message).toBe('unauthorized');
@@ -187,7 +187,7 @@ describe('POST /api/test/:testId/finish', () => {
 	it('returns 404 for non-existent test', async () => {
 		const { accessToken } = await authUtils.login();
 
-		const res = await request(application.app).post(`/api/test/${randomUUID()}/finish`).set('Authorization', `Bearer ${accessToken}`);
+		const res = await request(application.app).post(`/api/session/${randomUUID()}/finish`).set('Authorization', `Bearer ${accessToken}`);
 
 		expect(res.statusCode).toBe(404);
 		expect(res.body.message).toBe('error.test_not_found');
@@ -200,7 +200,7 @@ describe('POST /api/test/:testId/finish', () => {
 		await otherAuthUtils.register();
 		const { accessToken } = await otherAuthUtils.login();
 
-		const res = await request(application.app).post(`/api/test/${createRes.body.id}/finish`).set('Authorization', `Bearer ${accessToken}`);
+		const res = await request(application.app).post(`/api/session/${createRes.body.id}/finish`).set('Authorization', `Bearer ${accessToken}`);
 
 		expect(res.statusCode).toBe(403);
 		expect(res.body.message).toBe('error.test_not_author');

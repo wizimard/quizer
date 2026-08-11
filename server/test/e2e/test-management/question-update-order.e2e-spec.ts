@@ -115,15 +115,16 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 
 	it('returns 404 for non-existent question', async () => {
 		const createRes = await testUtils.createTest('Original title');
+		const questionRes = await createQuestion(createRes.body.id, 'Anchor question');
 		const { accessToken } = await authUtils.login();
 
 		const res = await request(application.app)
 			.patch(`/api/question/${createRes.body.id}/questions/${randomUUID()}/order`)
 			.set('Authorization', `Bearer ${accessToken}`)
-			.send({ previous_question_id: randomUUID() });
+			.send({ previous_question_id: questionRes.body.id });
 
 		expect(res.statusCode).toBe(404);
-		expect(res.body.message).toBe('errors.question_not_found');
+		expect(res.body.message).toBe('error.question_not_found');
 	});
 
 	it('returns 422 when previous question does not exist', async () => {

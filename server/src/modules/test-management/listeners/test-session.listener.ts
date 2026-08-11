@@ -5,8 +5,8 @@ import { TEST_SESSION_WS_EVENTS, type IWebSocketService, type TestSessionWsEvent
 import type { ILogger } from '@shared/logger';
 import { QuestionExecuteMapper } from '@modules/test-execution/mappers/question-execute.mapper';
 import type { QuestionExecuteResponse } from '@modules/test-execution/dto/response/question-execute-response.dto';
-import { TM_TYPES } from '../test-management.types';
-import type { QuestionRepository } from '../interfaces/repository/question.repository.interface';
+import { QM_TYPES } from '@modules/question-management/question-management.types';
+import type { QuestionRepository } from '@modules/question-management/interfaces/repository/question.repository.interface';
 
 type TestSessionChangeData = {
 	id: string;
@@ -37,7 +37,7 @@ export class TestSessionListener {
 		@inject(APP_TYPES.POSTGRES_LISTEN) private readonly postgresListen: IPostgresListenService,
 		@inject(APP_TYPES.WEBSOCKET) private readonly webSocketService: IWebSocketService,
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
-		@inject(TM_TYPES.QUESTION_REPOSITORY) private readonly questionRepository: QuestionRepository,
+		@inject(QM_TYPES.QUESTION_REPOSITORY) private readonly questionRepository: QuestionRepository,
 	) {
 		this.postgresListen.on(DB_EVENTS.TEST_SESSION_CHANGES, this.handle.bind(this));
 	}

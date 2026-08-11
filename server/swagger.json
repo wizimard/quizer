@@ -15,6 +15,8 @@
         { "name": "auth", "description": "identity-access" },
         { "name": "user", "description": "identity-access" },
         { "name": "test", "description": "test-management" },
+        { "name": "session", "description": "test-management" },
+        { "name": "history", "description": "test-management" },
         { "name": "question", "description": "test-management" },
         { "name": "test-execution", "description": "test-execution" }
     ],
@@ -338,9 +340,9 @@
                 }
             }
         },
-        "/test/{testId}/start": {
+        "/session/{testId}/start": {
             "post": {
-                "tags": ["test"],
+                "tags": ["session"],
                 "summary": "Start test",
                 "description": "Open test for execution.",
                 "security": [{ "BearerAuth": [] }],
@@ -375,9 +377,9 @@
                 }
             }
         },
-        "/test/{testId}/finish": {
+        "/session/{testId}/finish": {
             "post": {
-                "tags": ["test"],
+                "tags": ["session"],
                 "summary": "Finish test",
                 "description": "Close an active test session and return the finished session id.",
                 "security": [{ "BearerAuth": [] }],
@@ -405,9 +407,9 @@
                 }
             }
         },
-        "/test/{testId}/execution-overview": {
+        "/session/{testId}/overview": {
             "get": {
-                "tags": ["test"],
+                "tags": ["session"],
                 "summary": "Get test execution overview",
                 "description": "Get execution overview for a test owned by the current user, including questions and registered users with their answers. MANUAL run mode also includes current question progress fields.",
                 "security": [{ "BearerAuth": [] }],
@@ -435,9 +437,9 @@
                 }
             }
         },
-        "/test/{testId}/next-question": {
+        "/session/{testId}/next-question": {
             "post": {
-                "tags": ["test"],
+                "tags": ["session"],
                 "summary": "Move to next question",
                 "description": "Set the current question for a MANUAL run mode session and return the updated execution overview.",
                 "security": [{ "BearerAuth": [] }],
@@ -474,9 +476,9 @@
                 }
             }
         },
-        "/test/history": {
+        "/history": {
             "get": {
-                "tags": ["test"],
+                "tags": ["history"],
                 "summary": "Get tests history",
                 "description": "Get finished launches across all tests owned by the current user, ordered by started_at descending.",
                 "security": [{ "BearerAuth": [] }],
@@ -496,9 +498,9 @@
                 }
             }
         },
-        "/test/{testId}/history": {
+        "/history/{testId}": {
             "get": {
-                "tags": ["test"],
+                "tags": ["history"],
                 "summary": "Get test history",
                 "description": "Get finished launches for a test owned by the current user, ordered by started_at descending.",
                 "security": [{ "BearerAuth": [] }],
@@ -528,9 +530,9 @@
                 }
             }
         },
-        "/test/{testId}/history/{sessionId}": {
+        "/history/{testId}/{sessionId}": {
             "get": {
-                "tags": ["test"],
+                "tags": ["history"],
                 "summary": "Get test session overview",
                 "description": "Get overview for a finished test session owned by the current user, including questions and registered users with their answers.",
                 "security": [{ "BearerAuth": [] }],

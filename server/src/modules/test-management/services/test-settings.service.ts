@@ -3,7 +3,7 @@ import { TM_TYPES } from '../test-management.types';
 import type { UpdateTestSettingsInput } from '../interfaces/services/input/update-test-settings.input';
 import type { TestSettingsService } from '../interfaces/services/test-settings.service.interface';
 import type { TestFullResult } from '../interfaces/services/results/test-full.result';
-import { TestMapper } from '../mappers/test.mapper';
+import { TestResultMapper } from '../mappers/result/test-result.mapper';
 import type { ILogger } from '@shared/logger';
 import { APP_TYPES } from '@app/app.types';
 import { HttpError } from '@shared/error';
@@ -30,6 +30,6 @@ export class DefaultTestSettingsService implements TestSettingsService {
 
 		this.logger.info({ message: '[TestSettingsService updateSettings] test updated', data: updatedTest });
 
-		return TestMapper.toFullResult(updatedTest);
+		return TestResultMapper.toFullResult(updatedTest);
 	}
 }

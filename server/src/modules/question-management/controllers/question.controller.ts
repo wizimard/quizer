@@ -1,4 +1,4 @@
-import { TM_TYPES } from '../test-management.types';
+import { QM_TYPES } from '../question-management.types';
 import { BaseController } from '@shared/http/controller.base';
 import { inject, injectable } from 'inversify';
 import type { NextFunction, Request, Response } from 'express';
@@ -8,15 +8,18 @@ import { QuestionUpdateRequestDto } from '../dto/http/request/question-update.re
 import { APP_TYPES } from '@app/app.types';
 import type { QuestionChangeOrderRequestDto } from '../dto/http/request/question-change-order.request-dto';
 import { QuestionInputMapper } from '../mappers/input/question-input.mapper';
-import type { QuestionResponse } from '../dto/http/response/question.response-dto';
-import { QuestionMapper } from '../mappers/question.mapper';
-import type { QuestionResult } from '../interfaces/services/results/question.result';
+import type { QuestionResponse } from '@modules/test-management/dto/http/response/question.response-dto';
+import { QuestionResponseMapper } from '../mappers/response/question-response.mapper';
+import type { QuestionResult } from '@modules/test-management/interfaces/services/results/question.result';
 import type { ILogger } from '@shared/logger';
 import type { IMiddleware } from '@shared/http/middleware.interface';
 import type { QuestionService } from '../interfaces/services/question.service.interface';
 import { AuthGuard } from '@modules/identity-access/middleware/auth.guard';
-import { TestOwnershipGuard } from '../middlewares/test-ownership.guard';
+import { TestOwnershipGuard } from '@modules/test-management/middlewares/test-ownership.guard';
 import { ValidateMiddleware } from '@shared/http/validate.middleware';
+import { TestStorage } from '@modules/test-management/storage/test.storage';
+import { TM_TYPES } from '@modules/test-management/test-management.types';
+import { parseIdParam } from '@shared/http/utils/parse-id-param';
 
 @injectable()
 export class QuestionController extends BaseController {
@@ -24,9 +27,8 @@ export class QuestionController extends BaseController {
 	private readonly testOwnershipGuard: TestOwnershipGuard = new TestOwnershipGuard();
 
 	constructor(
-		@inject(TM_TYPES.QUESTION_SERVICE) private readonly questionService: QuestionService,
+		@inject(QM_TYPES.QUESTION_SERVICE) private readonly questionService: QuestionService,
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
-		@inject(TM_TYPES.QUESTION_EXISTS_GUARD) private readonly questionExistsGuard: IMiddleware,
 		@inject(TM_TYPES.TEST_MIDDLEWARE) private readonly testMiddleware: IMiddleware,
 	) {
 		super();
@@ -41,19 +43,19 @@ export class QuestionController extends BaseController {
 			{
 				url: '/:testId/questions/:questionId',
 				method: 'patch',
-				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, this.questionExistsGuard, new ValidateMiddleware(QuestionUpdateRequestDto)],
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, new ValidateMiddleware(QuestionUpdateRequestDto)],
 				handler: this.updateQuestion.bind(this),
 			},
 			{
 				url: '/:testId/questions/:questionId',
 				method: 'delete',
-				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, this.questionExistsGuard],
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard],
 				handler: this.deleteQuestion.bind(this),
 			},
 			{
 				url: '/:testId/questions/:questionId/order',
 				method: 'patch',
-				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, this.questionExistsGuard],
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard],
 				handler: this.changeQuestionOrder.bind(this),
 			},
 		]);
@@ -62,9 +64,9 @@ export class QuestionController extends BaseController {
 	async createQuestion(req: Request<ParamsDictionary, unknown, QuestionCreateRequestDto>, res: Response, _next: NextFunction): Promise<void> {
 		this.logger.info('[QuestionController createQuestion] start');
 
-		const result: QuestionResult = await this.questionService.create(QuestionInputMapper.toCreateInput(req.body, req.test!));
+		const result: QuestionResult = await this.questionService.create(QuestionInputMapper.toCreateInput(req.body, TestStorage.get()!));
 
-		const createdQuestion: QuestionResponse = QuestionMapper.toResponse(result);
+		const createdQuestion: QuestionResponse = QuestionResponseMapper.toResponse(result);
 
 		this.logger.info({ message: '[QuestionController createQuestion] end:', data: createdQuestion });
 
@@ -74,9 +76,10 @@ export class QuestionController extends BaseController {
 	async updateQuestion(req: Request<ParamsDictionary, unknown, QuestionUpdateRequestDto>, res: Response, _next: NextFunction): Promise<void> {
 		this.logger.info('[QuestionController updateQuestion] start');
 
-		const result: QuestionResult = await this.questionService.update(QuestionInputMapper.toUpdateInput(req.body, req.question!));
+		const questionId = parseIdParam(req, 'questionId');
+		const result: QuestionResult = await this.questionService.update(QuestionInputMapper.toUpdateInput(req.body, questionId, TestStorage.get()!.id));
 
-		const updatedQuestion: QuestionResponse = QuestionMapper.toResponse(result);
+		const updatedQuestion: QuestionResponse = QuestionResponseMapper.toResponse(result);
 
 		this.logger.info({ message: '[QuestionController updateQuestion] end:', data: updatedQuestion });
 
@@ -86,7 +89,8 @@ export class QuestionController extends BaseController {
 	async deleteQuestion(req: Request, res: Response, _next: NextFunction): Promise<void> {
 		this.logger.info('[QuestionController deleteQuestion] start');
 
-		await this.questionService.delete(QuestionInputMapper.toDeleteInput(req.question!));
+		const questionId = parseIdParam(req, 'questionId');
+		await this.questionService.delete(QuestionInputMapper.toDeleteInput(questionId, TestStorage.get()!.id));
 
 		this.logger.info('[QuestionController deleteQuestion] end');
 
@@ -96,9 +100,10 @@ export class QuestionController extends BaseController {
 	async changeQuestionOrder(req: Request<ParamsDictionary, unknown, QuestionChangeOrderRequestDto>, res: Response, _next: NextFunction): Promise<void> {
 		this.logger.info('[QuestionController changeQuestionOrder] start');
 
-		const result: QuestionResult[] = await this.questionService.changeOrder(QuestionInputMapper.toChangeOrderInput(req.body, req.question!));
+		const questionId = parseIdParam(req, 'questionId');
+		const result: QuestionResult[] = await this.questionService.changeOrder(QuestionInputMapper.toChangeOrderInput(req.body, questionId, TestStorage.get()!.id));
 
-		const response: QuestionResponse[] = result.map(QuestionMapper.toResponse);
+		const response: QuestionResponse[] = result.map(QuestionResponseMapper.toResponse);
 
 		this.logger.info({ message: '[QuestionController changeQuestionOrder] end:', data: response });
 

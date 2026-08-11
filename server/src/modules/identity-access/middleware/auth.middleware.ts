@@ -3,6 +3,7 @@ import type { Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'inversify';
 import { IA_TYPES } from '../identity-access.types';
 import type { ITokenPayload, ITokenService } from '../interfaces/services/token.service.interface';
+import { UserStorage } from '../storage/user.storage';
 
 @injectable()
 export class AuthMiddleware implements IMiddleware {
@@ -20,7 +21,7 @@ export class AuthMiddleware implements IMiddleware {
 		const user: ITokenPayload | null = this.tokenService.verifyAccessToken(token);
 
 		if (user) {
-			req.user = user;
+			return UserStorage.run(user, () => next());
 		}
 
 		next();

@@ -2,7 +2,7 @@ import { BaseController } from '@shared/http/controller.base';
 import type { Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'inversify';
 import { parseIdParam } from '@shared/http/utils/parse-id-param';
-import { TM_TYPES } from '@modules/test-management';
+import { TM_TYPES, TestStorage } from '@modules/test-management';
 import { TE_TYPES } from '../test-execution.types';
 import { TestExecuteMapper } from '../mappers/test-execute.mapper';
 import { TestRegisterRequestDto } from '../dto/request/test-register-request.dto';
@@ -57,7 +57,7 @@ export class TestExecuteController extends BaseController {
 	}
 
 	async registerUserForTest(req: Request<unknown, unknown, TestRegisterRequestDto>, res: Response, _next: NextFunction): Promise<void> {
-		const result = await this.testRegisterService.registerUserForTest(TestExecutionUserMapper.toTestRegisterUserInput(req.test!, req.body));
+		const result = await this.testRegisterService.registerUserForTest(TestExecutionUserMapper.toTestRegisterUserInput(TestStorage.get()!, req.body));
 
 		this.ok(res, TestExecutionUserMapper.toResponse(result));
 	}
@@ -65,7 +65,7 @@ export class TestExecuteController extends BaseController {
 	async answerQuestion(req: Request<any, unknown, QuestionAnswerRequestDto>, res: Response, _next: NextFunction): Promise<void> {
 		const questionId = parseIdParam(req, 'questionId');
 
-		const result = await this.testAnswerService.answerQuestion(TestExecutionUserMapper.toAnswerQuestionInput(req.test!.id, questionId, req.body));
+		const result = await this.testAnswerService.answerQuestion(TestExecutionUserMapper.toAnswerQuestionInput(TestStorage.get()!.id, questionId, req.body));
 
 		this.ok(res, TestExecutionUserMapper.toResponse(result));
 	}

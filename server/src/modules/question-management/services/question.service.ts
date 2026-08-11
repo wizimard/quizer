@@ -1,26 +1,28 @@
 import { HttpValidationError } from '@shared/error/http-validation.error';
 import { inject, injectable } from 'inversify';
 import type { QuestionRepository } from '../interfaces/repository/question.repository.interface';
-import { TM_TYPES } from '../test-management.types';
+import { QM_TYPES } from '../question-management.types';
 import { HttpError } from '@shared/error';
-import type { QuestionEntity } from '../entities/question.entity';
+import type { QuestionEntity } from '@modules/test-management/entities/question.entity';
+import type { TestEntity } from '@modules/test-management/entities/test.entity';
+import { QuestionResultMapper } from '../mappers/result/question-result.mapper';
+import { QuestionNotFoundError } from '@modules/test-management/utils/errors/question-not-found.error';
 import type { CreateQuestionInput } from '../interfaces/services/input/create-question.input';
 import type { DeleteQuestionInput } from '../interfaces/services/input/delete-question.input';
 import type { ChangeQuestionOrderInput } from '../interfaces/services/input/update-question-order.input';
 import type { UpdateQuestionInput } from '../interfaces/services/input/update-question.input';
 import type { QuestionService } from '../interfaces/services/question.service.interface';
-import { QuestionMapper } from '../mappers/question.mapper';
-import type { QuestionResult } from '../interfaces/services/results/question.result';
-import { QuestionNotFoundError } from '../utils/errors/question-not-found.error';
+import type { QuestionResult } from '@modules/test-management/interfaces/services/results/question.result';
 import type { ILogger } from '@shared/logger';
 import { APP_TYPES } from '@app/app.types';
-import type { TestRepository } from '../interfaces/repository/test.repository.interface';
-import type { TestEntity } from '../entities/test.entity';
+import type { TestRepository } from '@modules/test-management/interfaces/repository/test.repository.interface';
+import { TM_TYPES } from '@modules/test-management/test-management.types';
+import { QuestionWriteMapper } from '../mappers/question-write.mapper';
 
 @injectable()
 export class DefaultQuestionService implements QuestionService {
 	constructor(
-		@inject(TM_TYPES.QUESTION_REPOSITORY) private readonly questionRepository: QuestionRepository,
+		@inject(QM_TYPES.QUESTION_REPOSITORY) private readonly questionRepository: QuestionRepository,
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
 		@inject(TM_TYPES.TEST_REPOSITORY) private readonly testRepository: TestRepository,
 	) {}
@@ -30,7 +32,7 @@ export class DefaultQuestionService implements QuestionService {
 
 		const questions = await this.questionRepository.findByTestId(input.testId);
 
-		const questionEntity = QuestionMapper.buildQuestionFromCreateInput(input, (questions.length + 1) * 1000);
+		const questionEntity = QuestionWriteMapper.fromCreateInput(input, (questions.length + 1) * 1000);
 
 		const errors = questionEntity.validate();
 
@@ -46,13 +48,19 @@ export class DefaultQuestionService implements QuestionService {
 
 		this.logger.info({ message: '[QuestionService create] question created', data: createdQuestion });
 
-		return QuestionMapper.toResult(createdQuestion);
+		return QuestionResultMapper.toResult(createdQuestion);
 	}
 
 	async update(input: UpdateQuestionInput): Promise<QuestionResult> {
 		this.logger.info({ message: '[QuestionService update] start', data: input });
 
-		const questionEntity = QuestionMapper.buildQuestionFromUpdateInput(input);
+		const existingQuestion = await this.questionRepository.findById(input.id);
+
+		if (!existingQuestion || existingQuestion.testId !== input.testId) {
+			throw new QuestionNotFoundError('QuestionService.update');
+		}
+
+		const questionEntity = QuestionWriteMapper.fromUpdateInput(input);
 		const errors = questionEntity.validate();
 
 		if (errors.errors.length) {
@@ -67,7 +75,7 @@ export class DefaultQuestionService implements QuestionService {
 
 		this.logger.info({ message: '[QuestionService update] question updated', data: updatedQuestion });
 
-		return QuestionMapper.toResult(updatedQuestion);
+		return QuestionResultMapper.toResult(updatedQuestion);
 	}
 
 	async delete(input: DeleteQuestionInput): Promise<void> {
@@ -92,7 +100,7 @@ export class DefaultQuestionService implements QuestionService {
 		const test: TestEntity = (await this.testRepository.findFullById(testId))!;
 
 		if (!previousQuestionId && !nextQuestionId) {
-			return test.questions.map(QuestionMapper.toResult);
+			return test.questions.map(QuestionResultMapper.toResult);
 		}
 
 		let newSortKey: number = 0;
@@ -127,7 +135,11 @@ export class DefaultQuestionService implements QuestionService {
 
 		newSortKey = Math.round(newSortKey);
 
-		const question: QuestionEntity = test.questions.find((question) => questionId === question.id)!;
+		const question: QuestionEntity | undefined = test.questions.find((q) => questionId === q.id);
+
+		if (!question) {
+			throw new QuestionNotFoundError('QuestionService.changeOrder');
+		}
 
 		question.sortKey = newSortKey;
 
@@ -149,7 +161,7 @@ export class DefaultQuestionService implements QuestionService {
 
 			await this.questionRepository.updateQuestionsOrders([question]);
 
-			return test.questions.map(QuestionMapper.toResult);
+			return test.questions.map(QuestionResultMapper.toResult);
 		}
 
 		for (let i = 0; i < test.questions.length; i++) {
@@ -160,6 +172,6 @@ export class DefaultQuestionService implements QuestionService {
 
 		this.logger.info('[QuestionService changeOrder] all questions orders changed in database');
 
-		return test.questions.map(QuestionMapper.toResult);
+		return test.questions.map(QuestionResultMapper.toResult);
 	}
 }

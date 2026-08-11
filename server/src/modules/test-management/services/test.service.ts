@@ -12,6 +12,7 @@ import type { TestService } from '../interfaces/services/test.service.interface'
 import type { TestFullResult } from '../interfaces/services/results/test-full.result';
 import type { TestResult } from '../interfaces/services/results/test.result';
 import { TestMapper } from '../mappers/test.mapper';
+import { TestResultMapper } from '../mappers/result/test-result.mapper';
 import type { GetTestByIdInput } from '../interfaces/services/input/get-test-by-id.input';
 import { TestOpenError } from '../utils/errors/test-open.error';
 import type { ILogger } from '@shared/logger';
@@ -47,7 +48,7 @@ export class DefaultTestService implements TestService {
 
 		this.logger.info({ message: '[TestService create] test created', data: createdTest });
 
-		return TestMapper.toFullResult(createdTest);
+		return TestResultMapper.toFullResult(createdTest);
 	}
 
 	async update(input: UpdateTestInput): Promise<TestFullResult> {
@@ -67,7 +68,7 @@ export class DefaultTestService implements TestService {
 
 		this.logger.info({ message: '[TestService update] test updated', data: updatedTest });
 
-		return TestMapper.toFullResult(updatedTest);
+		return TestResultMapper.toFullResult(updatedTest);
 	}
 
 	async delete(input: DeleteTestInput): Promise<void> {
@@ -87,7 +88,7 @@ export class DefaultTestService implements TestService {
 
 		const tests: TestEntity[] = await this.testRepository.findByAuthor(input.authorId);
 
-		return tests.map(TestMapper.toResult);
+		return tests.map(TestResultMapper.toResult);
 	}
 
 	async getFullByIdAndCheckOwnership(input: GetFullTestByIdInput): Promise<TestFullResult> {
@@ -105,7 +106,7 @@ export class DefaultTestService implements TestService {
 
 		this.logger.info({ message: '[TestService getFullById] test found', data: test });
 
-		return TestMapper.toFullResult(test);
+		return TestResultMapper.toFullResult(test);
 	}
 
 	async getFullById(testId: string): Promise<TestEntity | null> {
@@ -125,6 +126,6 @@ export class DefaultTestService implements TestService {
 
 		this.logger.info({ message: '[TestService getById] test found', data: test });
 
-		return TestMapper.toResult(test);
+		return TestResultMapper.toResult(test);
 	}
 }

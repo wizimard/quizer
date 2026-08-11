@@ -38,7 +38,7 @@ const startTest = async (testId: string, payload: Partial<{ duration: number }> 
 	const { accessToken } = await authUtils.login();
 
 	return request(application.app)
-		.post(`/api/test/${testId}/start`)
+		.post(`/api/session/${testId}/start`)
 		.set('Authorization', `Bearer ${accessToken}`)
 		.send({
 			...payload,
@@ -49,7 +49,7 @@ const startTest = async (testId: string, payload: Partial<{ duration: number }> 
 const finishTest = async (testId: string): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
-	return request(application.app).post(`/api/test/${testId}/finish`).set('Authorization', `Bearer ${accessToken}`);
+	return request(application.app).post(`/api/session/${testId}/finish`).set('Authorization', `Bearer ${accessToken}`);
 };
 
 beforeAll(async () => {

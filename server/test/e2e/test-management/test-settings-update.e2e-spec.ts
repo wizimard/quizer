@@ -131,6 +131,8 @@ describe('PATCH /api/test/:testId/settings', () => {
 			author_id: authUtils.userId,
 			title: updatedTitle,
 			status: createRes.body.status,
+			launches_count: 0,
+			last_launch_date: null,
 			questions: [],
 			settings: {
 				is_show_answers_after_completion: true,

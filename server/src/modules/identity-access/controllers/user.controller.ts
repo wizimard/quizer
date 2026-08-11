@@ -8,6 +8,7 @@ import { IA_TYPES } from '..';
 import type { UserService } from '../services/user.service';
 import { AuthGuard } from '../middleware/auth.guard';
 import type { ILogger } from '@shared/logger';
+import { UserStorage } from '../storage/user.storage';
 
 // TODO: add delete user
 @injectable()
@@ -35,13 +36,13 @@ export class UserController extends BaseController {
 		]);
 	}
 
-	async getCurrentUser(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		const user: User = await this.userService.getUserById(req.user!.id);
+	async getCurrentUser(_req: Request, res: Response, _next: NextFunction): Promise<void> {
+		const user: User = await this.userService.getUserById(UserStorage.get()!.id);
 		this.ok(res, UserMapper.toHttp(user));
 	}
 
-	async deleteUser(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		await this.userService.deleteUser(req.user!.id);
+	async deleteUser(_req: Request, res: Response, _next: NextFunction): Promise<void> {
+		await this.userService.deleteUser(UserStorage.get()!.id);
 
 		this.noContent(res);
 	}

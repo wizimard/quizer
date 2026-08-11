@@ -105,7 +105,7 @@ describe('PATCH /api/question/:testId/questions/:questionId', () => {
 			.send(questionPayload('Updated question'));
 
 		expect(res.statusCode).toBe(404);
-		expect(res.body.message).toBe('errors.question_not_found');
+		expect(res.body.message).toBe('error.question_not_found');
 	});
 
 	it('returns 422 for missing required fields', async () => {
