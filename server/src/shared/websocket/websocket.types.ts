@@ -1,9 +1,12 @@
-export const WEBSOCKET_GROUPS = ['participants', 'teacher'] as const;
+export const WEBSOCKET_GROUPS = {
+	PARTICIPANTS: 'participants',
+	TEACHER: 'teacher',
+} as const;
 
-export type WebSocketGroup = (typeof WEBSOCKET_GROUPS)[number];
+export type WebSocketGroup = (typeof WEBSOCKET_GROUPS)[keyof typeof WEBSOCKET_GROUPS];
 
 export function isWebSocketGroup(value: string): value is WebSocketGroup {
-	return (WEBSOCKET_GROUPS as readonly string[]).includes(value);
+	return (Object.values(WEBSOCKET_GROUPS) as readonly string[]).includes(value);
 }
 
 export type WebSocketConnectionParams = {

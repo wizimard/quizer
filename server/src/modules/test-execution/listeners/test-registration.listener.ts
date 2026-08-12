@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { APP_TYPES } from '@app/app.types';
 import { DB_EVENTS, type IPostgresListenService } from '@shared/persistence';
-import { TEST_REGISTRATION_WS_EVENTS, type IWebSocketService, type TestRegistrationWsEvent } from '@shared/websocket';
+import { TEST_REGISTRATION_WS_EVENTS, WEBSOCKET_GROUPS, type IWebSocketService, type TestRegistrationWsEvent } from '@shared/websocket';
 import type { ILogger } from '@shared/logger';
 
 type TestRegistrationChangeData = {
@@ -66,7 +66,7 @@ export class TestRegistrationListener {
 			started_from: payload.data.created_at + 'Z',
 		};
 
-		this.webSocketService.send(testId, 'teacher', {
+		this.webSocketService.send(testId, WEBSOCKET_GROUPS.TEACHER, {
 			type,
 			data: sendData,
 		});

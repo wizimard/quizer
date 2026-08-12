@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { APP_TYPES } from '@app/app.types';
 import { DB_EVENTS, type IPostgresListenService } from '@shared/persistence';
-import { TEST_SESSION_WS_EVENTS, type IWebSocketService, type TestSessionWsEvent } from '@shared/websocket';
+import { TEST_SESSION_WS_EVENTS, WEBSOCKET_GROUPS, type IWebSocketService, type TestSessionWsEvent } from '@shared/websocket';
 import type { ILogger } from '@shared/logger';
 import { QuestionExecuteMapper } from '@modules/test-execution/mappers/question-execute.mapper';
 import type { QuestionExecuteResponse } from '@modules/test-execution/dto/response/question-execute-response.dto';
@@ -77,7 +77,7 @@ export class TestSessionListener {
 			finished_at: payload.data.finished_at,
 		};
 
-		this.webSocketService.send(testId, 'participants', {
+		this.webSocketService.send(testId, WEBSOCKET_GROUPS.PARTICIPANTS, {
 			type,
 			data,
 		});

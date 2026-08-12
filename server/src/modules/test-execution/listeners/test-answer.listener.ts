@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { APP_TYPES } from '@app/app.types';
 import { DB_EVENTS, type IPostgresListenService } from '@shared/persistence';
-import { TEST_ANSWER_WS_EVENTS, type IWebSocketService, type TestAnswerWsEvent } from '@shared/websocket';
+import { TEST_ANSWER_WS_EVENTS, WEBSOCKET_GROUPS, type IWebSocketService, type TestAnswerWsEvent } from '@shared/websocket';
 import type { ILogger } from '@shared/logger';
 import { QM_TYPES } from '@modules/question-management/question-management.types';
 import type { QuestionRepository } from '@modules/question-management/interfaces/repository/question.repository.interface';
@@ -74,7 +74,7 @@ export class TestAnswerListener {
 			is_correct: await this.resolveIsCorrect(payload.data),
 		};
 
-		this.webSocketService.send(testId, 'teacher', {
+		this.webSocketService.send(testId, WEBSOCKET_GROUPS.TEACHER, {
 			type,
 			data,
 		});
