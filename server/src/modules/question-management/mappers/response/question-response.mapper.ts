@@ -9,6 +9,8 @@ export class QuestionResponseMapper {
 			test_id: question.testId,
 			sort_key: question.sortKey,
 			description: question.description,
+			score: question.score,
+			image: question.image,
 			config: QuestionConfigMapper.toHttp(question.config),
 		};
 	}

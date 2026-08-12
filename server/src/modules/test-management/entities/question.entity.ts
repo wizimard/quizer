@@ -6,15 +6,19 @@ export class QuestionEntity {
 	public readonly id: string;
 	public readonly testId: string;
 	public description: string;
+	public image: string | null;
 	public sortKey: number;
+	public score: number;
 	private _config: QuestionConfigBase;
 
-	constructor(id: string, testId: string, description: string, sortKey: number, config: QuestionConfigBase) {
+	constructor(id: string, testId: string, description: string, sortKey: number, config: QuestionConfigBase, score?: number, image?: string | null) {
 		this.id = id;
 		this.testId = testId;
 		this.description = description;
 		this.sortKey = sortKey;
 		this._config = config;
+		this.score = score ?? 1;
+		this.image = image ?? null;
 	}
 
 	get type(): string {

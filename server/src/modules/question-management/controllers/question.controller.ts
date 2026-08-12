@@ -17,6 +17,7 @@ import type { QuestionService } from '../interfaces/services/question.service.in
 import { AuthGuard } from '@modules/identity-access/middleware/auth.guard';
 import { TestOwnershipGuard } from '@modules/test-management/middlewares/test-ownership.guard';
 import { ValidateMiddleware } from '@shared/http/validate.middleware';
+import { ImageUploadMiddleware } from '@shared/http/image-upload.middleware';
 import { TestStorage } from '@modules/test-management/storage/test.storage';
 import { TM_TYPES } from '@modules/test-management/test-management.types';
 import { parseIdParam } from '@shared/http/utils/parse-id-param';
@@ -25,6 +26,7 @@ import { parseIdParam } from '@shared/http/utils/parse-id-param';
 export class QuestionController extends BaseController {
 	private readonly authGuard: AuthGuard = new AuthGuard();
 	private readonly testOwnershipGuard: TestOwnershipGuard = new TestOwnershipGuard();
+	private readonly imageUploadMiddleware: ImageUploadMiddleware = new ImageUploadMiddleware();
 
 	constructor(
 		@inject(QM_TYPES.QUESTION_SERVICE) private readonly questionService: QuestionService,
@@ -37,13 +39,13 @@ export class QuestionController extends BaseController {
 			{
 				url: '/:testId/questions',
 				method: 'post',
-				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, new ValidateMiddleware(QuestionCreateRequestDto)],
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, this.imageUploadMiddleware, new ValidateMiddleware(QuestionCreateRequestDto)],
 				handler: this.createQuestion.bind(this),
 			},
 			{
 				url: '/:testId/questions/:questionId',
 				method: 'patch',
-				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, new ValidateMiddleware(QuestionUpdateRequestDto)],
+				middlewares: [this.authGuard, this.testMiddleware, this.testOwnershipGuard, this.imageUploadMiddleware, new ValidateMiddleware(QuestionUpdateRequestDto)],
 				handler: this.updateQuestion.bind(this),
 			},
 			{
@@ -64,7 +66,7 @@ export class QuestionController extends BaseController {
 	async createQuestion(req: Request<ParamsDictionary, unknown, QuestionCreateRequestDto>, res: Response, _next: NextFunction): Promise<void> {
 		this.logger.info('[QuestionController createQuestion] start');
 
-		const result: QuestionResult = await this.questionService.create(QuestionInputMapper.toCreateInput(req.body, TestStorage.get()!));
+		const result: QuestionResult = await this.questionService.create(QuestionInputMapper.toCreateInput(req.body, TestStorage.get()!, req.file));
 
 		const createdQuestion: QuestionResponse = QuestionResponseMapper.toResponse(result);
 
@@ -77,7 +79,7 @@ export class QuestionController extends BaseController {
 		this.logger.info('[QuestionController updateQuestion] start');
 
 		const questionId = parseIdParam(req, 'questionId');
-		const result: QuestionResult = await this.questionService.update(QuestionInputMapper.toUpdateInput(req.body, questionId, TestStorage.get()!.id));
+		const result: QuestionResult = await this.questionService.update(QuestionInputMapper.toUpdateInput(req.body, questionId, TestStorage.get()!.id, req.file));
 
 		const updatedQuestion: QuestionResponse = QuestionResponseMapper.toResponse(result);
 

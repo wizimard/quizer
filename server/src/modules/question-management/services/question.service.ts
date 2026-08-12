@@ -18,6 +18,7 @@ import { APP_TYPES } from '@app/app.types';
 import type { TestRepository } from '@modules/test-management/interfaces/repository/test.repository.interface';
 import { TM_TYPES } from '@modules/test-management/test-management.types';
 import { QuestionWriteMapper } from '../mappers/question-write.mapper';
+import type { IFileStorageService } from '@shared/storage';
 
 @injectable()
 export class DefaultQuestionService implements QuestionService {
@@ -25,6 +26,7 @@ export class DefaultQuestionService implements QuestionService {
 		@inject(QM_TYPES.QUESTION_REPOSITORY) private readonly questionRepository: QuestionRepository,
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
 		@inject(TM_TYPES.TEST_REPOSITORY) private readonly testRepository: TestRepository,
+		@inject(APP_TYPES.FILE_STORAGE) private readonly fileStorage: IFileStorageService,
 	) {}
 
 	async create(input: CreateQuestionInput): Promise<QuestionResult> {
@@ -34,15 +36,27 @@ export class DefaultQuestionService implements QuestionService {
 
 		const questionEntity = QuestionWriteMapper.fromCreateInput(input, (questions.length + 1) * 1000);
 
+		if (input.imageFile) {
+			questionEntity.image = await this.fileStorage.save(input.imageFile.buffer, input.imageFile.originalName);
+		}
+
 		const errors = questionEntity.validate();
 
 		if (errors.errors.length) {
+			if (questionEntity.image) {
+				await this.deleteImageSafe(questionEntity.image);
+			}
+
 			throw new HttpValidationError('validation_failed', 'QuestionService.create', errors);
 		}
 
 		const createdQuestion = await this.questionRepository.create(questionEntity);
 
 		if (!createdQuestion) {
+			if (questionEntity.image) {
+				await this.deleteImageSafe(questionEntity.image);
+			}
+
 			throw new HttpError(500, 'question_not_created', 'QuestionService.create');
 		}
 
@@ -61,16 +75,36 @@ export class DefaultQuestionService implements QuestionService {
 		}
 
 		const questionEntity = QuestionWriteMapper.fromUpdateInput(input);
+		const previousImage = existingQuestion.image;
+
+		if (input.imageFile) {
+			questionEntity.image = await this.fileStorage.save(input.imageFile.buffer, input.imageFile.originalName);
+		} else {
+			questionEntity.image = existingQuestion.image;
+		}
+
 		const errors = questionEntity.validate();
 
 		if (errors.errors.length) {
+			if (input.imageFile && questionEntity.image) {
+				await this.deleteImageSafe(questionEntity.image);
+			}
+
 			throw new HttpValidationError('validation_failed', 'QuestionService.update', errors);
 		}
 
 		const updatedQuestion = await this.questionRepository.update(questionEntity);
 
 		if (!updatedQuestion) {
+			if (input.imageFile && questionEntity.image) {
+				await this.deleteImageSafe(questionEntity.image);
+			}
+
 			throw new HttpError(500, 'question_not_updated', 'QuestionService.update');
+		}
+
+		if (input.imageFile && previousImage) {
+			await this.deleteImageSafe(previousImage);
 		}
 
 		this.logger.info({ message: '[QuestionService update] question updated', data: updatedQuestion });
@@ -81,10 +115,20 @@ export class DefaultQuestionService implements QuestionService {
 	async delete(input: DeleteQuestionInput): Promise<void> {
 		this.logger.info({ message: '[QuestionService delete] start', data: input });
 
+		const existingQuestion = await this.questionRepository.findById(input.id);
+
+		if (!existingQuestion || existingQuestion.testId !== input.testId) {
+			throw new QuestionNotFoundError('QuestionService.delete');
+		}
+
 		const isDeleted = await this.questionRepository.delete(input.id, input.testId);
 
 		if (!isDeleted) {
 			throw new QuestionNotFoundError('QuestionService.delete');
+		}
+
+		if (existingQuestion.image) {
+			await this.deleteImageSafe(existingQuestion.image);
 		}
 
 		this.logger.info('[QuestionService delete] question deleted');
@@ -173,5 +217,13 @@ export class DefaultQuestionService implements QuestionService {
 		this.logger.info('[QuestionService changeOrder] all questions orders changed in database');
 
 		return test.questions.map(QuestionResultMapper.toResult);
+	}
+
+	private async deleteImageSafe(relativePath: string): Promise<void> {
+		try {
+			await this.fileStorage.delete(relativePath);
+		} catch (error: unknown) {
+			this.logger.warn({ message: '[QuestionService deleteImageSafe] failed to delete image', data: { relativePath, error } });
+		}
 	}
 }

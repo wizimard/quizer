@@ -45,6 +45,8 @@ model TestQuestionModel {
   id           String                   @id @default(uuid())
   test_id      String
   description  String
+  image        String?
+  score        Int     @default(1)
   sort_key     Int
   config       Json?
   test         TestModel                @relation(fields: [test_id], references: [id], onDelete: Cascade)

@@ -95,6 +95,9 @@ export class TestResponseMapper {
 	}
 
 	static toTestSessionOverviewResponse(testSessionOverview: TestSessionOverviewResult): TestSessionOverviewResponse {
+		const questionScoreById = new Map(testSessionOverview.questions.map((question) => [question.id, question.score]));
+		const maxScore = testSessionOverview.questions.reduce((total, question) => total + question.score, 0);
+
 		return {
 			id: testSessionOverview.test.id,
 			title: testSessionOverview.test.title,
@@ -106,20 +109,30 @@ export class TestResponseMapper {
 				};
 			}),
 			registered_users: testSessionOverview.users.map((user) => {
+				const answers = user.answers.map((answer) => {
+					return {
+						question_id: answer.questionId,
+						is_correct: answer.isCorrect,
+						skipped: answer.skipped,
+					};
+				});
+
 				return {
 					id: user.id,
 					first_name: user.firstName,
 					last_name: user.lastName,
 					started_from: user.startedFrom,
-					answers: user.answers.map((answer) => {
-						return {
-							question_id: answer.questionId,
-							is_correct: answer.isCorrect,
-							skipped: answer.skipped,
-						};
-					}),
+					answers,
+					score: answers.reduce((total, answer) => {
+						if (!answer.is_correct) {
+							return total;
+						}
+
+						return total + (questionScoreById.get(answer.question_id) ?? 0);
+					}, 0),
 				};
 			}),
+			max_score: maxScore,
 			started_at: testSessionOverview.test.startedFrom,
 			finished_at: testSessionOverview.test.finishedAt,
 		};

@@ -22,5 +22,7 @@ export interface QuestionResponse {
 	test_id: string;
 	sort_key: number;
 	description: string;
+	score: number;
+	image: string | null;
 	config: QuestionResponseConfig;
 }

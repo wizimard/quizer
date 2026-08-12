@@ -12,10 +12,18 @@ export class QuestionWriteMapper {
 			input.description,
 			sortKey,
 			createQuestionConfigFromPayload(input.config as unknown as { type: string } & Record<string, unknown>),
+			input.score,
 		);
 	}
 
 	static fromUpdateInput(input: UpdateQuestionInput): QuestionEntity {
-		return new QuestionEntity(input.id, input.testId, input.description, 0, createQuestionConfigFromPayload(input.config as unknown as { type: string } & Record<string, unknown>));
+		return new QuestionEntity(
+			input.id,
+			input.testId,
+			input.description,
+			0,
+			createQuestionConfigFromPayload(input.config as unknown as { type: string } & Record<string, unknown>),
+			input.score,
+		);
 	}
 }

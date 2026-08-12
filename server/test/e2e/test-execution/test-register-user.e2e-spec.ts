@@ -4,6 +4,7 @@ import { getBoot, resetBoot } from '../../../src/main';
 import { Bootstrap } from '../../../src/app/bootstrap';
 import { AuthUtils } from '../common/auth.util';
 import { TestUtils } from '../common/test.util';
+import { QuestionUtils } from '../common/question.util';
 
 type BootResult = Awaited<ReturnType<typeof getBoot>>;
 
@@ -12,6 +13,7 @@ let container: BootResult['container'];
 
 let authUtils: AuthUtils;
 let testUtils: TestUtils;
+let questionUtils: QuestionUtils;
 
 const registerPayload = (
 	overrides: Partial<{
@@ -26,22 +28,6 @@ const registerPayload = (
 
 const registerUser = async (testId: string, payload: { first_name: string; last_name: string } = registerPayload()): Promise<Response> => {
 	return request(application.app).post(`/api/test-execute/${testId}/register`).send(payload);
-};
-
-const createQuestion = async (testId: string, description: string): Promise<Response> => {
-	const { accessToken } = await authUtils.login();
-
-	return request(application.app)
-		.post(`/api/question/${testId}/questions`)
-		.set('Authorization', `Bearer ${accessToken}`)
-		.send({
-			description,
-			config: {
-				type: 'input',
-				answer: '4',
-				ignore_case: true,
-			},
-		});
 };
 
 const startTest = async (testId: string, payload: Partial<{ duration: number }> = {}): Promise<Response> => {
@@ -72,6 +58,7 @@ beforeAll(async () => {
 	await authUtils.register();
 
 	testUtils = new TestUtils(application, authUtils);
+	questionUtils = new QuestionUtils(application, authUtils);
 });
 
 describe('POST /api/test-execute/:testId/register', () => {
@@ -201,7 +188,7 @@ describe('POST /api/test-execute/:testId/register', () => {
 
 	it('returns the first question as current_question when the test has questions', async () => {
 		const createRes = await testUtils.createTest('Register with questions');
-		const questionRes = await createQuestion(createRes.body.id, `What is 2+2? ${Date.now()}`);
+		const questionRes = await questionUtils.createQuestion(createRes.body.id, `What is 2+2? ${Date.now()}`);
 
 		expect(questionRes.statusCode).toBe(201);
 

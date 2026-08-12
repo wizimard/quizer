@@ -4,6 +4,7 @@ import { getBoot, resetBoot } from '../../../src/main';
 import { Bootstrap } from '../../../src/app/bootstrap';
 import { AuthUtils } from '../common/auth.util';
 import { TestUtils } from '../common/test.util';
+import { QuestionUtils } from '../common/question.util';
 
 type BootResult = Awaited<ReturnType<typeof getBoot>>;
 
@@ -12,21 +13,7 @@ let container: BootResult['container'];
 
 let authUtils: AuthUtils;
 let testUtils: TestUtils;
-
-const questionPayload = (description: string): { description: string; config: object } => ({
-	description,
-	config: {
-		type: 'input',
-		answer: '4',
-		ignore_case: true,
-	},
-});
-
-const createQuestion = async (testId: string, description: string): Promise<Response> => {
-	const { accessToken } = await authUtils.login();
-
-	return request(application.app).post(`/api/question/${testId}/questions`).set('Authorization', `Bearer ${accessToken}`).send(questionPayload(description));
-};
+let questionUtils: QuestionUtils;
 
 const startTest = async (testId: string, runMode: 'MANUAL' | 'FREE' = 'MANUAL'): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
@@ -82,6 +69,7 @@ beforeAll(async () => {
 	await authUtils.register();
 
 	testUtils = new TestUtils(application, authUtils);
+	questionUtils = new QuestionUtils(application, authUtils);
 });
 
 describe('GET /api/history/:testId/:sessionId', () => {
@@ -148,7 +136,7 @@ describe('GET /api/history/:testId/:sessionId', () => {
 
 	it('returns finished session overview without registered users', async () => {
 		const createRes = await testUtils.createTest('Session overview empty');
-		const questionRes = await createQuestion(createRes.body.id, `Empty question ${Date.now()}`);
+		const questionRes = await questionUtils.createQuestion(createRes.body.id, `Empty question ${Date.now()}`);
 
 		await startTest(createRes.body.id, 'MANUAL');
 		await finishTest(createRes.body.id);
@@ -163,6 +151,7 @@ describe('GET /api/history/:testId/:sessionId', () => {
 			run_mode: 'MANUAL',
 			questions: [{ id: questionRes.body.id, sort_key: 1000 }],
 			registered_users: [],
+			max_score: 1,
 			started_at: expect.any(String),
 			finished_at: expect.any(String),
 		});
@@ -171,8 +160,8 @@ describe('GET /api/history/:testId/:sessionId', () => {
 
 	it('returns finished session overview with registered users', async () => {
 		const createRes = await testUtils.createTest('Session overview with users');
-		const firstQuestionRes = await createQuestion(createRes.body.id, `Users first ${Date.now()}`);
-		const secondQuestionRes = await createQuestion(createRes.body.id, `Users second ${Date.now()}`);
+		const firstQuestionRes = await questionUtils.createQuestion(createRes.body.id, `Users first ${Date.now()}`);
+		const secondQuestionRes = await questionUtils.createQuestion(createRes.body.id, `Users second ${Date.now()}`);
 
 		await startTest(createRes.body.id, 'FREE');
 
@@ -202,6 +191,7 @@ describe('GET /api/history/:testId/:sessionId', () => {
 					first_name: 'Alice',
 					last_name: 'Smith',
 					answers: [],
+					score: 0,
 					started_from: expect.any(String),
 				},
 				{
@@ -209,9 +199,11 @@ describe('GET /api/history/:testId/:sessionId', () => {
 					first_name: 'Bob',
 					last_name: 'Johnson',
 					answers: [],
+					score: 0,
 					started_from: expect.any(String),
 				},
 			],
+			max_score: 2,
 			started_at: expect.any(String),
 			finished_at: expect.any(String),
 		});

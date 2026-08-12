@@ -4,6 +4,7 @@ import { getBoot, resetBoot } from '../../../src/main';
 import { Bootstrap } from '../../../src/app/bootstrap';
 import { AuthUtils } from '../common/auth.util';
 import { TestUtils } from '../common/test.util';
+import { QuestionUtils, type QuestionResponseBody } from '../common/question.util';
 
 type BootResult = Awaited<ReturnType<typeof getBoot>>;
 
@@ -12,40 +13,12 @@ let container: BootResult['container'];
 
 let authUtils: AuthUtils;
 let testUtils: TestUtils;
-
-const questionPayload = (
-	description: string,
-	overrides: Partial<{
-		config: object;
-	}> = {},
-): { description: string; config: object } => ({
-	description,
-	config: {
-		type: 'input',
-		answer: '4',
-		ignore_case: true,
-	},
-	...overrides,
-});
-
-const createQuestion = async (testId: string, description: string): Promise<Response> => {
-	const { accessToken } = await authUtils.login();
-
-	return request(application.app).post(`/api/question/${testId}/questions`).set('Authorization', `Bearer ${accessToken}`).send(questionPayload(description));
-};
+let questionUtils: QuestionUtils;
 
 const changeQuestionOrder = async (testId: string, questionId: string, body: { previous_question_id?: string | null; next_question_id?: string | null } = {}): Promise<Response> => {
 	const { accessToken } = await authUtils.login();
 
 	return request(application.app).patch(`/api/question/${testId}/questions/${questionId}/order`).set('Authorization', `Bearer ${accessToken}`).send(body);
-};
-
-type QuestionResponseBody = {
-	id: string;
-	test_id: string;
-	sort_key: number;
-	description: string;
-	config: object;
 };
 
 const sortedQuestionIds = (questions: { id: string; sort_key: number }[]): string[] => {
@@ -62,6 +35,7 @@ beforeAll(async () => {
 	await authUtils.register();
 
 	testUtils = new TestUtils(application, authUtils);
+	questionUtils = new QuestionUtils(application, authUtils);
 });
 
 describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
@@ -96,7 +70,7 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 
 	it('returns 403 when changing question order for another user test', async () => {
 		const createRes = await testUtils.createTest('Original title');
-		const questionRes = await createQuestion(createRes.body.id, 'Original question');
+		const questionRes = await questionUtils.createQuestion(createRes.body.id, 'Original question');
 		const otherAuthUtils = new AuthUtils(application);
 
 		await otherAuthUtils.register();
@@ -115,7 +89,7 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 
 	it('returns 404 for non-existent question', async () => {
 		const createRes = await testUtils.createTest('Original title');
-		const questionRes = await createQuestion(createRes.body.id, 'Anchor question');
+		const questionRes = await questionUtils.createQuestion(createRes.body.id, 'Anchor question');
 		const { accessToken } = await authUtils.login();
 
 		const res = await request(application.app)
@@ -129,7 +103,7 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 
 	it('returns 422 when previous question does not exist', async () => {
 		const createRes = await testUtils.createTest('Original title');
-		const questionRes = await createQuestion(createRes.body.id, 'Original question');
+		const questionRes = await questionUtils.createQuestion(createRes.body.id, 'Original question');
 
 		const res = await changeQuestionOrder(createRes.body.id, questionRes.body.id, { previous_question_id: randomUUID() });
 
@@ -139,7 +113,7 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 
 	it('returns 422 when next question does not exist', async () => {
 		const createRes = await testUtils.createTest('Original title');
-		const questionRes = await createQuestion(createRes.body.id, 'Original question');
+		const questionRes = await questionUtils.createQuestion(createRes.body.id, 'Original question');
 
 		const res = await changeQuestionOrder(createRes.body.id, questionRes.body.id, { next_question_id: randomUUID() });
 
@@ -149,8 +123,8 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 
 	it('returns questions unchanged when order payload is empty', async () => {
 		const createRes = await testUtils.createTest('Original title');
-		const firstQuestionRes = await createQuestion(createRes.body.id, `First question ${Date.now()}`);
-		const secondQuestionRes = await createQuestion(createRes.body.id, `Second question ${Date.now()}`);
+		const firstQuestionRes = await questionUtils.createQuestion(createRes.body.id, `First question ${Date.now()}`);
+		const secondQuestionRes = await questionUtils.createQuestion(createRes.body.id, `Second question ${Date.now()}`);
 
 		const res = await changeQuestionOrder(createRes.body.id, secondQuestionRes.body.id, {});
 
@@ -162,9 +136,9 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 
 	it('changes question sort_key using next question id', async () => {
 		const createRes = await testUtils.createTest('Original title');
-		const firstQuestionRes = await createQuestion(createRes.body.id, `First question ${Date.now()}`);
-		await createQuestion(createRes.body.id, `Second question ${Date.now()}`);
-		const thirdQuestionRes = await createQuestion(createRes.body.id, `Third question ${Date.now()}`);
+		const firstQuestionRes = await questionUtils.createQuestion(createRes.body.id, `First question ${Date.now()}`);
+		await questionUtils.createQuestion(createRes.body.id, `Second question ${Date.now()}`);
+		const thirdQuestionRes = await questionUtils.createQuestion(createRes.body.id, `Third question ${Date.now()}`);
 
 		const res = await changeQuestionOrder(createRes.body.id, firstQuestionRes.body.id, {
 			next_question_id: thirdQuestionRes.body.id,
@@ -182,9 +156,9 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 
 	it('returns updated questions when changing order with previous question id', async () => {
 		const createRes = await testUtils.createTest('Original title');
-		const firstQuestionRes = await createQuestion(createRes.body.id, `First question ${Date.now()}`);
-		const secondQuestionRes = await createQuestion(createRes.body.id, `Second question ${Date.now()}`);
-		const thirdQuestionRes = await createQuestion(createRes.body.id, `Third question ${Date.now()}`);
+		const firstQuestionRes = await questionUtils.createQuestion(createRes.body.id, `First question ${Date.now()}`);
+		const secondQuestionRes = await questionUtils.createQuestion(createRes.body.id, `Second question ${Date.now()}`);
+		const thirdQuestionRes = await questionUtils.createQuestion(createRes.body.id, `Third question ${Date.now()}`);
 
 		const res = await changeQuestionOrder(createRes.body.id, thirdQuestionRes.body.id, {
 			previous_question_id: firstQuestionRes.body.id,
@@ -203,7 +177,7 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 		const questions: Response[] = [];
 
 		for (let i = 0; i < 5; i++) {
-			questions.push(await createQuestion(createRes.body.id, `Question ${i + 1} ${Date.now()}`));
+			questions.push(await questionUtils.createQuestion(createRes.body.id, `Question ${i + 1} ${Date.now()}`));
 		}
 
 		const res = await changeQuestionOrder(createRes.body.id, questions[4]!.body.id, {
@@ -218,9 +192,9 @@ describe('PATCH /api/question/:testId/questions/:questionId/order', () => {
 
 	it('persists updated question sort_key', async () => {
 		const createRes = await testUtils.createTest('Original title');
-		const firstQuestionRes = await createQuestion(createRes.body.id, `First question ${Date.now()}`);
-		await createQuestion(createRes.body.id, `Second question ${Date.now()}`);
-		const thirdQuestionRes = await createQuestion(createRes.body.id, `Third question ${Date.now()}`);
+		const firstQuestionRes = await questionUtils.createQuestion(createRes.body.id, `First question ${Date.now()}`);
+		await questionUtils.createQuestion(createRes.body.id, `Second question ${Date.now()}`);
+		const thirdQuestionRes = await questionUtils.createQuestion(createRes.body.id, `Third question ${Date.now()}`);
 		const { accessToken } = await authUtils.login();
 
 		const changeRes = await changeQuestionOrder(createRes.body.id, firstQuestionRes.body.id, {

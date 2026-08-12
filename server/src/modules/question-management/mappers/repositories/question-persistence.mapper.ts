@@ -9,7 +9,7 @@ export class QuestionPersistenceMapper {
 	static toDomain(questionModel: TestQuestionModel): QuestionEntity {
 		const config = createQuestionConfigFromPayload(questionModel.config as { type: string } & Record<string, unknown>);
 
-		return new QuestionEntity(questionModel.id, questionModel.test_id, questionModel.description, questionModel.sort_key, config);
+		return new QuestionEntity(questionModel.id, questionModel.test_id, questionModel.description, questionModel.sort_key, config, questionModel.score, questionModel.image);
 	}
 
 	static toCreateData(entity: QuestionEntity): TestQuestionModelCreateManyInput {
@@ -18,6 +18,8 @@ export class QuestionPersistenceMapper {
 			description: entity.description,
 			config: QuestionConfigMapper.toHttp(entity.config) as JsonObject,
 			sort_key: entity.sortKey,
+			image: entity.image,
+			...(entity.score !== undefined ? { score: entity.score } : {}),
 		};
 	}
 
@@ -25,6 +27,8 @@ export class QuestionPersistenceMapper {
 		return {
 			description: entity.description,
 			config: QuestionConfigMapper.toHttp(entity.config) as JsonObject,
+			image: entity.image,
+			...(entity.score !== undefined ? { score: entity.score } : {}),
 		};
 	}
 

@@ -5,6 +5,7 @@ import { LoggerService } from '@shared/logger';
 import { PostgresListenService, PrismaService } from '@shared/persistence';
 import { ConfigService } from '@shared/config';
 import { WebSocketService } from '@shared/websocket';
+import { FileStorageService } from '@shared/storage';
 import { RequestLoggerMiddleware } from '@shared/http/request-logger.middleware';
 import { RequestMetadataMiddleware } from '@shared/http/request-metadata.middleware';
 import { ExceptionFilter } from '@shared/error';
@@ -21,6 +22,7 @@ const coreModule: ContainerModule = new ContainerModule((options: ContainerModul
 	options.bind(APP_TYPES.PRISMA).to(PrismaService).inSingletonScope();
 	options.bind(APP_TYPES.POSTGRES_LISTEN).to(PostgresListenService).inSingletonScope();
 	options.bind(APP_TYPES.WEBSOCKET).to(WebSocketService).inSingletonScope();
+	options.bind(APP_TYPES.FILE_STORAGE).to(FileStorageService).inSingletonScope();
 	options.bind(APP_TYPES.REQUEST_METADATA_MIDDLEWARE).to(RequestMetadataMiddleware).inSingletonScope();
 	options.bind(APP_TYPES.REQUEST_LOGGER_MIDDLEWARE).to(RequestLoggerMiddleware).inSingletonScope();
 	options.bind(APP_TYPES.EXCEPTION_FILTER).to(ExceptionFilter).inSingletonScope();

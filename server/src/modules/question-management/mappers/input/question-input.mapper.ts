@@ -9,20 +9,24 @@ import type { ChangeQuestionOrderInput } from '../../interfaces/services/input/u
 import type { UpdateQuestionInput } from '../../interfaces/services/input/update-question.input';
 
 export class QuestionInputMapper {
-	static toCreateInput(dto: QuestionCreateRequestDto, test: TestEntity): CreateQuestionInput {
+	static toCreateInput(dto: QuestionCreateRequestDto, test: TestEntity, file?: Express.Multer.File): CreateQuestionInput {
 		return {
 			testId: test.id,
 			description: dto.description,
 			config: dto.config as IQuestionConfigBase,
+			score: dto.score ?? 1,
+			...(file ? { imageFile: { buffer: file.buffer, originalName: file.originalname } } : {}),
 		};
 	}
 
-	static toUpdateInput(dto: QuestionUpdateRequestDto, questionId: string, testId: string): UpdateQuestionInput {
+	static toUpdateInput(dto: QuestionUpdateRequestDto, questionId: string, testId: string, file?: Express.Multer.File): UpdateQuestionInput {
 		return {
 			id: questionId,
 			testId,
 			description: dto.description,
 			config: dto.config as IQuestionConfigBase,
+			score: dto.score ?? 1,
+			...(file ? { imageFile: { buffer: file.buffer, originalName: file.originalname } } : {}),
 		};
 	}
 

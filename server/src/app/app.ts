@@ -1,5 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { Server } from 'http';
+import path from 'node:path';
 import express, { type Express } from 'express';
 import { APP_TYPES } from './app.types';
 import type { ILogger } from '@shared/logger';
@@ -87,6 +88,7 @@ export class App {
 				credentials: true,
 			}),
 		);
+		this.app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
 		this.app.use(bodyParser.json());
 		this.app.use(cookieParser());
 

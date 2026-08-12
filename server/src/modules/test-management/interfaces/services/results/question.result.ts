@@ -6,5 +6,7 @@ export interface QuestionResult {
 	testId: string;
 	sortKey: number;
 	description: string;
+	score: number;
+	image: string | null;
 	config: QuestionConfigBase;
 }

@@ -2,7 +2,7 @@
     "openapi": "3.0.4",
     "info": {
         "title": "Quiz API",
-        "description": "API documentation generated from src/modules controllers and DTOs (test-management, test-execution and identity-access).",
+        "description": "API documentation generated from src/modules controllers and DTOs (test-management, question-management, test-execution and identity-access).",
         "version": "0.0.1"
     },
     "servers": [
@@ -17,7 +17,7 @@
         { "name": "test", "description": "test-management" },
         { "name": "session", "description": "test-management" },
         { "name": "history", "description": "test-management" },
-        { "name": "question", "description": "test-management" },
+        { "name": "question", "description": "question-management" },
         { "name": "test-execution", "description": "test-execution" }
     ],
     "paths": {
@@ -689,6 +689,9 @@
                     "content": {
                         "application/json": {
                             "schema": { "$ref": "#/components/schemas/QuestionCreateRequestBody" }
+                        },
+                        "multipart/form-data": {
+                            "schema": { "$ref": "#/components/schemas/QuestionCreateMultipartRequestBody" }
                         }
                     }
                 },
@@ -704,7 +707,7 @@
                     "401": { "description": "Unauthorized" },
                     "403": { "description": "Forbidden" },
                     "404": { "description": "Not found" },
-                    "422": { "description": "Validation failed" }
+                    "422": { "description": "Validation failed, invalid image type, or image too large" }
                 }
             }
         },
@@ -732,6 +735,9 @@
                     "content": {
                         "application/json": {
                             "schema": { "$ref": "#/components/schemas/QuestionUpdateRequestBody" }
+                        },
+                        "multipart/form-data": {
+                            "schema": { "$ref": "#/components/schemas/QuestionUpdateMultipartRequestBody" }
                         }
                     }
                 },
@@ -747,7 +753,7 @@
                     "401": { "description": "Unauthorized" },
                     "403": { "description": "Forbidden" },
                     "404": { "description": "Not found" },
-                    "422": { "description": "Validation failed" }
+                    "422": { "description": "Validation failed, invalid image type, or image too large" }
                 }
             },
             "delete": {
@@ -1010,7 +1016,31 @@
                 "required": ["description", "config"],
                 "properties": {
                     "description": { "type": "string" },
-                    "config": { "$ref": "#/components/schemas/QuestionRequestConfig" }
+                    "config": { "$ref": "#/components/schemas/QuestionRequestConfig" },
+                    "score": {
+                        "type": "number",
+                        "description": "Points awarded for a correct answer. Defaults to 1."
+                    }
+                }
+            },
+            "QuestionCreateMultipartRequestBody": {
+                "type": "object",
+                "required": ["description", "config"],
+                "properties": {
+                    "description": { "type": "string" },
+                    "config": {
+                        "type": "string",
+                        "description": "JSON string with question config"
+                    },
+                    "score": {
+                        "type": "number",
+                        "description": "Points awarded for a correct answer. Defaults to 1."
+                    },
+                    "image": {
+                        "type": "string",
+                        "format": "binary",
+                        "description": "Optional image file (max 5MB, image/* MIME type)"
+                    }
                 }
             },
             "QuestionUpdateRequestBody": {
@@ -1018,7 +1048,31 @@
                 "required": ["description", "config"],
                 "properties": {
                     "description": { "type": "string" },
-                    "config": { "$ref": "#/components/schemas/QuestionRequestConfig" }
+                    "config": { "$ref": "#/components/schemas/QuestionRequestConfig" },
+                    "score": {
+                        "type": "number",
+                        "description": "Points awarded for a correct answer. Defaults to 1."
+                    }
+                }
+            },
+            "QuestionUpdateMultipartRequestBody": {
+                "type": "object",
+                "required": ["description", "config"],
+                "properties": {
+                    "description": { "type": "string" },
+                    "config": {
+                        "type": "string",
+                        "description": "JSON string with question config"
+                    },
+                    "score": {
+                        "type": "number",
+                        "description": "Points awarded for a correct answer. Defaults to 1."
+                    },
+                    "image": {
+                        "type": "string",
+                        "format": "binary",
+                        "description": "Optional image file (max 5MB, image/* MIME type)"
+                    }
                 }
             },
             "QuestionChangeOrderRequestBody": {
@@ -1038,12 +1092,21 @@
             },
             "QuestionResponse": {
                 "type": "object",
-                "required": ["id", "test_id", "sort_key", "description", "config"],
+                "required": ["id", "test_id", "sort_key", "description", "score", "image", "config"],
                 "properties": {
                     "id": { "type": "string" },
                     "test_id": { "type": "string" },
                     "sort_key": { "type": "number" },
                     "description": { "type": "string" },
+                    "score": {
+                        "type": "number",
+                        "description": "Points awarded for a correct answer"
+                    },
+                    "image": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Relative URL to the question image, or null"
+                    },
                     "config": { "$ref": "#/components/schemas/QuestionRequestConfig" }
                 }
             },
@@ -1340,9 +1403,24 @@
                     "finished_at": { "type": "string", "format": "date-time" }
                 }
             },
+            "TestSessionOverviewRegisteredUserResponse": {
+                "allOf": [
+                    { "$ref": "#/components/schemas/TestExecutionOverviewRegisteredUserResponse" },
+                    {
+                        "type": "object",
+                        "required": ["score"],
+                        "properties": {
+                            "score": {
+                                "type": "number",
+                                "description": "Total points earned from correct answers"
+                            }
+                        }
+                    }
+                ]
+            },
             "TestSessionOverviewResponse": {
                 "type": "object",
-                "required": ["id", "title", "run_mode", "questions", "registered_users", "started_at", "finished_at"],
+                "required": ["id", "title", "run_mode", "questions", "registered_users", "max_score", "started_at", "finished_at"],
                 "properties": {
                     "id": { "type": "string" },
                     "title": { "type": "string" },
@@ -1356,7 +1434,11 @@
                     },
                     "registered_users": {
                         "type": "array",
-                        "items": { "$ref": "#/components/schemas/TestExecutionOverviewRegisteredUserResponse" }
+                        "items": { "$ref": "#/components/schemas/TestSessionOverviewRegisteredUserResponse" }
+                    },
+                    "max_score": {
+                        "type": "number",
+                        "description": "Maximum points available from all questions"
                     },
                     "started_at": { "type": "string", "format": "date-time" },
                     "finished_at": { "type": "string", "format": "date-time" }
