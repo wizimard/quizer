@@ -11,6 +11,6 @@ export const useSetExecutionState = () => {
 		useTestExecutionStore.getState().setCurrentQuestionIndex(currentQuestionIndex);
 		useTestExecutionStore.getState().setTotalQuestionsCount(totalQuestions);
 
-		useTestExecutionStore.getState().setStatus(currentQuestion ? "open" : currentQuestionIndex === totalQuestions - 1 ? "completed" : "question_waiting");
+		useTestExecutionStore.getState().setStatus(currentQuestion ? "open" : currentQuestionIndex === totalQuestions ? "completed" : "question_waiting");
 	}, []);
 };
