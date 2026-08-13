@@ -6,7 +6,8 @@ import type { TestExecutionOverview, TestExecutionOverviewRegisteredUser } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@shared/ui/kit/table";
 
 export type TestExecutionOverviewUsersTableData = Pick<TestExecutionOverview, "questions"> & {
-	registered_users: TestExecutionOverviewRegisteredUser[];
+	registered_users: Array<TestExecutionOverviewRegisteredUser & { score?: number }>;
+	max_score?: number;
 };
 
 interface TestExecutionOverviewUsersTableProps {
@@ -16,7 +17,7 @@ interface TestExecutionOverviewUsersTableProps {
 
 export const TestExecutionOverviewUsersTable = ({ testOverview, emptyVariant = "execution" }: TestExecutionOverviewUsersTableProps) => {
 	const { t } = useTranslation();
-	const { questions, registered_users: users } = testOverview;
+	const { questions, registered_users: users, max_score } = testOverview;
 
 	if (users.length === 0) {
 		return <UsersTableEmpty variant={emptyVariant} />;
@@ -34,6 +35,7 @@ export const TestExecutionOverviewUsersTable = ({ testOverview, emptyVariant = "
 								{t("test_manage.table.columns.question", { number: index + 1 })}
 							</TableHead>
 						))}
+						{max_score !== undefined && <TableHead className="min-w-[6rem] px-3 text-right">{t("test_manage.table.columns.score")}</TableHead>}
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -55,6 +57,11 @@ export const TestExecutionOverviewUsersTable = ({ testOverview, emptyVariant = "
 										</TableCell>
 									);
 								})}
+								{max_score !== undefined && (
+									<TableCell className="px-3 text-right font-mono tabular-nums text-foreground">
+										{user.score ?? 0} / {max_score}
+									</TableCell>
+								)}
 							</TableRow>
 						);
 					})}

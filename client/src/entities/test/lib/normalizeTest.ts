@@ -3,7 +3,7 @@ import type { Test } from "../model/test.interface";
 import type { TestExecution } from "../model/test-execution.interface";
 import type { TestExecutionOverview, TestExecutionOverviewRegisteredUser } from "../model/test-execution-overview.interface";
 
-import type { TestSessionOverview } from "../model/test-session-overview.interface";
+import type { TestSessionOverview, TestSessionOverviewRegisteredUser } from "../model/test-session-overview.interface";
 import type { TestLaunchHistory } from "../model/test-lauch-history.interface";
 import { normalizeScheduler } from "./normalizeScheduler";
 import {
@@ -105,9 +105,10 @@ export function normalizeTestLaunch(response: TestLaunchResponse): TestLaunchHis
 export function normalizeTestSessionOverview(response: TestSessionOverviewResponse): TestSessionOverview {
 	const questions = response.questions.toSorted((a, b) => a.sort_key - b.sort_key);
 
-	const registeredUsers: TestExecutionOverviewRegisteredUser[] = response.registered_users.map((user) => ({
+	const registeredUsers: TestSessionOverviewRegisteredUser[] = response.registered_users.map((user) => ({
 		...user,
 		started_from: new Date(user.started_from),
+		score: user.score,
 	}));
 
 	return {
