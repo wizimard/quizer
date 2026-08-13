@@ -25,6 +25,7 @@ const levelColors = {
 @injectable()
 export class LoggerService implements ILogger {
 	private readonly logger: Logger;
+	private readonly pid = process.pid;
 
 	constructor() {
 		const logsDir = join(process.cwd(), 'logs');
@@ -33,7 +34,7 @@ export class LoggerService implements ILogger {
 		this.logger = createLogger({
 			levels: logLevels,
 			level: 'success',
-			defaultMeta: { pid: process.pid },
+			defaultMeta: { pid: this.pid },
 			transports: [
 				new transports.File({
 					filename: join(logsDir, 'app.log'),
@@ -47,7 +48,7 @@ export class LoggerService implements ILogger {
 		const message = typeof data === 'string' ? data : data.message;
 		const correlationId = RequestMetadataStorage.get()?.correlationId;
 
-		console.log(levelColors[level](level.toLocaleUpperCase()) + ` [${new Date().toISOString()}] ${correlationId} : ${message}`);
+		console.log(levelColors[level](level.toLocaleUpperCase()) + ` [${new Date().toISOString()}] [pid:${this.pid}] ${correlationId} : ${message}`);
 
 		this.logger.log({
 			level,

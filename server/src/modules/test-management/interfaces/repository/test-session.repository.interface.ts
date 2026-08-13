@@ -6,6 +6,8 @@ export type TestSessionHistoryModel = TestSessionModel & TestSessionModelGetPayl
 export interface TestSessionRepository {
 	startTest(testId: string, runMode: TestSessionRunMode, finishedAt?: Date): Promise<TestSessionModel | null>;
 	finishTest(testId: string): Promise<TestSessionModel | null>;
+	finishExpiredTests(): Promise<TestSessionModel[]>;
+	findActiveWithDeadline(): Promise<TestSessionModel[]>;
 	nextQuestion(testId: string, questionId: string): Promise<TestSessionModel | null>;
 	getTestHistory(testId: string): Promise<Array<TestSessionHistoryModel> | null>;
 	findById(sessionId: string, testId: string): Promise<TestSessionModel | null>;

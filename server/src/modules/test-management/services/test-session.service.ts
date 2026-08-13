@@ -14,12 +14,14 @@ import type { TestOverviewService } from '../interfaces/services/test-overview.s
 import { TestSessionRunMode, type TestSessionModel } from '@prisma/client';
 import { HttpError } from '@shared/error';
 import type { TestFinishResult } from '../interfaces/services/results/test-finish.result';
+import type { TestSessionCloseScheduler } from '../interfaces/services/test-session-close-scheduler.service.interface';
 
 @injectable()
 export class DefaultTestSessionService implements TestSessionService {
 	constructor(
 		@inject(TM_TYPES.TEST_SESSION_REPOSITORY) private readonly testSessionRepository: TestSessionRepository,
 		@inject(TM_TYPES.TEST_OVERVIEW_SERVICE) private readonly testOverviewService: TestOverviewService,
+		@inject(TM_TYPES.TEST_SESSION_CLOSE_SCHEDULER) private readonly testSessionCloseScheduler: TestSessionCloseScheduler,
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
 	) {}
 
@@ -31,6 +33,10 @@ export class DefaultTestSessionService implements TestSessionService {
 		}
 
 		const test = await this.testSessionRepository.startTest(input.test.id, input.runMode, input.finishedAt);
+
+		if (test?.finished_at) {
+			this.testSessionCloseScheduler.schedule(input.test.id, test.finished_at);
+		}
 
 		this.logger.info({ message: '[TestSessionService startTest] test started', data: test });
 
@@ -49,6 +55,8 @@ export class DefaultTestSessionService implements TestSessionService {
 		if (!session) {
 			throw new HttpError(400, 'TestSessionService finishTest', 'errors.test_not_opened');
 		}
+
+		this.testSessionCloseScheduler.cancel(input.test.id);
 
 		this.logger.info({ message: '[TestSessionService finishTest] test finished', data: session });
 

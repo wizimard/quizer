@@ -29,7 +29,7 @@ export function resetBoot(): void {
 	bootPromise = undefined;
 }
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
 	const { app, container } = await bootstrap();
 
 	Bootstrap.registerGracefulShutdown(app, container);

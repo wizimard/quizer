@@ -40,6 +40,33 @@ export class PrismaTestSessionRepository implements TestSessionRepository {
 		return rows && rows[0] ? rows[0] : null;
 	}
 
+	async finishExpiredTests(): Promise<TestSessionModel[]> {
+		const rows: TestSessionModel[] | null = await repositoryCall(
+			() =>
+				this.prismaService.client.testSessionModel.updateManyAndReturn({
+					where: { status: 'ACTIVE', finished_at: { lte: new Date() } },
+					data: { status: 'FINISHED', finished_at: new Date() },
+				}),
+			'PrismaTestSessionRepository finishExpiredTests',
+			this.logger,
+		);
+
+		return rows ?? [];
+	}
+
+	async findActiveWithDeadline(): Promise<TestSessionModel[]> {
+		const rows: TestSessionModel[] | null = await repositoryCall(
+			() =>
+				this.prismaService.client.testSessionModel.findMany({
+					where: { status: 'ACTIVE', finished_at: { not: null } },
+				}),
+			'PrismaTestSessionRepository findActiveWithDeadline',
+			this.logger,
+		);
+
+		return rows ?? [];
+	}
+
 	async nextQuestion(sessionId: string, questionId: string): Promise<TestSessionModel | null> {
 		const row: TestSessionModel | null = await repositoryCall(
 			async () => {

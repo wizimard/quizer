@@ -18,7 +18,9 @@ import { PrismaTestSchedulerRepository } from './repositories/prisma-test-schedu
 import { DefaultTestOverviewService } from './services/test-overview.service';
 import { DefaultTestSettingsService } from './services/test-settings.service';
 import { DefaultTestSchedulerService } from './services/test-scheduler.service';
+import { DefaultTestSessionCloseScheduler } from './services/test-session-close-scheduler.service';
 import { TestSessionListener } from './listeners/test-session.listener';
+import type { TestSessionCloseScheduler } from './interfaces/services/test-session-close-scheduler.service.interface';
 
 // TODO: refactor
 const testManagementModule: ContainerModule = new ContainerModule((options: ContainerModuleLoadOptions) => {
@@ -36,6 +38,7 @@ const testManagementModule: ContainerModule = new ContainerModule((options: Cont
 	options.bind(TM_TYPES.TEST_OVERVIEW_SERVICE).to(DefaultTestOverviewService).inSingletonScope();
 	options.bind(TM_TYPES.TEST_SETTINGS_SERVICE).to(DefaultTestSettingsService).inSingletonScope();
 	options.bind(TM_TYPES.TEST_SCHEDULER_SERVICE).to(DefaultTestSchedulerService).inSingletonScope();
+	options.bind<TestSessionCloseScheduler>(TM_TYPES.TEST_SESSION_CLOSE_SCHEDULER).to(DefaultTestSessionCloseScheduler).inSingletonScope();
 	options.bind(TM_TYPES.TEST_SESSION_LISTENER).to(TestSessionListener).inSingletonScope();
 });
 

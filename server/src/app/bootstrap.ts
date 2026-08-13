@@ -5,6 +5,7 @@ import type { ILogger } from '@shared/logger';
 import type { IPostgresListenService, IPrismaService } from '@shared/persistence';
 import { registerProcessHandlers } from '@shared/http/process-handlers';
 import { TM_TYPES } from '@modules/test-management/test-management.types';
+import type { TestSessionCloseScheduler } from '@modules/test-management/interfaces/services/test-session-close-scheduler.service.interface';
 import { TE_TYPES } from '@modules/test-execution/test-execution.types';
 
 export class Bootstrap {
@@ -24,6 +25,10 @@ export class Bootstrap {
 		Bootstrap.subscribeDbListeners(container);
 		logger.success('[Bootstrap] db listeners subscribed');
 
+		const testSessionCloseScheduler: TestSessionCloseScheduler = container.get<TestSessionCloseScheduler>(TM_TYPES.TEST_SESSION_CLOSE_SCHEDULER);
+		await testSessionCloseScheduler.start();
+		logger.success('[Bootstrap] test session close scheduler started');
+
 		const app: App = container.get<App>(APP_TYPES.APP);
 		await app.start();
 
@@ -40,6 +45,9 @@ export class Bootstrap {
 		const logger: ILogger = container.get<ILogger>(APP_TYPES.LOGGER);
 
 		await app.stop();
+
+		const testSessionCloseScheduler: TestSessionCloseScheduler = container.get<TestSessionCloseScheduler>(TM_TYPES.TEST_SESSION_CLOSE_SCHEDULER);
+		await testSessionCloseScheduler.stop();
 
 		const postgresListenService: IPostgresListenService = container.get<IPostgresListenService>(APP_TYPES.POSTGRES_LISTEN);
 		await postgresListenService.disconnect();

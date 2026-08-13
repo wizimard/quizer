@@ -24,4 +24,4 @@ export type { TestService } from './interfaces/services/test.service.interface';
 export type { TestSessionService } from './interfaces/services/test-session.service.interface';
 export type { TestSettingsService } from './interfaces/services/test-settings.service.interface';
 export type { TestSchedulerService } from './interfaces/services/test-scheduler.service.interface';
-
+export type { TestSessionCloseScheduler } from './interfaces/services/test-session-close-scheduler.service.interface';

@@ -81,6 +81,13 @@ export class TestSessionListener {
 			type,
 			data,
 		});
+
+		if (type === TEST_SESSION_WS_EVENTS.FINISHED) {
+			this.webSocketService.send(testId, WEBSOCKET_GROUPS.TEACHER, {
+				type: TEST_SESSION_WS_EVENTS.FINISHED,
+				data,
+			});
+		}
 	}
 
 	private async resolveQuestionProgress(

@@ -8,13 +8,16 @@ export class ConfigService implements IConfigService {
 	private parsedConfig: DotenvParseOutput;
 
 	constructor() {
-		const result = configDotenv();
+		configDotenv();
 
-		if (result.error || !result.parsed) {
+		// Prefer process.env so Docker/K8s injected variables work without a local .env file
+		this.parsedConfig = Object.fromEntries(
+			Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined),
+		);
+
+		if (Object.keys(this.parsedConfig).length === 0) {
 			throw new HttpError(500, "Can't parse config", 'ConfigService');
 		}
-
-		this.parsedConfig = result.parsed;
 	}
 
 	public get<T extends string | number | boolean>(key: string): T | never {
