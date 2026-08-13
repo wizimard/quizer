@@ -51,4 +51,23 @@ export class QuestionConfigMultipleChoise extends QuestionConfigBase<IQuestionCo
 
 		return errors;
 	}
+
+	public isValidAnswer(answer: string): boolean {
+		try {
+			const ids = JSON.parse(answer) as string[];
+			return !ids.find((id) => !this.options.find((option) => option.id === id));
+		} catch {
+			return false;
+		}
+	}
+
+	public isCorrectAnswer(answer: string): boolean {
+		try {
+			const ids: string[] = JSON.parse(answer) as string[];
+
+			return ids.every((id) => !!this.answer.find((answerId) => answerId === id));
+		} catch {
+			return false;
+		}
+	}
 }

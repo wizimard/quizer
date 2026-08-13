@@ -5,6 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**run_mode** | **string** |  | [default to undefined]
 **duration** | **number** | Test duration in seconds | [optional] [default to undefined]
 
 ## Example
@@ -13,6 +14,7 @@ Name | Type | Description | Notes
 import { TestStartRequestBody } from './api';
 
 const instance: TestStartRequestBody = {
+    run_mode,
     duration,
 };
 ```

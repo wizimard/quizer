@@ -7,12 +7,10 @@ All URIs are relative to *http://localhost:8031/api*
 |[**testGet**](#testget) | **GET** /test | Get author\&#39;s tests|
 |[**testPost**](#testpost) | **POST** /test | Create test|
 |[**testTestIdDelete**](#testtestiddelete) | **DELETE** /test/{testId} | Delete test|
-|[**testTestIdFinishPost**](#testtestidfinishpost) | **POST** /test/{testId}/finish | Finish test|
 |[**testTestIdGet**](#testtestidget) | **GET** /test/{testId} | Get test by id|
 |[**testTestIdPatch**](#testtestidpatch) | **PATCH** /test/{testId} | Update test|
 |[**testTestIdSchedulerPeriodsPatch**](#testtestidschedulerperiodspatch) | **PATCH** /test/{testId}/scheduler/periods | Update test scheduler periods|
 |[**testTestIdSettingsPatch**](#testtestidsettingspatch) | **PATCH** /test/{testId}/settings | Update test settings|
-|[**testTestIdStartPost**](#testtestidstartpost) | **POST** /test/{testId}/start | Start test|
 
 # **testGet**
 > Array<TestResponse> testGet()
@@ -158,60 +156,6 @@ void (empty response body)
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**204** | No content |  -  |
-|**401** | Unauthorized |  -  |
-|**403** | Forbidden |  -  |
-|**404** | Not found |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **testTestIdFinishPost**
-> MessageResponse testTestIdFinishPost()
-
-Close test for execution.
-
-### Example
-
-```typescript
-import {
-    TestApi,
-    Configuration
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new TestApi(configuration);
-
-let testId: string; // (default to undefined)
-
-const { status, data } = await apiInstance.testTestIdFinishPost(
-    testId
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **testId** | [**string**] |  | defaults to undefined|
-
-
-### Return type
-
-**MessageResponse**
-
-### Authorization
-
-[BearerAuth](../README.md#BearerAuth)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | Test finished |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden |  -  |
 |**404** | Not found |  -  |
@@ -442,64 +386,6 @@ const { status, data } = await apiInstance.testTestIdSettingsPatch(
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden |  -  |
 |**422** | Validation failed |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **testTestIdStartPost**
-> MessageResponse testTestIdStartPost()
-
-Open test for execution.
-
-### Example
-
-```typescript
-import {
-    TestApi,
-    Configuration,
-    TestStartRequestBody
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new TestApi(configuration);
-
-let testId: string; // (default to undefined)
-let testStartRequestBody: TestStartRequestBody; // (optional)
-
-const { status, data } = await apiInstance.testTestIdStartPost(
-    testId,
-    testStartRequestBody
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **testStartRequestBody** | **TestStartRequestBody**|  | |
-| **testId** | [**string**] |  | defaults to undefined|
-
-
-### Return type
-
-**MessageResponse**
-
-### Authorization
-
-[BearerAuth](../README.md#BearerAuth)
-
-### HTTP request headers
-
- - **Content-Type**: application/json
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | Test started |  -  |
-|**401** | Unauthorized |  -  |
-|**403** | Forbidden |  -  |
-|**404** | Not found |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

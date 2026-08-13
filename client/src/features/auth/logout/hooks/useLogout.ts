@@ -13,7 +13,8 @@ export const useLogout = () => {
 
 			localStorage.removeItem(ACCESS_TOKEN_KEY);
 
-			queryClient.removeQueries({ queryKey: ["user"] });
+			queryClient.clear();
+
 			clearUser();
 		} catch {
 			// empty

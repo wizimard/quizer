@@ -14,7 +14,7 @@ export const VerticalListItemCard = ({ header, content, className }: VerticalLis
 		<div className={classes}>
 			{header && (
 				<>
-					<div className="flex w-full min-w-0 p-4">{header}</div>
+					<div className="flex w-full min-w-0 px-4 py-2">{header}</div>
 					<Separator />
 				</>
 			)}

@@ -1,7 +1,7 @@
-import { Router, type Response, type NextFunction } from 'express';
+import { Router, type Response, type NextFunction, type Request } from 'express';
 import type { IController } from './controller.interface';
 import type { IRoute } from './route.interface';
-import type { IRequestHandler } from './request-handler.interface';
+import type { IMiddleware } from './middleware.interface';
 
 export abstract class BaseController implements IController {
 	private _router: Router;
@@ -16,7 +16,7 @@ export abstract class BaseController implements IController {
 
 	protected useRoutes(routes: IRoute[]): void {
 		for (const route of routes) {
-			const middlewares: IRequestHandler[] = [];
+			const middlewares: IMiddleware['execute'][] = [];
 
 			if (route.middlewares) {
 				for (const middleware of route.middlewares) {
@@ -28,8 +28,8 @@ export abstract class BaseController implements IController {
 		}
 	}
 
-	private wrapAsync(handler: IRequestHandler): IRequestHandler {
-		return async (req, res, next: NextFunction) => {
+	private wrapAsync(handler: (req: Request, res: Response, next: NextFunction) => void | Promise<void>): (req: Request, res: Response, next: NextFunction) => void | Promise<void> {
+		return async (req: Request, res: Response, next: NextFunction) => {
 			try {
 				await handler(req, res, next);
 			} catch (error: unknown) {

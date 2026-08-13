@@ -7,17 +7,16 @@ export interface TestSchedulerPeriod extends Pick<TestSchedulerPeriodResponse, "
 }
 
 export interface TestSettings extends TestSettingsResponse {
-	isRequiredEmail: boolean;
-	isRequiredFirstName: boolean;
-	isRequiredLastName: boolean;
 	isShowAnswersAfterCompletion: boolean;
 }
 
-export interface TestFull extends Omit<TestFullResponse, "settings" | "scheduler" | "author_id" | "updated_at" | "created_at" | "questions"> {
+export interface TestFull extends Omit<TestFullResponse, "settings" | "scheduler" | "author_id" | "updated_at" | "created_at" | "questions" | "last_launch_date"> {
+	isOpen: boolean;
 	authorId: string;
 	settings: TestSettings;
 	schedulerPeriods: Array<TestSchedulerPeriod>;
 	updatedAt: Date;
 	createdAt: Date;
 	questions: Array<Question>;
+	last_launch_date: Date | null;
 }

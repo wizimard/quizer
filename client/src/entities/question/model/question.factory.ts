@@ -13,6 +13,8 @@ export const createNewQuestion = ({ testId, order }: ICreateNewQuestionProps): Q
 		testId: testId,
 		description: "",
 		sortKey: (order + 1) * 1000,
+		score: 1,
+		image: null,
 		config: {
 			type: QUESTION_TYPES.INPUT,
 			answer: "",

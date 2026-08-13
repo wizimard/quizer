@@ -5,6 +5,7 @@ import { type Question, normalizeQuestion } from "@entities/question";
 import type { TestFull } from "@entities/test";
 import { questionApi } from "@shared/api";
 import type { QuestionResponse } from "@shared/api/generated";
+import { QUERY_KEYS } from "@shared/constant";
 
 export interface ChangeQuestionOrderInput {
 	question: Question;
@@ -23,7 +24,7 @@ export const useChangeQuestionOrder = () => {
 			});
 		},
 		onSuccess: (response: AxiosResponse<QuestionResponse[]>) => {
-			queryClient.setQueryData(["test", response.data[0].test_id], (oldData: TestFull) => {
+			queryClient.setQueryData([QUERY_KEYS.GET_FULL_TEST, response.data[0].test_id], (oldData: TestFull) => {
 				return {
 					...oldData,
 					questions: response.data.map(normalizeQuestion).toSorted((a, b) => a.sortKey - b.sortKey),

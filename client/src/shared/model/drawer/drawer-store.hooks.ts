@@ -1,56 +1,61 @@
-import { useCallback } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { useDrawerStore } from "./drawer.store";
 
 export const useIsOpenDrawer = (key: string) => {
-	return useDrawerStore((state) => state.isOpen(key));
+	const { open, _key } = useDrawerStore(
+		useShallow((state) => ({
+			open: state._open,
+			_key: state._key,
+		})),
+	);
+
+	return open && _key === key;
 };
 
 export const useSetOpenDrawer = (key: string) => {
 	const setOpen = useDrawerStore((state) => state.setOpen);
 
-	return useCallback(
-		(open: boolean) => {
-			setOpen(key, open);
-		},
-		[key, setOpen],
-	);
+	return (open: boolean) => {
+		setOpen(key, open);
+	};
 };
 
 export const useOpenDrawer = (key: string) => {
-	const setOpen = useDrawerStore((state) => state.setOpen);
-	const setData = useDrawerStore((state) => state.setData);
-
-	return useCallback(
-		<T>(data?: T) => {
-			setOpen(key, true);
-			setData(key, data);
-		},
-		[key, setOpen, setData],
+	const { setOpen, setData } = useDrawerStore(
+		useShallow((state) => ({
+			setOpen: state.setOpen,
+			setData: state.setData,
+		})),
 	);
+
+	return <T>(data?: T) => {
+		setOpen(key, true);
+		setData(key, data);
+	};
 };
 
 export const useCloseDrawer = (key: string) => {
 	const setOpen = useDrawerStore((state) => state.setOpen);
 
-	return useCallback(() => setOpen(key, false), [key, setOpen]);
+	return () => setOpen(key, false);
 };
 
 export const useSetLockDrawer = (key: string) => {
 	const setLock = useDrawerStore((state) => state.setLock);
 
-	return useCallback(() => setLock(key, true), [key, setLock]);
+	return () => setLock(key, true);
 };
 
 export const useSetUnlockDrawer = (key: string) => {
 	const setLock = useDrawerStore((state) => state.setLock);
 
-	return useCallback(() => setLock(key, false), [key, setLock]);
+	return () => setLock(key, false);
 };
 
-export const useSetDataDrawer = (key: string) => {
+export const useSetDataDrawer = <T = unknown>(key: string) => {
 	const setData = useDrawerStore((state) => state.setData);
 
-	return useCallback((data: unknown) => setData(key, data), [key, setData]);
+	return (data: T | ((oldData: T | null) => T | null)) => setData(key, data);
 };
 
 export const useGetDataDrawer = <T = unknown>(key: string): T | null => {

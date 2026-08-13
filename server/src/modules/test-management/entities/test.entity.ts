@@ -1,18 +1,16 @@
-import { UserId } from '@modules/identity-access';
 import { TestNotOwnedError } from '../utils/errors/test-not-owned.error';
-import { TestId } from './value-object/test-id';
 import type { TestSessionEntity } from './test-session.entity';
 import type { QuestionEntity } from '..';
 import type { TestSettings } from './test-settings';
 import type { TestSchedulerPeriod } from './test-scheduler-period';
 
-export type TestStatus = 'open' | 'open_by_scheduler' | 'closed';
+export type TestStatus = 'open' | 'open_by_scheduler' | 'closed' | 'finished';
 
 export class TestEntity {
 	public status: TestStatus = 'closed';
 
-	public readonly id: TestId;
-	public readonly authorId: UserId;
+	public readonly id: string;
+	public readonly authorId: string;
 	public title: string;
 
 	public questions: Array<QuestionEntity> = [];
@@ -23,17 +21,12 @@ export class TestEntity {
 	public updatedAt: Date;
 	public createdAt: Date;
 
-	constructor(id: TestId, authorId: UserId, title: string, updatedAt: Date, createdAt: Date) {
+	constructor(id: string, authorId: string, title: string, updatedAt: Date, createdAt: Date) {
 		this.id = id;
 		this.authorId = authorId;
 		this.title = title;
-
-		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
-	}
-
-	get availablePeriods(): Array<TestSchedulerPeriod> {
-		return this.schedulerPeriods;
+		this.createdAt = createdAt;
 	}
 
 	get isOpen(): boolean {
@@ -47,16 +40,24 @@ export class TestEntity {
 	public setSessions(sessions: Array<TestSessionEntity>): void {
 		this._sessions = sessions;
 
-		if (sessions.length > 0) {
-			if (sessions[0]!.status === 'ACTIVE') {
-				this.status = sessions[0]!.startBy === 'SCHEDULED' ? 'open_by_scheduler' : 'open';
-			}
+		if (!sessions.length) {
+			this.status = 'closed';
 			return;
 		}
+
+		if (sessions[0]!.status === 'ACTIVE') {
+			this.status = sessions[0]!.startBy === 'SCHEDULED' ? 'open_by_scheduler' : 'open';
+
+			return;
+		}
+
+		const hourInterval = 60 * 60 * 1000;
+
+		this.status = Date.now() - sessions[0]!.startedAt.getTime() > hourInterval ? 'finished' : 'closed';
 	}
 
-	assertOwnedBy(userId: UserId): void {
-		if (!this.authorId.equals(userId)) {
+	assertOwnedBy(userId: string): void {
+		if (this.authorId !== userId) {
 			throw new TestNotOwnedError('TestEntity.assertOwnedBy');
 		}
 	}

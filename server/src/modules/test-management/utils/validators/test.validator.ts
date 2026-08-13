@@ -4,7 +4,7 @@ import type { ITestValidationError } from '../../interfaces/error/test-validatio
 
 export class TestValidator {
 	static validate(test: TestEntity): ITestValidationError {
-		const validationData: ITestValidationError = { id: test.id.value, errors: [], questionsErrors: [] };
+		const validationData: ITestValidationError = { id: test.id, errors: [], questionsErrors: [] };
 
 		if (!test.title) {
 			validationData.errors.push({
@@ -27,7 +27,7 @@ export class TestValidator {
 	static validateUpdate(test: TestEntity, deleteIds: string[], addQuestions: QuestionEntity[], updateQuestions: QuestionEntity[]): ITestValidationError {
 		const validationData = TestValidator.validate(test);
 
-		if (deleteIds.length && [...addQuestions, ...updateQuestions].some((question) => deleteIds.includes(question.id.value))) {
+		if (deleteIds.length && [...addQuestions, ...updateQuestions].some((question) => deleteIds.includes(question.id))) {
 			validationData.errors.push({
 				path: 'delete',
 				message: 'include_in_questions',

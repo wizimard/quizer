@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@shared/ui/kit/dialog";
 import { CreateTestForm } from "@features/test/create-test";
 import { DIALOG_KEYS, useDialog } from "@shared/model";
@@ -7,6 +8,12 @@ export const CreateTestDialog = () => {
 	const { t } = useTranslation();
 
 	const { isOpen, closeDialog } = useDialog(DIALOG_KEYS.CREATE_TEST);
+
+	useEffect(() => {
+		return () => {
+			closeDialog();
+		};
+	}, []);
 
 	return (
 		<Dialog open={isOpen} onOpenChange={closeDialog}>

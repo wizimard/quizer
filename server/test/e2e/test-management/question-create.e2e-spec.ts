@@ -4,6 +4,7 @@ import { getBoot, resetBoot } from '../../../src/main';
 import { Bootstrap } from '../../../src/app/bootstrap';
 import { AuthUtils } from '../common/auth.util';
 import { TestUtils } from '../common/test.util';
+import { imageExistsOnDisk, questionPayload, QuestionUtils, TEST_PNG_BUFFER } from '../common/question.util';
 
 type BootResult = Awaited<ReturnType<typeof getBoot>>;
 
@@ -12,21 +13,7 @@ let container: BootResult['container'];
 
 let authUtils: AuthUtils;
 let testUtils: TestUtils;
-
-const questionPayload = (
-	description: string,
-	overrides: Partial<{
-		config: object;
-	}> = {},
-): { description: string; config: object } => ({
-	description,
-	config: {
-		type: 'input',
-		answer: '4',
-		ignore_case: true,
-	},
-	...overrides,
-});
+let questionUtils: QuestionUtils;
 
 beforeAll(async () => {
 	const bootResult = await getBoot();
@@ -38,6 +25,7 @@ beforeAll(async () => {
 	await authUtils.register();
 
 	testUtils = new TestUtils(application, authUtils);
+	questionUtils = new QuestionUtils(application, authUtils);
 });
 
 describe('POST /api/question/:testId/questions', () => {
@@ -145,6 +133,21 @@ describe('POST /api/question/:testId/questions', () => {
 		expect(res.body.message).toBe('validation_failed');
 	});
 
+	it('returns 422 for invalid image type', async () => {
+		const createRes = await testUtils.createTest('Original title');
+		const { accessToken } = await authUtils.login();
+
+		const res = await request(application.app)
+			.post(`/api/question/${createRes.body.id}/questions`)
+			.set('Authorization', `Bearer ${accessToken}`)
+			.field('description', 'Question with invalid image')
+			.field('config', JSON.stringify(questionPayload('Question with invalid image').config))
+			.attach('image', Buffer.from('not an image'), 'question.txt');
+
+		expect(res.statusCode).toBe(422);
+		expect(res.body.message).toBe('invalid_image_type');
+	});
+
 	it('creates a question', async () => {
 		const createRes = await testUtils.createTest('Original title');
 		const description = `What is 2+2? ${Date.now()}`;
@@ -157,6 +160,7 @@ describe('POST /api/question/:testId/questions', () => {
 			test_id: createRes.body.id,
 			sort_key: 1000,
 			description,
+			image: null,
 			config: {
 				type: 'input',
 				answer: '4',
@@ -164,6 +168,21 @@ describe('POST /api/question/:testId/questions', () => {
 			},
 		});
 		expect(res.body.id).toEqual(expect.any(String));
+	});
+
+	it('creates a question with image', async () => {
+		const createRes = await testUtils.createTest('Original title');
+		const description = `Question with image ${Date.now()}`;
+
+		const res = await questionUtils.createQuestion(createRes.body.id, description, { image: TEST_PNG_BUFFER });
+
+		expect(res.statusCode).toBe(201);
+		expect(res.body).toMatchObject({
+			test_id: createRes.body.id,
+			description,
+			image: expect.stringMatching(/^\/uploads\/\d{4}-\d{2}-\d{2}\/.+\.png$/),
+		});
+		expect(imageExistsOnDisk(res.body.image)).toBe(true);
 	});
 
 	it('trims description before creating a question', async () => {
@@ -178,6 +197,7 @@ describe('POST /api/question/:testId/questions', () => {
 
 		expect(res.statusCode).toBe(201);
 		expect(res.body.description).toBe(description);
+		expect(res.body.image).toBeNull();
 	});
 
 	it('assigns incrementing sort_key for subsequent questions', async () => {

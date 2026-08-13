@@ -3,6 +3,7 @@ import { BaseController } from './controller.base';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from '../../../swagger.json';
 
+// TODO: move from shared
 @injectable()
 export class SwaggerController extends BaseController {
 	constructor() {
@@ -11,7 +12,7 @@ export class SwaggerController extends BaseController {
 		this.router.use('/swagger', swaggerUi.serve);
 		this.router.get('/swagger', swaggerUi.setup(swaggerDocument));
 
-		this.router.get('/swagger.json', (req, res, next) => {
+		this.router.get('/swagger.json', (_req, res, _next) => {
 			res.status(200);
 			res.contentType('json');
 			res.send(swaggerDocument);

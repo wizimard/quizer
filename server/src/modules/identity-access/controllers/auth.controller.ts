@@ -5,7 +5,6 @@ import type { IRoute } from '@shared/http/route.interface';
 import { UserLoginDto } from '../dto/user-login.dto';
 import { UserRegisterDto } from '../dto/user-register.dto';
 import { APP_TYPES } from '@app/app.types';
-import type { IMiddlewareFactory } from '@shared/http/middleware.factory.interface';
 import { IA_TYPES } from '../identity-access.types';
 import type { AuthService } from '../services/auth.service';
 import type { AuthResultDto } from '../dto/auth-result.dto';
@@ -13,13 +12,16 @@ import type { IRefreshTokenCookieService } from '../interfaces/services/refresh-
 import type { ITokenPair } from '../interfaces/services/token.service.interface';
 import { AuthResponseMapper } from '../mappers/auth-response.mapper';
 import type { ILogger } from '@shared/logger';
+import { ValidateMiddleware } from '@shared/http/validate.middleware';
+import { AuthGuard } from '../middleware/auth.guard';
 
 @injectable()
 export class AuthController extends BaseController {
+	private readonly authGuard: AuthGuard = new AuthGuard();
+
 	constructor(
 		@inject(IA_TYPES.AUTH_SERVICE) private readonly authService: AuthService,
 		@inject(IA_TYPES.REFRESH_TOKEN_COOKIE_SERVICE) private readonly refreshTokenCookieService: IRefreshTokenCookieService,
-		@inject(APP_TYPES.MIDDLEWARE_FACTORY) private readonly middlewareFactory: IMiddlewareFactory,
 		@inject(APP_TYPES.LOGGER) private readonly logger: ILogger,
 	) {
 		super();
@@ -29,19 +31,19 @@ export class AuthController extends BaseController {
 				url: '/login',
 				method: 'post',
 				handler: this.login,
-				middlewares: [this.middlewareFactory.validate(UserLoginDto)],
+				middlewares: [new ValidateMiddleware(UserLoginDto)],
 			},
 			{
 				url: '/register',
 				method: 'post',
 				handler: this.register,
-				middlewares: [this.middlewareFactory.validate(UserRegisterDto)],
+				middlewares: [new ValidateMiddleware(UserRegisterDto)],
 			},
 			{
 				url: '/logout',
 				method: 'post',
 				handler: this.logout,
-				middlewares: [this.middlewareFactory.authGuard()],
+				middlewares: [this.authGuard],
 			},
 			{
 				url: '/refresh',

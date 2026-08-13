@@ -9,6 +9,8 @@ Name | Type | Description | Notes
 **author_id** | **string** |  | [default to undefined]
 **status** | **string** |  | [default to undefined]
 **title** | **string** |  | [default to undefined]
+**launches_count** | **number** |  | [default to undefined]
+**last_launch_date** | **string** |  | [default to undefined]
 **questions** | [**Array&lt;QuestionResponse&gt;**](QuestionResponse.md) |  | [default to undefined]
 **settings** | [**TestSettings**](TestSettings.md) |  | [default to undefined]
 **scheduler** | [**TestSchedulerResponse**](TestSchedulerResponse.md) |  | [default to undefined]
@@ -25,6 +27,8 @@ const instance: TestFullResponse = {
     author_id,
     status,
     title,
+    launches_count,
+    last_launch_date,
     questions,
     settings,
     scheduler,

@@ -1,5 +1,6 @@
 import type { ILogger } from '@shared/logger';
 
+// TODO: review
 export function registerProcessHandlers(logger: ILogger): void {
 	process.on('unhandledRejection', (reason: unknown) => {
 		const message = reason instanceof Error ? (reason.stack ?? reason.message) : String(reason);

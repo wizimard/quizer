@@ -9,6 +9,7 @@ import { questionApi } from "@shared/api";
 import type { TestFull } from "@entities/test";
 import type { Question } from "@entities/question";
 import { DIALOG_KEYS, DRAWER_KEYS, useCloseDrawer, useDialog } from "@shared/model";
+import { QUERY_KEYS } from "@shared/constant";
 
 export interface QuestionDeleteDialogProps {
 	question: Question;
@@ -30,7 +31,7 @@ export const QuestionDeleteDialog = ({ question }: QuestionDeleteDialogProps) =>
 			return questionApi.questionTestIdQuestionsQuestionIdDelete(question.testId, question.id);
 		},
 		onSuccess: () => {
-			queryClient.setQueryData(["test", question.testId], (test: TestFull) => {
+			queryClient.setQueryData([QUERY_KEYS.GET_FULL_TEST, question.testId], (test: TestFull) => {
 				return {
 					...test,
 					questions: test.questions.filter((q) => q.id !== question.id),

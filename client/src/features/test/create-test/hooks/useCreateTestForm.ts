@@ -5,8 +5,9 @@ import { AxiosError, type AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
 import { createTestForm, type CreateTestForm } from "../model/createTestForm";
 import { testApi } from "@shared/api";
-import type { TestResponse } from "@shared/api/generated";
+import type { TestFullResponse } from "@shared/api/generated";
 import { DIALOG_KEYS, useLockDialog } from "@shared/model";
+import { QUERY_KEYS } from "@shared/constant";
 
 // TODO: lock, unlock modal
 export const useCreateTestForm = () => {
@@ -37,8 +38,8 @@ export const useCreateTestForm = () => {
 			lockDialog();
 			return testApi.testPost(data);
 		},
-		onSuccess: (response: AxiosResponse<TestResponse>) => {
-			queryClient.invalidateQueries({ queryKey: ["tests"] });
+		onSuccess: (response: AxiosResponse<TestFullResponse>) => {
+			queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_AUTHOR_TESTS] });
 			navigate(`/test/${response.data.id}`);
 		},
 		onError: (error) => {

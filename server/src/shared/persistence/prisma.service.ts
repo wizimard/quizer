@@ -9,7 +9,7 @@ import type { IPrismaService } from './prisma.service.interface';
 export class PrismaService implements IPrismaService {
 	public readonly client: PrismaClient;
 
-	constructor(@inject(APP_TYPES.CONFIG) private configService: IConfigService) {
+	constructor(@inject(APP_TYPES.CONFIG) private readonly configService: IConfigService) {
 		this.client = new PrismaClient({
 			adapter: new PrismaPg({
 				connectionString: configService.get<string>('DATABASE_URL'),

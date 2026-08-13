@@ -10,9 +10,10 @@ export type TFormTextFieldProps<T extends FieldValues> = Omit<React.ComponentPro
 	control: Control<T, unknown, T>;
 	label?: string;
 	multiline?: boolean;
+	inputClassName?: string;
 };
 
-export const FormTextField = <T extends object>({ control, name, type = "text", required, className, label, placeholder, id, multiline, ...props }: TFormTextFieldProps<T>) => {
+export const FormTextField = <T extends object>({ control, name, type = "text", required, className, inputClassName, label, placeholder, id, multiline, ...props }: TFormTextFieldProps<T>) => {
 	const { t } = useTranslation();
 	const fieldId = id ?? name;
 
@@ -31,9 +32,29 @@ export const FormTextField = <T extends object>({ control, name, type = "text", 
 							onChange={field.onChange}
 							placeholder={placeholder ? t(placeholder) : undefined}
 							disabled={field.disabled}
+							className={inputClassName}
 						/>
 					) : (
-						<Input id={fieldId} type={type} ref={ref} aria-invalid={fieldState.invalid} placeholder={placeholder ? t(placeholder) : undefined} {...field} {...props} />
+						<Input
+							id={fieldId}
+							type={type}
+							ref={ref}
+							aria-invalid={fieldState.invalid}
+							placeholder={placeholder ? t(placeholder) : undefined}
+							className={inputClassName}
+							{...props}
+							{...field}
+							value={field.value ?? ""}
+							onChange={(event) => {
+								if (type === "number") {
+									const nextValue = event.target.value;
+									field.onChange(nextValue === "" ? "" : Number(nextValue));
+									return;
+								}
+
+								field.onChange(event);
+							}}
+						/>
 					)}
 					{fieldState.invalid && fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
 				</Field>

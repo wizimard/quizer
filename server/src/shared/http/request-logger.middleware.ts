@@ -4,7 +4,10 @@ import { inject, injectable } from 'inversify';
 import type { ILogger } from '@shared/logger';
 import type { Request, Response, NextFunction } from 'express';
 import { redactSensitive } from './utils/redact-sensitive';
+import { UserStorage } from '@modules/identity-access';
+import { RequestMetadataStorage } from './request-metadata.storage';
 
+// TODO: review
 @injectable()
 export class RequestLoggerMiddleware implements IMiddleware {
 	constructor(@inject(APP_TYPES.LOGGER) private readonly logger: ILogger) {}
@@ -12,15 +15,14 @@ export class RequestLoggerMiddleware implements IMiddleware {
 	execute(req: Request, _res: Response, next: NextFunction): void {
 		const safeBody = req.body ? redactSensitive(req.body) : undefined;
 
-		this.logger.info(
-			JSON.stringify({
-				correlationId: req.correlationId,
-				method: req.method,
-				url: req.url,
-				userId: req.user?.id,
-				body: safeBody,
-			}),
-		);
+		this.logger.info({
+			message: 'Request received',
+			correlationId: RequestMetadataStorage.get()?.correlationId,
+			method: req.method,
+			url: req.url,
+			userId: UserStorage.get()?.id,
+			body: safeBody,
+		});
 
 		next();
 	}

@@ -87,11 +87,10 @@ describe('PATCH /api/test/:testId', () => {
 			author_id: authUtils.userId,
 			title: updatedTitle,
 			status: createRes.body.status,
+			launches_count: 0,
+			last_launch_date: null,
 			questions: [],
 			settings: {
-				is_required_email: false,
-				is_required_first_name: true,
-				is_required_last_name: true,
 				is_show_answers_after_completion: false,
 			},
 			scheduler: {

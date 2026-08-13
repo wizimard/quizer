@@ -1,9 +1,10 @@
 import { randomUUID } from 'node:crypto';
-import request, { type Response } from 'supertest';
+import request from 'supertest';
 import { getBoot, resetBoot } from '../../../src/main';
 import { Bootstrap } from '../../../src/app/bootstrap';
 import { AuthUtils } from '../common/auth.util';
 import { TestUtils } from '../common/test.util';
+import { imageExistsOnDisk, QuestionUtils, TEST_PNG_BUFFER, type QuestionResponseBody } from '../common/question.util';
 
 type BootResult = Awaited<ReturnType<typeof getBoot>>;
 
@@ -12,41 +13,7 @@ let container: BootResult['container'];
 
 let authUtils: AuthUtils;
 let testUtils: TestUtils;
-
-const questionPayload = (
-	description: string,
-	overrides: Partial<{
-		config: object;
-	}> = {},
-): { description: string; config: object } => ({
-	description,
-	config: {
-		type: 'input',
-		answer: '4',
-		ignore_case: true,
-	},
-	...overrides,
-});
-
-const createQuestion = async (testId: string, description: string): Promise<Response> => {
-	const { accessToken } = await authUtils.login();
-
-	return request(application.app).post(`/api/question/${testId}/questions`).set('Authorization', `Bearer ${accessToken}`).send(questionPayload(description));
-};
-
-const deleteQuestion = async (testId: string, questionId: string): Promise<Response> => {
-	const { accessToken } = await authUtils.login();
-
-	return request(application.app).delete(`/api/question/${testId}/questions/${questionId}`).set('Authorization', `Bearer ${accessToken}`);
-};
-
-type QuestionResponseBody = {
-	id: string;
-	test_id: string;
-	sort_key: number;
-	description: string;
-	config: object;
-};
+let questionUtils: QuestionUtils;
 
 beforeAll(async () => {
 	const bootResult = await getBoot();
@@ -58,6 +25,7 @@ beforeAll(async () => {
 	await authUtils.register();
 
 	testUtils = new TestUtils(application, authUtils);
+	questionUtils = new QuestionUtils(application, authUtils);
 });
 
 describe('DELETE /api/question/:testId/questions/:questionId', () => {
@@ -86,7 +54,7 @@ describe('DELETE /api/question/:testId/questions/:questionId', () => {
 
 	it('returns 403 when deleting a question for another user test', async () => {
 		const createRes = await testUtils.createTest('Original title');
-		const questionRes = await createQuestion(createRes.body.id, 'Original question');
+		const questionRes = await questionUtils.createQuestion(createRes.body.id, 'Original question');
 		const otherAuthUtils = new AuthUtils(application);
 
 		await otherAuthUtils.register();
@@ -107,25 +75,38 @@ describe('DELETE /api/question/:testId/questions/:questionId', () => {
 		const res = await request(application.app).delete(`/api/question/${createRes.body.id}/questions/${randomUUID()}`).set('Authorization', `Bearer ${accessToken}`);
 
 		expect(res.statusCode).toBe(404);
-		expect(res.body.message).toBe('errors.question_not_found');
+		expect(res.body.message).toBe('error.question_not_found');
 	});
 
 	it('deletes a question', async () => {
 		const createRes = await testUtils.createTest('Original title');
-		const questionRes = await createQuestion(createRes.body.id, 'Question to delete');
+		const questionRes = await questionUtils.createQuestion(createRes.body.id, 'Question to delete');
 
-		const res = await deleteQuestion(createRes.body.id, questionRes.body.id);
+		const res = await questionUtils.deleteQuestion(createRes.body.id, questionRes.body.id);
 
 		expect(res.statusCode).toBe(204);
 		expect(res.body).toEqual({});
 	});
 
+	it('deletes question image file from disk', async () => {
+		const createRes = await testUtils.createTest('Original title');
+		const questionRes = await questionUtils.createQuestion(createRes.body.id, 'Question with image', { image: TEST_PNG_BUFFER });
+		const imageUrl = questionRes.body.image as string;
+
+		expect(imageExistsOnDisk(imageUrl)).toBe(true);
+
+		const res = await questionUtils.deleteQuestion(createRes.body.id, questionRes.body.id);
+
+		expect(res.statusCode).toBe(204);
+		expect(imageExistsOnDisk(imageUrl)).toBe(false);
+	});
+
 	it('removes deleted question from test', async () => {
 		const createRes = await testUtils.createTest('Original title');
-		const questionRes = await createQuestion(createRes.body.id, 'Question to delete and verify');
+		const questionRes = await questionUtils.createQuestion(createRes.body.id, 'Question to delete and verify');
 		const { accessToken } = await authUtils.login();
 
-		const deleteRes = await deleteQuestion(createRes.body.id, questionRes.body.id);
+		const deleteRes = await questionUtils.deleteQuestion(createRes.body.id, questionRes.body.id);
 
 		expect(deleteRes.statusCode).toBe(204);
 
@@ -137,11 +118,11 @@ describe('DELETE /api/question/:testId/questions/:questionId', () => {
 
 	it('removes only the deleted question when test has multiple questions', async () => {
 		const createRes = await testUtils.createTest('Original title');
-		const firstQuestionRes = await createQuestion(createRes.body.id, `First question ${Date.now()}`);
-		const secondQuestionRes = await createQuestion(createRes.body.id, `Second question ${Date.now()}`);
+		const firstQuestionRes = await questionUtils.createQuestion(createRes.body.id, `First question ${Date.now()}`);
+		const secondQuestionRes = await questionUtils.createQuestion(createRes.body.id, `Second question ${Date.now()}`);
 		const { accessToken } = await authUtils.login();
 
-		const deleteRes = await deleteQuestion(createRes.body.id, firstQuestionRes.body.id);
+		const deleteRes = await questionUtils.deleteQuestion(createRes.body.id, firstQuestionRes.body.id);
 
 		expect(deleteRes.statusCode).toBe(204);
 
@@ -157,6 +138,7 @@ describe('DELETE /api/question/:testId/questions/:questionId', () => {
 			test_id: createRes.body.id,
 			sort_key: secondQuestionRes.body.sort_key,
 			description: secondQuestionRes.body.description,
+			image: null,
 			config: {
 				type: 'input',
 				answer: '4',
@@ -167,16 +149,16 @@ describe('DELETE /api/question/:testId/questions/:questionId', () => {
 
 	it('returns 404 when deleting an already deleted question', async () => {
 		const createRes = await testUtils.createTest('Original title');
-		const questionRes = await createQuestion(createRes.body.id, 'Question to delete twice');
+		const questionRes = await questionUtils.createQuestion(createRes.body.id, 'Question to delete twice');
 
-		const firstDeleteRes = await deleteQuestion(createRes.body.id, questionRes.body.id);
+		const firstDeleteRes = await questionUtils.deleteQuestion(createRes.body.id, questionRes.body.id);
 
 		expect(firstDeleteRes.statusCode).toBe(204);
 
-		const secondDeleteRes = await deleteQuestion(createRes.body.id, questionRes.body.id);
+		const secondDeleteRes = await questionUtils.deleteQuestion(createRes.body.id, questionRes.body.id);
 
 		expect(secondDeleteRes.statusCode).toBe(404);
-		expect(secondDeleteRes.body.message).toBe('errors.question_not_found');
+		expect(secondDeleteRes.body.message).toBe('error.question_not_found');
 	});
 });
 

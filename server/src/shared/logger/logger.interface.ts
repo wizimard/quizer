@@ -1,6 +1,10 @@
+export type LogMessage = {
+	message: string;
+};
+
 export interface ILogger {
-	info(...messages: unknown[]): void;
-	error(...messages: unknown[]): void;
-	warn(...messages: unknown[]): void;
-	success(...messages: unknown[]): void;
+	info<T extends LogMessage>(data: string | T): void;
+	error<T extends LogMessage>(data: string | T): void;
+	warn<T extends LogMessage>(data: string | T): void;
+	success<T extends LogMessage>(data: string | T): void;
 }

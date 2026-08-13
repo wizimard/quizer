@@ -1,26 +1,22 @@
-import { useCallback } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { useDialogStore } from "./dialog.store";
 
 export const useDialog = (key: string) => {
-	const { getDialog, setOpenDialog, setLockDialog } = useDialogStore();
+	const { dialog, setOpenDialog, setLockDialog } = useDialogStore(
+		useShallow((state) => ({
+			dialog: state.dialogs[key],
+			setOpenDialog: state.setOpenDialog,
+			setLockDialog: state.setLockDialog,
+		})),
+	);
 
-	const dialog = getDialog(key);
+	const openDialog = () => setOpenDialog(key, true);
 
-	const openDialog = useCallback(() => {
-		setOpenDialog(key, true);
-	}, [key, setOpenDialog]);
+	const closeDialog = () => setOpenDialog(key, false);
 
-	const closeDialog = useCallback(() => {
-		setOpenDialog(key, false);
-	}, [key, setOpenDialog]);
+	const lockDialog = () => setLockDialog(key, true);
 
-	const lockDialog = useCallback(() => {
-		setLockDialog(key, true);
-	}, [key, setLockDialog]);
-
-	const unlockDialog = useCallback(() => {
-		setLockDialog(key, false);
-	}, [key, setLockDialog]);
+	const unlockDialog = () => setLockDialog(key, false);
 
 	return {
 		isOpen: dialog?.open ?? false,
@@ -31,54 +27,43 @@ export const useDialog = (key: string) => {
 	};
 };
 
-export const useSetOpenDialog = (key: string) => {
-	const { setOpenDialog } = useDialogStore();
-
-	return useCallback((open: boolean) => setOpenDialog(key, open), [key, setOpenDialog]);
-};
-
 export const useOpenDialog = (key: string) => {
-	const { setOpenDialog } = useDialogStore();
+	const setOpenDialog = useDialogStore((state) => state.setOpenDialog);
 
-	return useCallback(() => setOpenDialog(key, true), [key, setOpenDialog]);
+	return () => setOpenDialog(key, true);
 };
 
 export const useCloseDialog = (key: string) => {
-	const { setOpenDialog } = useDialogStore();
+	const setOpenDialog = useDialogStore((state) => state.setOpenDialog);
 
-	return useCallback(() => setOpenDialog(key, false), [key, setOpenDialog]);
+	return () => setOpenDialog(key, false);
 };
 
 export const useManageOpenDialog = (key: string) => {
-	const { getDialog, setOpenDialog } = useDialogStore();
+	const { dialog, setOpenDialog } = useDialogStore(
+		useShallow((state) => ({
+			dialog: state.dialogs[key],
+			setOpenDialog: state.setOpenDialog,
+		})),
+	);
 
-	const isOpen = getDialog(key)?.open ?? false;
+	const openDialog = () => setOpenDialog(key, true);
 
-	const openDialog = useCallback(() => {
-		setOpenDialog(key, true);
-	}, [key, setOpenDialog]);
-
-	const closeDialog = useCallback(() => {
-		setOpenDialog(key, false);
-	}, [key, setOpenDialog]);
+	const closeDialog = () => setOpenDialog(key, false);
 
 	return {
-		isOpen,
+		isOpen: dialog?.open ?? false,
 		openDialog,
 		closeDialog,
 	};
 };
 
 export const useLockDialog = (key: string) => {
-	const { setLockDialog } = useDialogStore();
+	const setLockDialog = useDialogStore((state) => state.setLockDialog);
 
-	const lockDialog = useCallback(() => {
-		setLockDialog(key, true);
-	}, [key, setLockDialog]);
+	const lockDialog = () => setLockDialog(key, true);
 
-	const unlockDialog = useCallback(() => {
-		setLockDialog(key, false);
-	}, [key, setLockDialog]);
+	const unlockDialog = () => setLockDialog(key, false);
 
 	return {
 		lockDialog,
@@ -87,9 +72,9 @@ export const useLockDialog = (key: string) => {
 };
 
 export const useGetDialogData = <T = unknown>(key: string): T | null => {
-	const getDialog = useDialogStore((state) => state.getDialog);
+	const dialog = useDialogStore((state) => state.dialogs[key]);
 
-	const data = getDialog(key)?.data as T | undefined;
+	const data = dialog?.data as T | undefined;
 
 	return data ?? null;
 };
@@ -97,7 +82,7 @@ export const useGetDialogData = <T = unknown>(key: string): T | null => {
 export const useSetDialogData = <T = unknown>(key: string) => {
 	const setDialogData = useDialogStore((state) => state.setDialogData);
 
-	return useCallback((data: T) => setDialogData(key, data), [key, setDialogData]);
+	return (data: T) => setDialogData(key, data);
 };
 
 export const useDialogData = <T = unknown>(key: string) => {

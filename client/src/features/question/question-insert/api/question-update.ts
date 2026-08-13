@@ -1,17 +1,17 @@
 import type { TQuestionForm } from "../model/question-form";
-import type { QuestionUpdateRequestBody } from "@shared/api/generated";
-import { questionApi } from "@shared/api";
+import type { QuestionResponse } from "@shared/api/generated";
+import { apiClient } from "@shared/api";
 import type { Question } from "@entities/question";
+import { buildQuestionFormData, buildQuestionRequestBody } from "./buildQuestionRequest";
 
 export function updateQuestion(question: Question, data: TQuestionForm) {
 	if (!data.config) {
 		throw new Error("Config is required");
 	}
 
-	const requestBody: QuestionUpdateRequestBody = {
-		description: data.description,
-		config: data.config,
-	};
+	if (data.imageFile) {
+		return apiClient.patch<QuestionResponse>(`/question/${question.testId}/questions/${question.id}`, buildQuestionFormData(data));
+	}
 
-	return questionApi.questionTestIdQuestionsQuestionIdPatch(question.testId, question.id, requestBody);
+	return apiClient.patch<QuestionResponse>(`/question/${question.testId}/questions/${question.id}`, buildQuestionRequestBody(data));
 }

@@ -21,7 +21,7 @@ export const QuestionsWidget = ({ test }: QuestionsWidgetProps) => {
 			</div>
 			<div className="w-full max-w-[600px]">
 				<QuestionAddButton test={test} />
-				<QuestionsList questions={test.questions} />
+				<QuestionsList questions={test.questions} test={test} />
 				<QuestionSettingsDrawer />
 			</div>
 		</div>

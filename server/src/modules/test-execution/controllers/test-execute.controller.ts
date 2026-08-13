@@ -2,58 +2,71 @@ import { BaseController } from '@shared/http/controller.base';
 import type { Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'inversify';
 import { parseIdParam } from '@shared/http/utils/parse-id-param';
+import { TM_TYPES, TestStorage } from '@modules/test-management';
 import { TE_TYPES } from '../test-execution.types';
-import type { TestExecutionService } from '../services/test-execution.service';
-import { ExecutionResponseMapper } from '../mappers/execution-response.mapper';
+import { TestExecuteMapper } from '../mappers/test-execute.mapper';
+import { TestRegisterRequestDto } from '../dto/request/test-register-request.dto';
+import type { IMiddleware } from '@shared/http/middleware.interface';
+import { TestExecutionUserMapper } from '../mappers/test-execution-user.mapper';
+import { TestOpenGuard } from '../middlewares/test-open.guard';
+import { QuestionAnswerRequestDto } from '../dto/request/question-answer-request.dto';
+import { ValidateMiddleware } from '@shared/http/validate.middleware';
+import type { TestExecuteService } from '../interfaces/services/test-execute.service.interface';
+import type { TestRegisterService } from '../interfaces/services/test-register.service.interface';
+import type { TestAnswerService } from '../interfaces/services/test-answer.service.interface';
 
 @injectable()
 export class TestExecuteController extends BaseController {
-	constructor(@inject(TE_TYPES.TEST_EXECUTION_SERVICE) private readonly TestExecutionService: TestExecutionService) {
+	private readonly testOpenGuard = new TestOpenGuard();
+
+	constructor(
+		@inject(TE_TYPES.TEST_EXECUTION_SERVICE) private readonly testExecutionService: TestExecuteService,
+		@inject(TE_TYPES.TEST_REGISTER_SERVICE) private readonly testRegisterService: TestRegisterService,
+		@inject(TE_TYPES.TEST_ANSWER_SERVICE) private readonly testAnswerService: TestAnswerService,
+		@inject(TM_TYPES.TEST_MIDDLEWARE) private readonly testMiddleware: IMiddleware,
+	) {
 		super();
 
 		this.useRoutes([
 			{
-				url: '/test-execute/:testId',
+				url: '/:testId',
 				method: 'get',
 				handler: this.getTest,
 			},
 			{
-				url: '/test-execute/:testId/:questionId',
-				method: 'get',
-				handler: this.getTestQuestion,
+				url: '/:testId/register',
+				method: 'post',
+				handler: this.registerUserForTest,
+				middlewares: [new ValidateMiddleware(TestRegisterRequestDto), this.testMiddleware, this.testOpenGuard],
 			},
 			{
-				url: '/test-execute/:testId/:questionId',
+				url: '/:testId/:questionId/answer',
 				method: 'post',
-				handler: this.executeTestQuestion,
+				handler: this.answerQuestion,
+				middlewares: [new ValidateMiddleware(QuestionAnswerRequestDto), this.testMiddleware, this.testOpenGuard],
 			},
 		]);
 	}
 
 	async getTest(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		const testId = parseIdParam(req, 'testId', 'test id not defined');
-		const result = await this.TestExecutionService.getTest({ testId });
+		const testId = parseIdParam(req, 'testId');
 
-		this.ok(res, ExecutionResponseMapper.toTestHttp(result));
+		const result = await this.testExecutionService.getTest({ testId });
+
+		this.ok(res, TestExecuteMapper.toResponse(result));
 	}
 
-	async getTestQuestion(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		const testId = parseIdParam(req, 'testId', 'test id or question id not defined');
-		const questionId = parseIdParam(req, 'questionId', 'test id or question id not defined');
-		const result = await this.TestExecutionService.getQuestion({ testId, questionId });
+	async registerUserForTest(req: Request<unknown, unknown, TestRegisterRequestDto>, res: Response, _next: NextFunction): Promise<void> {
+		const result = await this.testRegisterService.registerUserForTest(TestExecutionUserMapper.toTestRegisterUserInput(TestStorage.get()!, req.body));
 
-		this.ok(res, ExecutionResponseMapper.toQuestionHttp(result));
+		this.ok(res, TestExecutionUserMapper.toResponse(result));
 	}
 
-	async executeTestQuestion(req: Request, res: Response, _next: NextFunction): Promise<void> {
-		const testId = parseIdParam(req, 'testId', 'test id or question id not defined');
-		const questionId = parseIdParam(req, 'questionId', 'test id or question id not defined');
-		const result = await this.TestExecutionService.evaluateAnswer({
-			testId,
-			questionId,
-			answer: req.body?.answer,
-		});
+	async answerQuestion(req: Request<any, unknown, QuestionAnswerRequestDto>, res: Response, _next: NextFunction): Promise<void> {
+		const questionId = parseIdParam(req, 'questionId');
 
-		this.ok(res, ExecutionResponseMapper.toEvaluationHttp(result));
+		const result = await this.testAnswerService.answerQuestion(TestExecutionUserMapper.toAnswerQuestionInput(TestStorage.get()!.id, questionId, req.body));
+
+		this.ok(res, TestExecutionUserMapper.toResponse(result));
 	}
 }

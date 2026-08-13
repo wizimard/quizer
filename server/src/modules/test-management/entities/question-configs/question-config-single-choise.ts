@@ -47,4 +47,12 @@ export class QuestionConfigSingleChoise extends QuestionConfigBase<IQuestionSing
 
 		return errors;
 	}
+
+	public isValidAnswer(answer: string): boolean {
+		return this.options.find((option) => option.id === answer) !== undefined;
+	}
+
+	public isCorrectAnswer(answer: string): boolean {
+		return this.answer === answer;
+	}
 }

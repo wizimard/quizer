@@ -1,22 +1,24 @@
 import type { IQuestionValidationError } from '../interfaces/error/question-validation.error.interface';
 import type { QuestionConfigBase } from './question-configs/question-config.base';
 import { isQuestionType } from './question-configs/question-config.registry';
-import type { QuestionId } from './value-object/question-id';
-import type { TestId } from './value-object/test-id';
 
 export class QuestionEntity {
-	public readonly id: QuestionId;
-	public readonly testId: TestId;
+	public readonly id: string;
+	public readonly testId: string;
 	public description: string;
+	public image: string | null;
 	public sortKey: number;
+	public score: number;
 	private _config: QuestionConfigBase;
 
-	constructor(id: QuestionId, testId: TestId, description: string, sortKey: number, config: QuestionConfigBase) {
+	constructor(id: string, testId: string, description: string, sortKey: number, config: QuestionConfigBase, score?: number, image?: string | null) {
 		this.id = id;
 		this.testId = testId;
 		this.description = description;
 		this.sortKey = sortKey;
 		this._config = config;
+		this.score = score ?? 1;
+		this.image = image ?? null;
 	}
 
 	get type(): string {
@@ -33,7 +35,7 @@ export class QuestionEntity {
 	}
 
 	public validate(): IQuestionValidationError {
-		const errorData: IQuestionValidationError = { id: this.id.value, errors: [] };
+		const errorData: IQuestionValidationError = { id: this.id, errors: [] };
 
 		if (!isQuestionType(this._config.type)) {
 			errorData.errors.push({
@@ -46,5 +48,13 @@ export class QuestionEntity {
 		errorData.errors.push(...this.config.validate());
 
 		return errorData;
+	}
+
+	public isValidAnswer(answer: string): boolean {
+		return this._config.isValidAnswer(answer);
+	}
+
+	public isCorrectAnswer(answer: string): boolean {
+		return this._config.isCorrectAnswer(answer);
 	}
 }

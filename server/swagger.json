@@ -2,7 +2,7 @@
     "openapi": "3.0.4",
     "info": {
         "title": "Quiz API",
-        "description": "API documentation generated from src/modules controllers and DTOs (test-management and identity-access).",
+        "description": "API documentation generated from src/modules controllers and DTOs (test-management, question-management, test-execution and identity-access).",
         "version": "0.0.1"
     },
     "servers": [
@@ -15,7 +15,10 @@
         { "name": "auth", "description": "identity-access" },
         { "name": "user", "description": "identity-access" },
         { "name": "test", "description": "test-management" },
-        { "name": "question", "description": "test-management" }
+        { "name": "session", "description": "test-management" },
+        { "name": "history", "description": "test-management" },
+        { "name": "question", "description": "question-management" },
+        { "name": "test-execution", "description": "test-execution" }
     ],
     "paths": {
         "/auth/login": {
@@ -337,9 +340,9 @@
                 }
             }
         },
-        "/test/{testId}/start": {
+        "/session/{testId}/start": {
             "post": {
-                "tags": ["test"],
+                "tags": ["session"],
                 "summary": "Start test",
                 "description": "Open test for execution.",
                 "security": [{ "BearerAuth": [] }],
@@ -374,11 +377,11 @@
                 }
             }
         },
-        "/test/{testId}/finish": {
+        "/session/{testId}/finish": {
             "post": {
-                "tags": ["test"],
+                "tags": ["session"],
                 "summary": "Finish test",
-                "description": "Close test for execution.",
+                "description": "Close an active test session and return the finished session id.",
                 "security": [{ "BearerAuth": [] }],
                 "parameters": [
                     {
@@ -393,13 +396,278 @@
                         "description": "Test finished",
                         "content": {
                             "application/json": {
-                                "schema": { "$ref": "#/components/schemas/MessageResponse" }
+                                "schema": { "$ref": "#/components/schemas/TestFinishResponse" }
+                            }
+                        }
+                    },
+                    "400": { "description": "Test is closed or has no active session" },
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" },
+                    "404": { "description": "Not found" }
+                }
+            }
+        },
+        "/session/{testId}/overview": {
+            "get": {
+                "tags": ["session"],
+                "summary": "Get test execution overview",
+                "description": "Get execution overview for a test owned by the current user, including questions and registered users with their answers. MANUAL run mode also includes current question progress fields.",
+                "security": [{ "BearerAuth": [] }],
+                "parameters": [
+                    {
+                        "name": "testId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Test execution overview",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/TestExecutionOverviewResponse" }
+                            }
+                        }
+                    },
+                    "400": { "description": "Test is closed or has no active session" },
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" },
+                    "404": { "description": "Not found" }
+                }
+            }
+        },
+        "/session/{testId}/next-question": {
+            "post": {
+                "tags": ["session"],
+                "summary": "Move to next question",
+                "description": "Set the current question for a MANUAL run mode session and return the updated execution overview.",
+                "security": [{ "BearerAuth": [] }],
+                "parameters": [
+                    {
+                        "name": "testId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/TestNextQuestionRequestBody" }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated test execution overview",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/TestExecutionOverviewResponse" }
+                            }
+                        }
+                    },
+                    "400": { "description": "Test is closed or has no active session" },
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" },
+                    "404": { "description": "Not found" },
+                    "422": { "description": "Validation failed" }
+                }
+            }
+        },
+        "/history": {
+            "get": {
+                "tags": ["history"],
+                "summary": "Get tests history",
+                "description": "Get finished launches across all tests owned by the current user, ordered by started_at descending.",
+                "security": [{ "BearerAuth": [] }],
+                "responses": {
+                    "200": {
+                        "description": "Tests history",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": { "$ref": "#/components/schemas/TestLaunchResponse" }
+                                }
+                            }
+                        }
+                    },
+                    "401": { "description": "Unauthorized" }
+                }
+            }
+        },
+        "/history/{testId}": {
+            "get": {
+                "tags": ["history"],
+                "summary": "Get test history",
+                "description": "Get finished launches for a test owned by the current user, ordered by started_at descending.",
+                "security": [{ "BearerAuth": [] }],
+                "parameters": [
+                    {
+                        "name": "testId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Test history",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": { "$ref": "#/components/schemas/TestLaunchResponse" }
+                                }
                             }
                         }
                     },
                     "401": { "description": "Unauthorized" },
                     "403": { "description": "Forbidden" },
                     "404": { "description": "Not found" }
+                }
+            }
+        },
+        "/history/{testId}/{sessionId}": {
+            "get": {
+                "tags": ["history"],
+                "summary": "Get test session overview",
+                "description": "Get overview for a finished test session owned by the current user, including questions and registered users with their answers.",
+                "security": [{ "BearerAuth": [] }],
+                "parameters": [
+                    {
+                        "name": "testId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Test session overview",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/TestSessionOverviewResponse" }
+                            }
+                        }
+                    },
+                    "400": { "description": "Invalid or missing session id" },
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" },
+                    "404": { "description": "Not found" }
+                }
+            }
+        },
+        "/test-execute/{testId}": {
+            "get": {
+                "tags": ["test-execution"],
+                "summary": "Get test for execution",
+                "description": "Get test metadata by id for test takers.",
+                "parameters": [
+                    {
+                        "name": "testId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Test found",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/TestExecuteResponse" }
+                            }
+                        }
+                    },
+                    "404": { "description": "Not found" },
+                    "422": { "description": "Validation failed" }
+                }
+            }
+        },
+        "/test-execute/{testId}/register": {
+            "post": {
+                "tags": ["test-execution"],
+                "summary": "Register user for test",
+                "description": "Register a test taker for an open test session. Idempotent for the same first and last name within a session.",
+                "parameters": [
+                    {
+                        "name": "testId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/TestRegisterRequestBody" }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User registered",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/TestRegisteredUserResponse" }
+                            }
+                        }
+                    },
+                    "400": { "description": "Test is closed" },
+                    "404": { "description": "Not found" },
+                    "422": { "description": "Validation failed" }
+                }
+            }
+        },
+        "/test-execute/{testId}/{questionId}/answer": {
+            "post": {
+                "tags": ["test-execution"],
+                "summary": "Answer question",
+                "description": "Submit an answer for a question in an open test session.",
+                "parameters": [
+                    {
+                        "name": "testId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "questionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/QuestionAnswerRequestBody" }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Answer submitted",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/TestRegisteredUserResponse" }
+                            }
+                        }
+                    },
+                    "400": { "description": "Test is closed" },
+                    "404": { "description": "Not found" },
+                    "422": { "description": "Validation failed" }
                 }
             }
         },
@@ -421,6 +689,9 @@
                     "content": {
                         "application/json": {
                             "schema": { "$ref": "#/components/schemas/QuestionCreateRequestBody" }
+                        },
+                        "multipart/form-data": {
+                            "schema": { "$ref": "#/components/schemas/QuestionCreateMultipartRequestBody" }
                         }
                     }
                 },
@@ -436,7 +707,7 @@
                     "401": { "description": "Unauthorized" },
                     "403": { "description": "Forbidden" },
                     "404": { "description": "Not found" },
-                    "422": { "description": "Validation failed" }
+                    "422": { "description": "Validation failed, invalid image type, or image too large" }
                 }
             }
         },
@@ -464,6 +735,9 @@
                     "content": {
                         "application/json": {
                             "schema": { "$ref": "#/components/schemas/QuestionUpdateRequestBody" }
+                        },
+                        "multipart/form-data": {
+                            "schema": { "$ref": "#/components/schemas/QuestionUpdateMultipartRequestBody" }
                         }
                     }
                 },
@@ -479,7 +753,7 @@
                     "401": { "description": "Unauthorized" },
                     "403": { "description": "Forbidden" },
                     "404": { "description": "Not found" },
-                    "422": { "description": "Validation failed" }
+                    "422": { "description": "Validation failed, invalid image type, or image too large" }
                 }
             },
             "delete": {
@@ -617,6 +891,14 @@
                     "message": { "type": "string" }
                 }
             },
+            "TestFinishResponse": {
+                "type": "object",
+                "required": ["message", "session_id"],
+                "properties": {
+                    "message": { "type": "string" },
+                    "session_id": { "type": "string" }
+                }
+            },
             "QuestionConfigOption": {
                 "type": "object",
                 "required": ["id", "value"],
@@ -688,12 +970,77 @@
                 ],
                 "discriminator": { "propertyName": "type" }
             },
+            "QuestionExecuteConfigInput": {
+                "type": "object",
+                "required": ["ignore_case", "type"],
+                "properties": {
+                    "type": { "type": "string", "enum": ["input"] },
+                    "ignore_case": { "type": "boolean" }
+                }
+            },
+            "QuestionExecuteConfigSingleChoice": {
+                "type": "object",
+                "required": ["options", "type"],
+                "properties": {
+                    "type": { "type": "string", "enum": ["single_choice"] },
+                    "options": { "$ref": "#/components/schemas/QuestionConfigOptionArray" }
+                }
+            },
+            "QuestionExecuteConfigMultipleChoice": {
+                "type": "object",
+                "required": ["options", "type"],
+                "properties": {
+                    "type": { "type": "string", "enum": ["multiple_choice"] },
+                    "options": { "$ref": "#/components/schemas/QuestionConfigOptionArray" }
+                }
+            },
+            "QuestionExecuteConfigOrder": {
+                "type": "object",
+                "required": ["options", "type"],
+                "properties": {
+                    "type": { "type": "string", "enum": ["order"] },
+                    "options": { "$ref": "#/components/schemas/QuestionConfigOptionArray" }
+                }
+            },
+            "QuestionExecuteConfig": {
+                "oneOf": [
+                    { "$ref": "#/components/schemas/QuestionExecuteConfigInput" },
+                    { "$ref": "#/components/schemas/QuestionExecuteConfigSingleChoice" },
+                    { "$ref": "#/components/schemas/QuestionExecuteConfigMultipleChoice" },
+                    { "$ref": "#/components/schemas/QuestionExecuteConfigOrder" }
+                ],
+                "discriminator": { "propertyName": "type" }
+            },
             "QuestionCreateRequestBody": {
                 "type": "object",
                 "required": ["description", "config"],
                 "properties": {
                     "description": { "type": "string" },
-                    "config": { "$ref": "#/components/schemas/QuestionRequestConfig" }
+                    "config": { "$ref": "#/components/schemas/QuestionRequestConfig" },
+                    "score": {
+                        "type": "number",
+                        "description": "Points awarded for a correct answer. Defaults to 1."
+                    }
+                }
+            },
+            "QuestionCreateMultipartRequestBody": {
+                "type": "object",
+                "required": ["description", "config"],
+                "properties": {
+                    "description": { "type": "string" },
+                    "config": {
+                        "type": "string",
+                        "description": "JSON string with question config"
+                    },
+                    "score": {
+                        "type": "number",
+                        "description": "Points awarded for a correct answer. Defaults to 1."
+                    },
+                    "image": {
+                        "type": "string",
+                        "format": "binary",
+                        "description": "Optional image file (max 5MB, image/* MIME type)"
+                    }
                 }
             },
             "QuestionUpdateRequestBody": {
@@ -701,7 +1048,31 @@
                 "required": ["description", "config"],
                 "properties": {
                     "description": { "type": "string" },
-                    "config": { "$ref": "#/components/schemas/QuestionRequestConfig" }
+                    "config": { "$ref": "#/components/schemas/QuestionRequestConfig" },
+                    "score": {
+                        "type": "number",
+                        "description": "Points awarded for a correct answer. Defaults to 1."
+                    }
+                }
+            },
+            "QuestionUpdateMultipartRequestBody": {
+                "type": "object",
+                "required": ["description", "config"],
+                "properties": {
+                    "description": { "type": "string" },
+                    "config": {
+                        "type": "string",
+                        "description": "JSON string with question config"
+                    },
+                    "score": {
+                        "type": "number",
+                        "description": "Points awarded for a correct answer. Defaults to 1."
+                    },
+                    "image": {
+                        "type": "string",
+                        "format": "binary",
+                        "description": "Optional image file (max 5MB, image/* MIME type)"
+                    }
                 }
             },
             "QuestionChangeOrderRequestBody": {
@@ -721,56 +1092,126 @@
             },
             "QuestionResponse": {
                 "type": "object",
-                "required": ["id", "test_id", "sort_key", "description", "config"],
+                "required": ["id", "test_id", "sort_key", "description", "score", "image", "config"],
                 "properties": {
                     "id": { "type": "string" },
                     "test_id": { "type": "string" },
                     "sort_key": { "type": "number" },
                     "description": { "type": "string" },
+                    "score": {
+                        "type": "number",
+                        "description": "Points awarded for a correct answer"
+                    },
+                    "image": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Relative URL to the question image, or null"
+                    },
                     "config": { "$ref": "#/components/schemas/QuestionRequestConfig" }
+                }
+            },
+            "QuestionExecuteResponse": {
+                "type": "object",
+                "required": ["id", "test_id", "sort_key", "description", "image", "config"],
+                "properties": {
+                    "id": { "type": "string" },
+                    "test_id": { "type": "string" },
+                    "sort_key": { "type": "number" },
+                    "description": { "type": "string" },
+                    "image": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Relative URL to the question image, or null"
+                    },
+                    "config": { "$ref": "#/components/schemas/QuestionExecuteConfig" }
                 }
             },
             "TestSettings": {
                 "type": "object",
-                "required": [
-                    "is_required_email",
-                    "is_required_first_name",
-                    "is_required_last_name",
-                    "is_show_answers_after_completion"
-                ],
+                "required": ["is_show_answers_after_completion"],
                 "properties": {
-                    "is_required_email": { "type": "boolean" },
-                    "is_required_first_name": { "type": "boolean" },
-                    "is_required_last_name": { "type": "boolean" },
                     "is_show_answers_after_completion": { "type": "boolean" }
                 }
             },
             "TestResponse": {
                 "type": "object",
-                "required": ["id", "author_id", "status", "title", "updated_at", "created_at"],
+                "required": ["id", "author_id", "isOpen", "title", "launches_count", "last_launch_date", "updated_at", "created_at"],
                 "properties": {
                     "id": { "type": "string" },
                     "author_id": { "type": "string" },
-                    "status": {
-                        "type": "string",
-                        "enum": ["open", "open_by_scheduler", "closed"]
+                    "isOpen": {
+                        "type": "boolean"
                     },
                     "title": { "type": "string" },
+                    "launches_count": { "type": "number" },
+                    "last_launch_date": { "type": "string", "format": "date-time", "nullable": true },
                     "updated_at": { "type": "string", "format": "date-time" },
                     "created_at": { "type": "string", "format": "date-time" }
                 }
             },
+            "TestExecuteResponse": {
+                "type": "object",
+                "required": ["id", "title", "status", "questions"],
+                "properties": {
+                    "id": { "type": "string" },
+                    "title": { "type": "string" },
+                    "status": {
+                        "type": "string",
+                        "enum": ["open", "open_by_scheduler", "closed", "finished"]
+                    },
+                    "open_from_at": { "type": "string", "format": "date-time" },
+                    "open_until_at": { "type": "string", "format": "date-time" },
+                    "questions": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/QuestionExecuteResponse" }
+                    }
+                }
+            },
+            "TestRegisterRequestBody": {
+                "type": "object",
+                "required": ["first_name", "last_name"],
+                "properties": {
+                    "first_name": { "type": "string", "minLength": 1 },
+                    "last_name": { "type": "string", "minLength": 1 }
+                }
+            },
+            "QuestionAnswerRequestBody": {
+                "type": "object",
+                "required": ["user_id"],
+                "properties": {
+                    "user_id": { "type": "string", "minLength": 1 },
+                    "answer": { "type": "string", "minLength": 1 },
+                    "skipped": { "type": "boolean" }
+                }
+            },
+            "TestRegisteredUserResponse": {
+                "type": "object",
+                "required": ["id", "first_name", "last_name", "current_question", "current_question_index", "total_questions_count"],
+                "properties": {
+                    "id": { "type": "string" },
+                    "first_name": { "type": "string" },
+                    "last_name": { "type": "string" },
+                    "current_question": {
+                        "nullable": true,
+                        "allOf": [{ "$ref": "#/components/schemas/QuestionExecuteResponse" }]
+                    },
+                    "current_question_index": { "type": "number" },
+                    "total_questions_count": { "type": "number" }
+                }
+            },
             "TestFullResponse": {
                 "type": "object",
-                "required": ["id", "author_id", "status", "title", "questions", "settings", "scheduler", "updated_at", "created_at"],
+                "required": ["id", "author_id", "status", "title", "launches_count", "last_launch_date", "questions", "settings", "scheduler", "updated_at", "created_at"],
                 "properties": {
                     "id": { "type": "string" },
                     "author_id": { "type": "string" },
                     "status": {
                         "type": "string",
-                        "enum": ["open", "open_by_scheduler", "closed"]
+                        "enum": ["open", "open_by_scheduler", "closed", "finished"]
                     },
                     "title": { "type": "string" },
+                    "launches_count": { "type": "number" },
+                    "last_launch_date": { "type": "string", "format": "date-time", "nullable": true },
                     "questions": {
                         "type": "array",
                         "items": { "$ref": "#/components/schemas/QuestionResponse" }
@@ -857,28 +1298,155 @@
             },
             "TestSettingsUpdateRequestBody": {
                 "type": "object",
-                "required": [
-                    "title",
-                    "required_email",
-                    "required_first_name",
-                    "required_last_name",
-                    "show_answers_after_completion"
-                ],
+                "required": ["title", "show_answers_after_completion"],
                 "properties": {
                     "title": { "type": "string", "minLength": 3 },
-                    "required_email": { "type": "boolean" },
-                    "required_first_name": { "type": "boolean" },
-                    "required_last_name": { "type": "boolean" },
                     "show_answers_after_completion": { "type": "boolean" }
                 }
             },
             "TestStartRequestBody": {
                 "type": "object",
+                "required": ["run_mode"],
                 "properties": {
+                    "run_mode": {
+                        "type": "string",
+                        "enum": ["MANUAL", "FREE"]
+                    },
                     "duration": {
                         "type": "number",
                         "description": "Test duration in seconds"
                     }
+                }
+            },
+            "TestNextQuestionRequestBody": {
+                "type": "object",
+                "required": ["question_id"],
+                "properties": {
+                    "question_id": { "type": "string" }
+                }
+            },
+            "TestExecutionOverviewAnswerResponse": {
+                "type": "object",
+                "required": ["question_id", "is_correct", "skipped"],
+                "properties": {
+                    "question_id": { "type": "string" },
+                    "is_correct": { "type": "boolean" },
+                    "skipped": { "type": "boolean" }
+                }
+            },
+            "TestExecutionOverviewQuestionResponse": {
+                "type": "object",
+                "required": ["id", "sort_key"],
+                "properties": {
+                    "id": { "type": "string" },
+                    "sort_key": { "type": "number" }
+                }
+            },
+            "TestExecutionOverviewRegisteredUserResponse": {
+                "type": "object",
+                "required": ["id", "first_name", "last_name", "answers", "started_from"],
+                "properties": {
+                    "id": { "type": "string" },
+                    "first_name": { "type": "string" },
+                    "last_name": { "type": "string" },
+                    "answers": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/TestExecutionOverviewAnswerResponse" }
+                    },
+                    "started_from": { "type": "string", "format": "date-time" }
+                }
+            },
+            "TestExecutionOverviewResponse": {
+                "type": "object",
+                "required": ["id", "title", "run_mode", "questions", "registered_users", "started_from"],
+                "properties": {
+                    "id": { "type": "string" },
+                    "title": { "type": "string" },
+                    "run_mode": {
+                        "type": "string",
+                        "enum": ["MANUAL", "FREE"]
+                    },
+                    "questions": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/TestExecutionOverviewQuestionResponse" }
+                    },
+                    "registered_users": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/TestExecutionOverviewRegisteredUserResponse" }
+                    },
+                    "started_from": { "type": "string", "format": "date-time" },
+                    "finished_at": { "type": "string", "format": "date-time" },
+                    "current_question": {
+                        "nullable": true,
+                        "allOf": [{ "$ref": "#/components/schemas/QuestionResponse" }],
+                        "description": "Present for MANUAL run mode"
+                    },
+                    "current_question_index": {
+                        "type": "number",
+                        "nullable": true,
+                        "description": "Present for MANUAL run mode"
+                    },
+                    "total_questions_count": {
+                        "type": "number",
+                        "description": "Present for MANUAL run mode"
+                    }
+                }
+            },
+            "TestLaunchResponse": {
+                "type": "object",
+                "required": ["test_id", "test_title", "session_id", "run_mode", "user_registered_count", "started_at", "finished_at"],
+                "properties": {
+                    "test_id": { "type": "string" },
+                    "test_title": { "type": "string" },
+                    "session_id": { "type": "string" },
+                    "run_mode": {
+                        "type": "string",
+                        "enum": ["MANUAL", "FREE"]
+                    },
+                    "user_registered_count": { "type": "number" },
+                    "started_at": { "type": "string", "format": "date-time" },
+                    "finished_at": { "type": "string", "format": "date-time" }
+                }
+            },
+            "TestSessionOverviewRegisteredUserResponse": {
+                "allOf": [
+                    { "$ref": "#/components/schemas/TestExecutionOverviewRegisteredUserResponse" },
+                    {
+                        "type": "object",
+                        "required": ["score"],
+                        "properties": {
+                            "score": {
+                                "type": "number",
+                                "description": "Total points earned from correct answers"
+                            }
+                        }
+                    }
+                ]
+            },
+            "TestSessionOverviewResponse": {
+                "type": "object",
+                "required": ["id", "title", "run_mode", "questions", "registered_users", "max_score", "started_at", "finished_at"],
+                "properties": {
+                    "id": { "type": "string" },
+                    "title": { "type": "string" },
+                    "run_mode": {
+                        "type": "string",
+                        "enum": ["MANUAL", "FREE"]
+                    },
+                    "questions": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/TestExecutionOverviewQuestionResponse" }
+                    },
+                    "registered_users": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/TestSessionOverviewRegisteredUserResponse" }
+                    },
+                    "max_score": {
+                        "type": "number",
+                        "description": "Maximum points available from all questions"
+                    },
+                    "started_at": { "type": "string", "format": "date-time" },
+                    "finished_at": { "type": "string", "format": "date-time" }
                 }
             }
         }

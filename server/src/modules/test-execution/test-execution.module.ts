@@ -1,14 +1,24 @@
 import { ContainerModule, type ContainerModuleLoadOptions } from 'inversify';
 import { TE_TYPES } from './test-execution.types';
-import type { QuestionReadRepository } from './repositories/question-read.repository.interface';
-import { PrismaQuestionReadRepository } from './repositories/prisma-question-read.repository';
-import { TestExecutionService } from './services/test-execution.service';
 import { TestExecuteController } from './controllers/test-execute.controller';
+import { DefaultTestExecuteService } from './services/test-execute.service';
+import { DefaultTestRegisterService } from './services/test-register.service';
+import { DefaultTestAnswerService } from './services/test-answer.service';
+import { PrismaTestRegisterRepository } from './repositories/prisma-test-register.repository';
+import { PrismaAnswerRepository } from './repositories/prisma-answer.repository';
+import { TestRegistrationListener } from './listeners/test-registration.listener';
+import { TestAnswerListener } from './listeners/test-answer.listener';
 
+// TODO: refactor
 const testExecutionModule: ContainerModule = new ContainerModule((options: ContainerModuleLoadOptions) => {
-	options.bind<QuestionReadRepository>(TE_TYPES.QUESTION_READ_REPOSITORY).to(PrismaQuestionReadRepository).inSingletonScope();
-	options.bind(TE_TYPES.TEST_EXECUTION_SERVICE).to(TestExecutionService).inSingletonScope();
 	options.bind(TE_TYPES.TEST_EXECUTE_CONTROLLER).to(TestExecuteController).inSingletonScope();
+	options.bind(TE_TYPES.TEST_EXECUTION_SERVICE).to(DefaultTestExecuteService).inSingletonScope();
+	options.bind(TE_TYPES.TEST_REGISTER_SERVICE).to(DefaultTestRegisterService).inSingletonScope();
+	options.bind(TE_TYPES.TEST_ANSWER_SERVICE).to(DefaultTestAnswerService).inSingletonScope();
+	options.bind(TE_TYPES.TEST_REGISTER_REPOSITORY).to(PrismaTestRegisterRepository).inSingletonScope();
+	options.bind(TE_TYPES.ANSWER_REPOSITORY).to(PrismaAnswerRepository).inSingletonScope();
+	options.bind(TE_TYPES.TEST_REGISTRATION_LISTENER).to(TestRegistrationListener).inSingletonScope();
+	options.bind(TE_TYPES.TEST_ANSWER_LISTENER).to(TestAnswerListener).inSingletonScope();
 });
 
 export { testExecutionModule, TE_TYPES };

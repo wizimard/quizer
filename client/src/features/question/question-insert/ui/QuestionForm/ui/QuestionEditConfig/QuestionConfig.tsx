@@ -20,5 +20,5 @@ export const QuestionConfig = ({ control }: QuestionFormComponentProps<object>) 
 		return null;
 	};
 
-	return <div className="py-2.5">{renderConfig()}</div>;
+	return <div>{renderConfig()}</div>;
 };

@@ -6,6 +6,7 @@ import { updateTestScheduler } from "../api/updateTestScheduler";
 import type { TestFullResponse } from "@shared/api/generated";
 import { normalizeTestFull, type TestFull } from "@entities/test";
 import { DRAWER_KEYS, useSetDataDrawer, useSetLockDrawer, useSetUnlockDrawer } from "@shared/model";
+import { QUERY_KEYS } from "@shared/constant";
 
 export function useUpdateTestScheduler(test: TestFull, setError: UseFormSetError<ScheduleForm>) {
 	const setData = useSetDataDrawer(DRAWER_KEYS.TEST_SETTINGS);
@@ -20,7 +21,7 @@ export function useUpdateTestScheduler(test: TestFull, setError: UseFormSetError
 			return updateTestScheduler(test.id, formData);
 		},
 		onSuccess: (response) => {
-			queryClient.setQueriesData({ queryKey: ["test", test.id] }, (oldData: TestFullResponse) => {
+			queryClient.setQueriesData({ queryKey: [QUERY_KEYS.GET_FULL_TEST, test.id] }, (oldData: TestFullResponse) => {
 				if (!oldData) return oldData;
 
 				const newTest = normalizeTestFull({ ...oldData, scheduler: response.data });

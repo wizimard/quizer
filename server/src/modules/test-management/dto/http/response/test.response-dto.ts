@@ -1,10 +1,10 @@
-import type { TestStatus } from '@modules/test-management/entities/test.entity';
-
 export interface TestResponse {
 	id: string;
 	author_id: string;
-	status: TestStatus;
+	isOpen: boolean;
 	title: string;
+	launches_count: number;
+	last_launch_date: Date | null;
 	updated_at: Date;
 	created_at: Date;
 }

@@ -5,6 +5,8 @@ export abstract class QuestionConfigBase<TData = unknown> {
 	public abstract answer: unknown;
 
 	public abstract validate(): IValidationError[];
+	public abstract isValidAnswer(answer: string): boolean;
+	public abstract isCorrectAnswer(answer: string): boolean;
 
 	protected abstract setData(data: TData): void;
 

@@ -7,8 +7,9 @@ import type {
 	TestSchedulerPeriodModelWhereInput,
 } from '@prisma/models';
 import type { TestEntity } from '../../entities/test.entity';
-import type { ITestUpdateSchedulerPeriodsData, ITestUpdateSettingsData } from '../../interfaces/repository/test.repository.interface';
 import type { TestSchedulerPeriod } from '@modules/test-management/entities/test-scheduler-period';
+import type { TestUpdateSettingsData } from '@modules/test-management/interfaces/repository/test-settings.repository.interface';
+import type { TestUpdateSchedulerPeriodsData } from '@modules/test-management/interfaces/repository/test-scheduler.repository.interface';
 
 export interface ITestPersistenceUpdate {
 	createData: Array<TestSchedulerPeriodModelCreateManyInput>;
@@ -20,7 +21,7 @@ export const TestPersistenceMapper = {
 	toCreateData(entity: TestEntity): TestModelCreateArgs['data'] {
 		return {
 			title: entity.title,
-			author_id: entity.authorId.value,
+			author_id: entity.authorId,
 			test_settings: {
 				create: {},
 			},
@@ -33,12 +34,9 @@ export const TestPersistenceMapper = {
 		};
 	},
 
-	toSettingsUpdateInput(updateSettingsData: ITestUpdateSettingsData): TestModelUpdateArgs['data'] {
+	toSettingsUpdateInput(updateSettingsData: TestUpdateSettingsData): TestModelUpdateArgs['data'] {
 		const settingsData = {
 			show_answers_after_completion: updateSettingsData.isShowAnswersAfterCompletion,
-			required_email: updateSettingsData.isRequiredEmail,
-			required_first_name: updateSettingsData.isRequiredFirstName,
-			required_last_name: updateSettingsData.isRequiredLastName,
 		};
 
 		return {
@@ -49,7 +47,7 @@ export const TestPersistenceMapper = {
 		};
 	},
 
-	toSchedulerPeriodsUpdateInput(testId: string, data: ITestUpdateSchedulerPeriodsData): ITestPersistenceUpdate {
+	toSchedulerPeriodsUpdateInput(testId: string, data: TestUpdateSchedulerPeriodsData): ITestPersistenceUpdate {
 		const { add: addPeriods, update: updatePeriods, remove: deletePeriods } = data;
 
 		const createData: Array<TestSchedulerPeriodModelCreateManyInput> = [];

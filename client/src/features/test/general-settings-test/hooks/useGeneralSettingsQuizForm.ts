@@ -8,13 +8,11 @@ import { normalizeTestFull, type TestFull } from "@entities/test";
 import { testApi } from "@shared/api";
 import type { TestFullResponse } from "@shared/api/generated";
 import { DRAWER_KEYS, useSetUnlockDrawer, useSetLockDrawer } from "@shared/model";
+import { QUERY_KEYS } from "@shared/constant";
 
 function updateTestSettings(test: TestFull, formData: GeneralSettingsTestForm): Promise<AxiosResponse<TestFullResponse>> {
 	return testApi.testTestIdSettingsPatch(test.id, {
 		title: formData.title,
-		required_email: formData.isRequiredEmail,
-		required_first_name: formData.isRequiredFirstName,
-		required_last_name: formData.isRequiredLastName,
 		show_answers_after_completion: formData.isShowAnswersAfterCompletion,
 	});
 }
@@ -34,9 +32,6 @@ export function useGeneralSettingsTestForm(test: TestFull) {
 	} = useForm<GeneralSettingsTestForm>({
 		defaultValues: {
 			title: test.title,
-			isRequiredEmail: test.settings.isRequiredEmail,
-			isRequiredFirstName: test.settings.isRequiredFirstName,
-			isRequiredLastName: test.settings.isRequiredLastName,
 			isShowAnswersAfterCompletion: test.settings.isShowAnswersAfterCompletion,
 		},
 		resolver: zodResolver(generalSettingsFormValidationSchema) as Resolver<GeneralSettingsTestForm>,
@@ -53,7 +48,7 @@ export function useGeneralSettingsTestForm(test: TestFull) {
 			return updateTestSettings(test, formData);
 		},
 		onSuccess: (response: AxiosResponse<TestFullResponse>) => {
-			queryClient.setQueryData(["test", test.id], normalizeTestFull(response.data));
+			queryClient.setQueryData([QUERY_KEYS.GET_FULL_TEST, test.id], normalizeTestFull(response.data));
 		},
 		onError: (error: Error) => {
 			if (!(error instanceof AxiosError) || !error.response?.data?.message) {
@@ -72,9 +67,6 @@ export function useGeneralSettingsTestForm(test: TestFull) {
 	const resetForm = useCallback(() => {
 		reset({
 			title: test.title,
-			isRequiredEmail: test.settings.isRequiredEmail,
-			isRequiredFirstName: test.settings.isRequiredFirstName,
-			isRequiredLastName: test.settings.isRequiredLastName,
 			isShowAnswersAfterCompletion: test.settings.isShowAnswersAfterCompletion,
 		});
 	}, [reset, test.settings, test.title]);

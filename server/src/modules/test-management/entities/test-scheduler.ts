@@ -1,12 +1,11 @@
-import type { TestId } from './value-object/test-id';
 import type { TestSchedulerPeriod } from './test-scheduler-period';
 
 export class TestScheduler {
-	public readonly testId: TestId;
+	public readonly testId: string;
 
 	private _periods: Array<TestSchedulerPeriod> = [];
 
-	constructor(testId: TestId, periods: Array<TestSchedulerPeriod>) {
+	constructor(testId: string, periods: Array<TestSchedulerPeriod>) {
 		this.testId = testId;
 		this._periods = periods;
 	}

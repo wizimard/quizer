@@ -1,11 +1,14 @@
-import type { Test } from "@entities/test";
-import { testApi } from "@shared/api";
-import { TestResponseStatusEnum } from "@shared/api/generated";
+import { sessionApi } from "@shared/api";
 
-export function stopTest(test: Test) {
-	if (test.status === TestResponseStatusEnum.Closed) {
+export type StoppableTest = {
+	id: string;
+	isOpen: boolean;
+};
+
+export function stopTest(test: StoppableTest) {
+	if (!test.isOpen) {
 		throw new Error("Test is not open");
 	}
 
-	return testApi.testTestIdFinishPost(test.id);
+	return sessionApi.sessionTestIdFinishPost(test.id);
 }

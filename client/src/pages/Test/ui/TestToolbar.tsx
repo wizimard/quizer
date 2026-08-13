@@ -1,5 +1,4 @@
 import { Typography } from "@shared/ui/typography";
-import { TestResponseStatusEnum } from "@shared/api/generated";
 import { TestStatus, type TestFull } from "@entities/test";
 import { StartTest } from "@features/test/start-test";
 import { StopTest } from "@features/test/stop-test";
@@ -10,8 +9,6 @@ export interface TestToolbarProps {
 }
 
 export const TestToolbar = ({ test }: TestToolbarProps) => {
-	const isOpen = test.status === TestResponseStatusEnum.Open;
-
 	return (
 		<>
 			<div className="flex w-full items-center gap-3">
@@ -19,7 +16,7 @@ export const TestToolbar = ({ test }: TestToolbarProps) => {
 					{test.title}
 				</Typography>
 				<TestStatus status={test.status} className="ml-auto" />
-				{isOpen ? <StopTest test={test} /> : <StartTest test={test} />}
+				{test.isOpen ? <StopTest test={test} /> : <StartTest test={test} />}
 				<TestSettings test={test} />
 			</div>
 		</>

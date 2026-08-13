@@ -1,5 +1,6 @@
+import type { QuestionExecution } from "../model/question-execution.interface";
 import type { Question } from "../model/question.interface";
-import type { QuestionResponse } from "@shared/api/generated";
+import type { QuestionExecuteResponse, QuestionResponse } from "@shared/api/generated";
 
 export function normalizeQuestion(question: QuestionResponse): Question {
 	return {
@@ -7,6 +8,21 @@ export function normalizeQuestion(question: QuestionResponse): Question {
 		testId: question.test_id,
 		sortKey: question.sort_key,
 		description: question.description,
+		score: question.score,
+		image: question.image,
 		config: question.config,
+	};
+}
+
+export function normalizeExecutionQuestion(question: QuestionExecuteResponse): QuestionExecution {
+	const config = question.config;
+
+	return {
+		id: question.id,
+		testId: question.test_id,
+		sortKey: question.sort_key,
+		description: question.description,
+		image: question.image,
+		config,
 	};
 }

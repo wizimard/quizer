@@ -34,4 +34,12 @@ export class QuestionConfigInputValue extends QuestionConfigBase<IQuestionInputV
 
 		return errors;
 	}
+
+	public isValidAnswer(answer: string): boolean {
+		return !!answer;
+	}
+
+	public isCorrectAnswer(answer: string): boolean {
+		return this.answer === answer;
+	}
 }

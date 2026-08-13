@@ -12,6 +12,11 @@ export const AddSchedulerPeriod = ({ control }: ScheduleComponentProps<object>) 
 	const handleClick = () => {
 		const lastPeriod = schedulePeriods[schedulePeriods.length - 1];
 
+		if (!lastPeriod.availableTo) {
+			console.error("Last period doesn't have end date");
+			return;
+		}
+
 		const now = new Date(lastPeriod.availableTo);
 
 		now.setDate(now.getDate() + 1);

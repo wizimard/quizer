@@ -52,7 +52,7 @@ const { status, data } = await apiInstance.questionTestIdQuestionsPost(
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
+ - **Content-Type**: application/json, multipart/form-data
  - **Accept**: application/json
 
 
@@ -63,7 +63,7 @@ const { status, data } = await apiInstance.questionTestIdQuestionsPost(
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden |  -  |
 |**404** | Not found |  -  |
-|**422** | Validation failed |  -  |
+|**422** | Validation failed, invalid image type, or image too large |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -230,7 +230,7 @@ const { status, data } = await apiInstance.questionTestIdQuestionsQuestionIdPatc
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
+ - **Content-Type**: application/json, multipart/form-data
  - **Accept**: application/json
 
 
@@ -241,7 +241,7 @@ const { status, data } = await apiInstance.questionTestIdQuestionsQuestionIdPatc
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden |  -  |
 |**404** | Not found |  -  |
-|**422** | Validation failed |  -  |
+|**422** | Validation failed, invalid image type, or image too large |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

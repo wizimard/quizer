@@ -5,15 +5,15 @@ import { DefaultButton } from "@shared/ui/button";
 import { QuestionDeleteDialog } from "@features/question/question-delete";
 import type { Question } from "@entities/question";
 import { useIsOpenDrawer, DRAWER_KEYS, useSetOpenDrawer, useGetDataDrawer, DIALOG_KEYS, useOpenDialog } from "@shared/model";
+import type { TestFull } from "@entities/test";
 
-// TODO: review
 export const QuestionSettingsDrawer = () => {
 	const { t } = useTranslation();
 
 	const isOpenDrawer = useIsOpenDrawer(DRAWER_KEYS.QUESTION_SETTINGS);
 	const setOpenDrawer = useSetOpenDrawer(DRAWER_KEYS.QUESTION_SETTINGS);
 
-	const question = useGetDataDrawer<Question>(DRAWER_KEYS.QUESTION_SETTINGS);
+	const drawerData = useGetDataDrawer<{ question: Question; test: TestFull } | null>(DRAWER_KEYS.QUESTION_SETTINGS);
 
 	const openDialog = useOpenDialog(DIALOG_KEYS.QUESTION_DELETE);
 
@@ -22,11 +22,10 @@ export const QuestionSettingsDrawer = () => {
 	};
 
 	const handleChangeOpen = (open: boolean) => {
-		console.log(open);
 		setOpenDrawer(open);
 	};
 
-	if (!question) {
+	if (!drawerData) {
 		return null;
 	}
 
@@ -38,14 +37,14 @@ export const QuestionSettingsDrawer = () => {
 						<SheetTitle className="text-xl font-semibold tracking-tight">{t("question_settings.title")}</SheetTitle>
 					</SheetHeader>
 					<div className="px-5 pb-2 flex flex-col gap-4">
-						<QuestionForm question={question} />
+						<QuestionForm question={drawerData.question} test={drawerData.test} />
 						<DefaultButton variant="destructive" onClick={handleClickDelete}>
 							{t("question_delete.button")}
 						</DefaultButton>
 					</div>
 				</SheetContent>
 			</Sheet>
-			<QuestionDeleteDialog question={question} />
+			<QuestionDeleteDialog question={drawerData.question} />
 		</>
 	);
 };
