@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import multer, { type FileFilterCallback } from 'multer';
 import { HttpError } from '@shared/error';
+import { captureAsyncContext, runWithAsyncContext } from './async-context';
 import type { IMiddleware } from './middleware.interface';
 
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
@@ -22,23 +23,27 @@ export class ImageUploadMiddleware implements IMiddleware {
 	private readonly middleware = upload.single('image');
 
 	execute(req: Request, res: Response, next: NextFunction): void {
+		const context = captureAsyncContext();
+
 		this.middleware(req, res, (error: unknown) => {
-			if (error instanceof multer.MulterError) {
-				if (error.code === 'LIMIT_FILE_SIZE') {
-					next(new HttpError(422, 'image_too_large', 'ImageUploadMiddleware'));
+			runWithAsyncContext(context, () => {
+				if (error instanceof multer.MulterError) {
+					if (error.code === 'LIMIT_FILE_SIZE') {
+						next(new HttpError(422, 'image_too_large', 'ImageUploadMiddleware'));
+						return;
+					}
+
+					next(new HttpError(422, error.code, 'ImageUploadMiddleware'));
 					return;
 				}
 
-				next(new HttpError(422, error.code, 'ImageUploadMiddleware'));
-				return;
-			}
+				if (error) {
+					next(error);
+					return;
+				}
 
-			if (error) {
-				next(error);
-				return;
-			}
-
-			next();
+				next();
+			});
 		});
 	}
 }

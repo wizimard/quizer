@@ -79,6 +79,7 @@ export class QuestionController extends BaseController {
 		this.logger.info('[QuestionController updateQuestion] start');
 
 		const questionId = parseIdParam(req, 'questionId');
+
 		const result: QuestionResult = await this.questionService.update(QuestionInputMapper.toUpdateInput(req.body, questionId, TestStorage.get()!.id, req.file));
 
 		const updatedQuestion: QuestionResponse = QuestionResponseMapper.toResponse(result);

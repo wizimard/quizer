@@ -1,4 +1,5 @@
 import type { QuestionEntity } from '@modules/test-management';
+import { toUploadUrl } from '@shared/storage';
 import type { QuestionExecuteResponse } from '../dto/response/question-execute-response.dto';
 
 export class QuestionExecuteMapper {
@@ -25,6 +26,7 @@ export class QuestionExecuteMapper {
 			test_id: question.testId,
 			sort_key: question.sortKey,
 			description: question.description,
+			image: toUploadUrl(question.image),
 			config: config as QuestionExecuteResponse['config'],
 		};
 	}

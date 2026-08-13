@@ -19,5 +19,6 @@ export interface QuestionExecuteResponse {
 	test_id: string;
 	sort_key: number;
 	description: string;
+	image: string | null;
 	config: QuestionExecuteResponseConfig;
 }

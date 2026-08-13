@@ -19,7 +19,7 @@ export class TestMiddleware implements IMiddleware {
 			const test = await this.testRepository.findById(testId);
 
 			if (test) {
-				return TestStorage.run(test, () => next());
+				TestStorage.set(test);
 			}
 
 			next();

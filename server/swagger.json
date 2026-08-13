@@ -1112,12 +1112,17 @@
             },
             "QuestionExecuteResponse": {
                 "type": "object",
-                "required": ["id", "test_id", "sort_key", "description", "config"],
+                "required": ["id", "test_id", "sort_key", "description", "image", "config"],
                 "properties": {
                     "id": { "type": "string" },
                     "test_id": { "type": "string" },
                     "sort_key": { "type": "number" },
                     "description": { "type": "string" },
+                    "image": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Relative URL to the question image, or null"
+                    },
                     "config": { "$ref": "#/components/schemas/QuestionExecuteConfig" }
                 }
             },

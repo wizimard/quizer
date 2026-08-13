@@ -6,7 +6,7 @@ import { UserStorage } from '@modules/identity-access';
 import { TestStorage } from '../storage/test.storage';
 
 export class TestOwnershipGuard implements IMiddleware {
-	execute(_req: Request, _res: Response, next: NextFunction): void {
+	async execute(_req: Request, _res: Response, next: NextFunction): Promise<void> {
 		const user = UserStorage.get();
 		const test = TestStorage.get();
 
