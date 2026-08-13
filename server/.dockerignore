@@ -1,0 +1,10 @@
+node_modules
+dist
+logs
+uploads
+.env
+.git
+.vscode
+test
+test-report.html
+*.md

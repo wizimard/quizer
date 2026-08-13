@@ -65,6 +65,7 @@
     "inversify": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.2.0",
+    "node-cron": "^4.6.0",
     "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
     "swagger-ui-express": "^5.0.1",
