@@ -1,11 +1,14 @@
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import type { TestExecutionOverview, TestExecutionOverviewRegisteredUser } from "../model/test-execution-overview.interface";
 import { useWebSocket } from "@shared/websocket";
 import { QUERY_KEYS } from "@shared/constant";
 
 export const useTestExecutionOverviewSocket = (testId: string) => {
 	const queryClient = useQueryClient();
+	const navigate = useNavigate();
+
 	const { lastMessage } = useWebSocket();
 
 	useEffect(() => {
@@ -52,5 +55,9 @@ export const useTestExecutionOverviewSocket = (testId: string) => {
 				return { ...oldData, registered_users: registeredUsers };
 			});
 		}
-	}, [lastMessage, queryClient, testId]);
+
+		if (lastMessage.type === "test_finished") {
+			navigate(`/test-history/${testId}/${lastMessage.data.id}`);
+		}
+	}, [lastMessage, queryClient, testId, navigate]);
 };
