@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { QuestionViewConfig } from "@entities/question/ui/QuestionViewConfig";
 import type { Question } from "@entities/question";
+import { resolveApiAssetUrl } from "@shared/lib/resolveApiAssetUrl";
 import { Typography } from "@shared/ui/typography";
 
 interface ActiveQuestionViewProps {
@@ -13,6 +14,7 @@ interface ActiveQuestionViewProps {
 
 export const ActiveQuestionView = ({ question, questionIndex, totalQuestions, action }: ActiveQuestionViewProps) => {
 	const { t } = useTranslation();
+	const imageUrl = resolveApiAssetUrl(question.image);
 
 	return (
 		<div className="flex flex-col gap-4 rounded-xl bg-card px-6 py-5 ring-1 ring-foreground/10">
@@ -30,6 +32,7 @@ export const ActiveQuestionView = ({ question, questionIndex, totalQuestions, ac
 				<Typography variant="subtitle1" className="text-foreground leading-relaxed">
 					{question.description}
 				</Typography>
+				{imageUrl ? <img src={imageUrl} alt={t("question_form.image.label")} className="max-h-56 w-full object-contain" /> : null}
 				<QuestionViewConfig config={question.config} />
 			</div>
 		</div>
