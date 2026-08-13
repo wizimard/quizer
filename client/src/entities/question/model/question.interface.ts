@@ -5,5 +5,7 @@ export interface Question {
 	testId: string;
 	sortKey: number;
 	description: string;
+	score: number;
+	image: string | null;
 	config: QuestionRequestConfig;
 }

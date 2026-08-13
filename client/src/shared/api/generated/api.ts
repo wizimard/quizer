@@ -1,8 +1,9 @@
+// @ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
 /**
  * Quiz API
- * API documentation generated from src/modules controllers and DTOs (test-management, test-execution and identity-access).
+ * API documentation generated from src/modules controllers and DTOs (test-management, question-management, test-execution and identity-access).
  *
  * The version of the OpenAPI document: 0.0.1
  * 
@@ -100,6 +101,10 @@ export type QuestionConfigSingleChoiceTypeEnum = typeof QuestionConfigSingleChoi
 export interface QuestionCreateRequestBody {
     'description': string;
     'config': QuestionRequestConfig;
+    /**
+     * Points awarded for a correct answer. Defaults to 1.
+     */
+    'score'?: number;
 }
 /**
  * @type QuestionExecuteConfig
@@ -155,6 +160,10 @@ export interface QuestionExecuteResponse {
     'test_id': string;
     'sort_key': number;
     'description': string;
+    /**
+     * Relative URL to the question image, or null
+     */
+    'image': string | null;
     'config': QuestionExecuteConfig;
 }
 /**
@@ -167,11 +176,23 @@ export interface QuestionResponse {
     'test_id': string;
     'sort_key': number;
     'description': string;
+    /**
+     * Points awarded for a correct answer
+     */
+    'score': number;
+    /**
+     * Relative URL to the question image, or null
+     */
+    'image': string | null;
     'config': QuestionRequestConfig;
 }
 export interface QuestionUpdateRequestBody {
     'description': string;
     'config': QuestionRequestConfig;
+    /**
+     * Points awarded for a correct answer. Defaults to 1.
+     */
+    'score'?: number;
 }
 export interface RefreshTokenResponse {
     'accessToken': string;
@@ -343,12 +364,27 @@ export interface TestSchedulerPeriodsEditRequestBody {
 export interface TestSchedulerResponse {
     'periods': Array<TestSchedulerPeriodResponse>;
 }
+export interface TestSessionOverviewRegisteredUserResponse {
+    'id': string;
+    'first_name': string;
+    'last_name': string;
+    'answers': Array<TestExecutionOverviewAnswerResponse>;
+    'started_from': string;
+    /**
+     * Total points earned from correct answers
+     */
+    'score': number;
+}
 export interface TestSessionOverviewResponse {
     'id': string;
     'title': string;
     'run_mode': TestSessionOverviewResponseRunModeEnum;
     'questions': Array<TestExecutionOverviewQuestionResponse>;
-    'registered_users': Array<TestExecutionOverviewRegisteredUserResponse>;
+    'registered_users': Array<TestSessionOverviewRegisteredUserResponse>;
+    /**
+     * Maximum points available from all questions
+     */
+    'max_score': number;
     'started_at': string;
     'finished_at': string;
 }
@@ -697,6 +733,255 @@ export class AuthApi extends BaseAPI {
      */
     public authRegisterPost(userRegisterRequestBody: UserRegisterRequestBody, options?: RawAxiosRequestConfig) {
         return AuthApiFp(this.configuration).authRegisterPost(userRegisterRequestBody, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * HistoryApi - axios parameter creator
+ */
+export const HistoryApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Get finished launches across all tests owned by the current user, ordered by started_at descending.
+         * @summary Get tests history
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        historyGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/history`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Get finished launches for a test owned by the current user, ordered by started_at descending.
+         * @summary Get test history
+         * @param {string} testId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        historyTestIdGet: async (testId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'testId' is not null or undefined
+            assertParamExists('historyTestIdGet', 'testId', testId)
+            const localVarPath = `/history/{testId}`
+                .replace('{testId}', encodeURIComponent(String(testId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Get overview for a finished test session owned by the current user, including questions and registered users with their answers.
+         * @summary Get test session overview
+         * @param {string} testId 
+         * @param {string} sessionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        historyTestIdSessionIdGet: async (testId: string, sessionId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'testId' is not null or undefined
+            assertParamExists('historyTestIdSessionIdGet', 'testId', testId)
+            // verify required parameter 'sessionId' is not null or undefined
+            assertParamExists('historyTestIdSessionIdGet', 'sessionId', sessionId)
+            const localVarPath = `/history/{testId}/{sessionId}`
+                .replace('{testId}', encodeURIComponent(String(testId)))
+                .replace('{sessionId}', encodeURIComponent(String(sessionId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * HistoryApi - functional programming interface
+ */
+export const HistoryApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = HistoryApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Get finished launches across all tests owned by the current user, ordered by started_at descending.
+         * @summary Get tests history
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async historyGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<TestLaunchResponse>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.historyGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['HistoryApi.historyGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Get finished launches for a test owned by the current user, ordered by started_at descending.
+         * @summary Get test history
+         * @param {string} testId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async historyTestIdGet(testId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<TestLaunchResponse>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.historyTestIdGet(testId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['HistoryApi.historyTestIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Get overview for a finished test session owned by the current user, including questions and registered users with their answers.
+         * @summary Get test session overview
+         * @param {string} testId 
+         * @param {string} sessionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async historyTestIdSessionIdGet(testId: string, sessionId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TestSessionOverviewResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.historyTestIdSessionIdGet(testId, sessionId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['HistoryApi.historyTestIdSessionIdGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * HistoryApi - factory interface
+ */
+export const HistoryApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = HistoryApiFp(configuration)
+    return {
+        /**
+         * Get finished launches across all tests owned by the current user, ordered by started_at descending.
+         * @summary Get tests history
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        historyGet(options?: RawAxiosRequestConfig): AxiosPromise<Array<TestLaunchResponse>> {
+            return localVarFp.historyGet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Get finished launches for a test owned by the current user, ordered by started_at descending.
+         * @summary Get test history
+         * @param {string} testId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        historyTestIdGet(testId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<TestLaunchResponse>> {
+            return localVarFp.historyTestIdGet(testId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Get overview for a finished test session owned by the current user, including questions and registered users with their answers.
+         * @summary Get test session overview
+         * @param {string} testId 
+         * @param {string} sessionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        historyTestIdSessionIdGet(testId: string, sessionId: string, options?: RawAxiosRequestConfig): AxiosPromise<TestSessionOverviewResponse> {
+            return localVarFp.historyTestIdSessionIdGet(testId, sessionId, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * HistoryApi - object-oriented interface
+ */
+export class HistoryApi extends BaseAPI {
+    /**
+     * Get finished launches across all tests owned by the current user, ordered by started_at descending.
+     * @summary Get tests history
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public historyGet(options?: RawAxiosRequestConfig) {
+        return HistoryApiFp(this.configuration).historyGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Get finished launches for a test owned by the current user, ordered by started_at descending.
+     * @summary Get test history
+     * @param {string} testId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public historyTestIdGet(testId: string, options?: RawAxiosRequestConfig) {
+        return HistoryApiFp(this.configuration).historyTestIdGet(testId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Get overview for a finished test session owned by the current user, including questions and registered users with their answers.
+     * @summary Get test session overview
+     * @param {string} testId 
+     * @param {string} sessionId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public historyTestIdSessionIdGet(testId: string, sessionId: string, options?: RawAxiosRequestConfig) {
+        return HistoryApiFp(this.configuration).historyTestIdSessionIdGet(testId, sessionId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -1066,18 +1351,103 @@ export class QuestionApi extends BaseAPI {
 
 
 /**
- * TestApi - axios parameter creator
+ * SessionApi - axios parameter creator
  */
-export const TestApiAxiosParamCreator = function (configuration?: Configuration) {
+export const SessionApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 
-         * @summary Get author\'s tests
+         * Close an active test session and return the finished session id.
+         * @summary Finish test
+         * @param {string} testId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        testGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/test`;
+        sessionTestIdFinishPost: async (testId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'testId' is not null or undefined
+            assertParamExists('sessionTestIdFinishPost', 'testId', testId)
+            const localVarPath = `/session/{testId}/finish`
+                .replace('{testId}', encodeURIComponent(String(testId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Set the current question for a MANUAL run mode session and return the updated execution overview.
+         * @summary Move to next question
+         * @param {string} testId 
+         * @param {TestNextQuestionRequestBody} testNextQuestionRequestBody 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sessionTestIdNextQuestionPost: async (testId: string, testNextQuestionRequestBody: TestNextQuestionRequestBody, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'testId' is not null or undefined
+            assertParamExists('sessionTestIdNextQuestionPost', 'testId', testId)
+            // verify required parameter 'testNextQuestionRequestBody' is not null or undefined
+            assertParamExists('sessionTestIdNextQuestionPost', 'testNextQuestionRequestBody', testNextQuestionRequestBody)
+            const localVarPath = `/session/{testId}/next-question`
+                .replace('{testId}', encodeURIComponent(String(testId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(testNextQuestionRequestBody, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Get execution overview for a test owned by the current user, including questions and registered users with their answers. MANUAL run mode also includes current question progress fields.
+         * @summary Get test execution overview
+         * @param {string} testId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sessionTestIdOverviewGet: async (testId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'testId' is not null or undefined
+            assertParamExists('sessionTestIdOverviewGet', 'testId', testId)
+            const localVarPath = `/session/{testId}/overview`
+                .replace('{testId}', encodeURIComponent(String(testId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1105,13 +1475,229 @@ export const TestApiAxiosParamCreator = function (configuration?: Configuration)
             };
         },
         /**
-         * Get finished launches across all tests owned by the current user, ordered by started_at descending.
-         * @summary Get tests history
+         * Open test for execution.
+         * @summary Start test
+         * @param {string} testId 
+         * @param {TestStartRequestBody} [testStartRequestBody] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        testHistoryGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/test/history`;
+        sessionTestIdStartPost: async (testId: string, testStartRequestBody?: TestStartRequestBody, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'testId' is not null or undefined
+            assertParamExists('sessionTestIdStartPost', 'testId', testId)
+            const localVarPath = `/session/{testId}/start`
+                .replace('{testId}', encodeURIComponent(String(testId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(testStartRequestBody, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * SessionApi - functional programming interface
+ */
+export const SessionApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = SessionApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Close an active test session and return the finished session id.
+         * @summary Finish test
+         * @param {string} testId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sessionTestIdFinishPost(testId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TestFinishResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sessionTestIdFinishPost(testId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SessionApi.sessionTestIdFinishPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Set the current question for a MANUAL run mode session and return the updated execution overview.
+         * @summary Move to next question
+         * @param {string} testId 
+         * @param {TestNextQuestionRequestBody} testNextQuestionRequestBody 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sessionTestIdNextQuestionPost(testId: string, testNextQuestionRequestBody: TestNextQuestionRequestBody, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TestExecutionOverviewResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sessionTestIdNextQuestionPost(testId, testNextQuestionRequestBody, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SessionApi.sessionTestIdNextQuestionPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Get execution overview for a test owned by the current user, including questions and registered users with their answers. MANUAL run mode also includes current question progress fields.
+         * @summary Get test execution overview
+         * @param {string} testId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sessionTestIdOverviewGet(testId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TestExecutionOverviewResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sessionTestIdOverviewGet(testId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SessionApi.sessionTestIdOverviewGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Open test for execution.
+         * @summary Start test
+         * @param {string} testId 
+         * @param {TestStartRequestBody} [testStartRequestBody] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sessionTestIdStartPost(testId: string, testStartRequestBody?: TestStartRequestBody, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sessionTestIdStartPost(testId, testStartRequestBody, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SessionApi.sessionTestIdStartPost']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * SessionApi - factory interface
+ */
+export const SessionApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = SessionApiFp(configuration)
+    return {
+        /**
+         * Close an active test session and return the finished session id.
+         * @summary Finish test
+         * @param {string} testId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sessionTestIdFinishPost(testId: string, options?: RawAxiosRequestConfig): AxiosPromise<TestFinishResponse> {
+            return localVarFp.sessionTestIdFinishPost(testId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Set the current question for a MANUAL run mode session and return the updated execution overview.
+         * @summary Move to next question
+         * @param {string} testId 
+         * @param {TestNextQuestionRequestBody} testNextQuestionRequestBody 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sessionTestIdNextQuestionPost(testId: string, testNextQuestionRequestBody: TestNextQuestionRequestBody, options?: RawAxiosRequestConfig): AxiosPromise<TestExecutionOverviewResponse> {
+            return localVarFp.sessionTestIdNextQuestionPost(testId, testNextQuestionRequestBody, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Get execution overview for a test owned by the current user, including questions and registered users with their answers. MANUAL run mode also includes current question progress fields.
+         * @summary Get test execution overview
+         * @param {string} testId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sessionTestIdOverviewGet(testId: string, options?: RawAxiosRequestConfig): AxiosPromise<TestExecutionOverviewResponse> {
+            return localVarFp.sessionTestIdOverviewGet(testId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Open test for execution.
+         * @summary Start test
+         * @param {string} testId 
+         * @param {TestStartRequestBody} [testStartRequestBody] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sessionTestIdStartPost(testId: string, testStartRequestBody?: TestStartRequestBody, options?: RawAxiosRequestConfig): AxiosPromise<MessageResponse> {
+            return localVarFp.sessionTestIdStartPost(testId, testStartRequestBody, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * SessionApi - object-oriented interface
+ */
+export class SessionApi extends BaseAPI {
+    /**
+     * Close an active test session and return the finished session id.
+     * @summary Finish test
+     * @param {string} testId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public sessionTestIdFinishPost(testId: string, options?: RawAxiosRequestConfig) {
+        return SessionApiFp(this.configuration).sessionTestIdFinishPost(testId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Set the current question for a MANUAL run mode session and return the updated execution overview.
+     * @summary Move to next question
+     * @param {string} testId 
+     * @param {TestNextQuestionRequestBody} testNextQuestionRequestBody 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public sessionTestIdNextQuestionPost(testId: string, testNextQuestionRequestBody: TestNextQuestionRequestBody, options?: RawAxiosRequestConfig) {
+        return SessionApiFp(this.configuration).sessionTestIdNextQuestionPost(testId, testNextQuestionRequestBody, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Get execution overview for a test owned by the current user, including questions and registered users with their answers. MANUAL run mode also includes current question progress fields.
+     * @summary Get test execution overview
+     * @param {string} testId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public sessionTestIdOverviewGet(testId: string, options?: RawAxiosRequestConfig) {
+        return SessionApiFp(this.configuration).sessionTestIdOverviewGet(testId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Open test for execution.
+     * @summary Start test
+     * @param {string} testId 
+     * @param {TestStartRequestBody} [testStartRequestBody] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public sessionTestIdStartPost(testId: string, testStartRequestBody?: TestStartRequestBody, options?: RawAxiosRequestConfig) {
+        return SessionApiFp(this.configuration).sessionTestIdStartPost(testId, testStartRequestBody, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * TestApi - axios parameter creator
+ */
+export const TestApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Get author\'s tests
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        testGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/test`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1215,82 +1801,6 @@ export const TestApiAxiosParamCreator = function (configuration?: Configuration)
             };
         },
         /**
-         * Get execution overview for a test owned by the current user, including questions and registered users with their answers. MANUAL run mode also includes current question progress fields.
-         * @summary Get test execution overview
-         * @param {string} testId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        testTestIdExecutionOverviewGet: async (testId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'testId' is not null or undefined
-            assertParamExists('testTestIdExecutionOverviewGet', 'testId', testId)
-            const localVarPath = `/test/{testId}/execution-overview`
-                .replace('{testId}', encodeURIComponent(String(testId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication BearerAuth required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            localVarHeaderParameter['Accept'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Close an active test session and return the finished session id.
-         * @summary Finish test
-         * @param {string} testId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        testTestIdFinishPost: async (testId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'testId' is not null or undefined
-            assertParamExists('testTestIdFinishPost', 'testId', testId)
-            const localVarPath = `/test/{testId}/finish`
-                .replace('{testId}', encodeURIComponent(String(testId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication BearerAuth required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            localVarHeaderParameter['Accept'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
          * 
          * @summary Get test by id
          * @param {string} testId 
@@ -1322,129 +1832,6 @@ export const TestApiAxiosParamCreator = function (configuration?: Configuration)
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Get finished launches for a test owned by the current user, ordered by started_at descending.
-         * @summary Get test history
-         * @param {string} testId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        testTestIdHistoryGet: async (testId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'testId' is not null or undefined
-            assertParamExists('testTestIdHistoryGet', 'testId', testId)
-            const localVarPath = `/test/{testId}/history`
-                .replace('{testId}', encodeURIComponent(String(testId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication BearerAuth required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            localVarHeaderParameter['Accept'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Get overview for a finished test session owned by the current user, including questions and registered users with their answers.
-         * @summary Get test session overview
-         * @param {string} testId 
-         * @param {string} sessionId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        testTestIdHistorySessionIdGet: async (testId: string, sessionId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'testId' is not null or undefined
-            assertParamExists('testTestIdHistorySessionIdGet', 'testId', testId)
-            // verify required parameter 'sessionId' is not null or undefined
-            assertParamExists('testTestIdHistorySessionIdGet', 'sessionId', sessionId)
-            const localVarPath = `/test/{testId}/history/{sessionId}`
-                .replace('{testId}', encodeURIComponent(String(testId)))
-                .replace('{sessionId}', encodeURIComponent(String(sessionId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication BearerAuth required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            localVarHeaderParameter['Accept'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Set the current question for a MANUAL run mode session and return the updated execution overview.
-         * @summary Move to next question
-         * @param {string} testId 
-         * @param {TestNextQuestionRequestBody} testNextQuestionRequestBody 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        testTestIdNextQuestionPost: async (testId: string, testNextQuestionRequestBody: TestNextQuestionRequestBody, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'testId' is not null or undefined
-            assertParamExists('testTestIdNextQuestionPost', 'testId', testId)
-            // verify required parameter 'testNextQuestionRequestBody' is not null or undefined
-            assertParamExists('testTestIdNextQuestionPost', 'testNextQuestionRequestBody', testNextQuestionRequestBody)
-            const localVarPath = `/test/{testId}/next-question`
-                .replace('{testId}', encodeURIComponent(String(testId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication BearerAuth required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-            localVarHeaderParameter['Accept'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(testNextQuestionRequestBody, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1580,47 +1967,6 @@ export const TestApiAxiosParamCreator = function (configuration?: Configuration)
                 options: localVarRequestOptions,
             };
         },
-        /**
-         * Open test for execution.
-         * @summary Start test
-         * @param {string} testId 
-         * @param {TestStartRequestBody} [testStartRequestBody] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        testTestIdStartPost: async (testId: string, testStartRequestBody?: TestStartRequestBody, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'testId' is not null or undefined
-            assertParamExists('testTestIdStartPost', 'testId', testId)
-            const localVarPath = `/test/{testId}/start`
-                .replace('{testId}', encodeURIComponent(String(testId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication BearerAuth required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-            localVarHeaderParameter['Accept'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(testStartRequestBody, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
     }
 };
 
@@ -1640,18 +1986,6 @@ export const TestApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.testGet(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['TestApi.testGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Get finished launches across all tests owned by the current user, ordered by started_at descending.
-         * @summary Get tests history
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async testHistoryGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<TestLaunchResponse>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.testHistoryGet(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TestApi.testHistoryGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -1681,32 +2015,6 @@ export const TestApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Get execution overview for a test owned by the current user, including questions and registered users with their answers. MANUAL run mode also includes current question progress fields.
-         * @summary Get test execution overview
-         * @param {string} testId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async testTestIdExecutionOverviewGet(testId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TestExecutionOverviewResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.testTestIdExecutionOverviewGet(testId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TestApi.testTestIdExecutionOverviewGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Close an active test session and return the finished session id.
-         * @summary Finish test
-         * @param {string} testId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async testTestIdFinishPost(testId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TestFinishResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.testTestIdFinishPost(testId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TestApi.testTestIdFinishPost']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
          * 
          * @summary Get test by id
          * @param {string} testId 
@@ -1717,47 +2025,6 @@ export const TestApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.testTestIdGet(testId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['TestApi.testTestIdGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Get finished launches for a test owned by the current user, ordered by started_at descending.
-         * @summary Get test history
-         * @param {string} testId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async testTestIdHistoryGet(testId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<TestLaunchResponse>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.testTestIdHistoryGet(testId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TestApi.testTestIdHistoryGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Get overview for a finished test session owned by the current user, including questions and registered users with their answers.
-         * @summary Get test session overview
-         * @param {string} testId 
-         * @param {string} sessionId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async testTestIdHistorySessionIdGet(testId: string, sessionId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TestSessionOverviewResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.testTestIdHistorySessionIdGet(testId, sessionId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TestApi.testTestIdHistorySessionIdGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Set the current question for a MANUAL run mode session and return the updated execution overview.
-         * @summary Move to next question
-         * @param {string} testId 
-         * @param {TestNextQuestionRequestBody} testNextQuestionRequestBody 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async testTestIdNextQuestionPost(testId: string, testNextQuestionRequestBody: TestNextQuestionRequestBody, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TestExecutionOverviewResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.testTestIdNextQuestionPost(testId, testNextQuestionRequestBody, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TestApi.testTestIdNextQuestionPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -1802,20 +2069,6 @@ export const TestApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['TestApi.testTestIdSettingsPatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
-        /**
-         * Open test for execution.
-         * @summary Start test
-         * @param {string} testId 
-         * @param {TestStartRequestBody} [testStartRequestBody] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async testTestIdStartPost(testId: string, testStartRequestBody?: TestStartRequestBody, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.testTestIdStartPost(testId, testStartRequestBody, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TestApi.testTestIdStartPost']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
     }
 };
 
@@ -1833,15 +2086,6 @@ export const TestApiFactory = function (configuration?: Configuration, basePath?
          */
         testGet(options?: RawAxiosRequestConfig): AxiosPromise<Array<TestResponse>> {
             return localVarFp.testGet(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Get finished launches across all tests owned by the current user, ordered by started_at descending.
-         * @summary Get tests history
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        testHistoryGet(options?: RawAxiosRequestConfig): AxiosPromise<Array<TestLaunchResponse>> {
-            return localVarFp.testHistoryGet(options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1864,26 +2108,6 @@ export const TestApiFactory = function (configuration?: Configuration, basePath?
             return localVarFp.testTestIdDelete(testId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Get execution overview for a test owned by the current user, including questions and registered users with their answers. MANUAL run mode also includes current question progress fields.
-         * @summary Get test execution overview
-         * @param {string} testId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        testTestIdExecutionOverviewGet(testId: string, options?: RawAxiosRequestConfig): AxiosPromise<TestExecutionOverviewResponse> {
-            return localVarFp.testTestIdExecutionOverviewGet(testId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Close an active test session and return the finished session id.
-         * @summary Finish test
-         * @param {string} testId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        testTestIdFinishPost(testId: string, options?: RawAxiosRequestConfig): AxiosPromise<TestFinishResponse> {
-            return localVarFp.testTestIdFinishPost(testId, options).then((request) => request(axios, basePath));
-        },
-        /**
          * 
          * @summary Get test by id
          * @param {string} testId 
@@ -1892,38 +2116,6 @@ export const TestApiFactory = function (configuration?: Configuration, basePath?
          */
         testTestIdGet(testId: string, options?: RawAxiosRequestConfig): AxiosPromise<TestFullResponse> {
             return localVarFp.testTestIdGet(testId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Get finished launches for a test owned by the current user, ordered by started_at descending.
-         * @summary Get test history
-         * @param {string} testId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        testTestIdHistoryGet(testId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<TestLaunchResponse>> {
-            return localVarFp.testTestIdHistoryGet(testId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Get overview for a finished test session owned by the current user, including questions and registered users with their answers.
-         * @summary Get test session overview
-         * @param {string} testId 
-         * @param {string} sessionId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        testTestIdHistorySessionIdGet(testId: string, sessionId: string, options?: RawAxiosRequestConfig): AxiosPromise<TestSessionOverviewResponse> {
-            return localVarFp.testTestIdHistorySessionIdGet(testId, sessionId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Set the current question for a MANUAL run mode session and return the updated execution overview.
-         * @summary Move to next question
-         * @param {string} testId 
-         * @param {TestNextQuestionRequestBody} testNextQuestionRequestBody 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        testTestIdNextQuestionPost(testId: string, testNextQuestionRequestBody: TestNextQuestionRequestBody, options?: RawAxiosRequestConfig): AxiosPromise<TestExecutionOverviewResponse> {
-            return localVarFp.testTestIdNextQuestionPost(testId, testNextQuestionRequestBody, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1958,17 +2150,6 @@ export const TestApiFactory = function (configuration?: Configuration, basePath?
         testTestIdSettingsPatch(testId: string, testSettingsUpdateRequestBody: TestSettingsUpdateRequestBody, options?: RawAxiosRequestConfig): AxiosPromise<TestFullResponse> {
             return localVarFp.testTestIdSettingsPatch(testId, testSettingsUpdateRequestBody, options).then((request) => request(axios, basePath));
         },
-        /**
-         * Open test for execution.
-         * @summary Start test
-         * @param {string} testId 
-         * @param {TestStartRequestBody} [testStartRequestBody] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        testTestIdStartPost(testId: string, testStartRequestBody?: TestStartRequestBody, options?: RawAxiosRequestConfig): AxiosPromise<MessageResponse> {
-            return localVarFp.testTestIdStartPost(testId, testStartRequestBody, options).then((request) => request(axios, basePath));
-        },
     };
 };
 
@@ -1984,16 +2165,6 @@ export class TestApi extends BaseAPI {
      */
     public testGet(options?: RawAxiosRequestConfig) {
         return TestApiFp(this.configuration).testGet(options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Get finished launches across all tests owned by the current user, ordered by started_at descending.
-     * @summary Get tests history
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public testHistoryGet(options?: RawAxiosRequestConfig) {
-        return TestApiFp(this.configuration).testHistoryGet(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2019,28 +2190,6 @@ export class TestApi extends BaseAPI {
     }
 
     /**
-     * Get execution overview for a test owned by the current user, including questions and registered users with their answers. MANUAL run mode also includes current question progress fields.
-     * @summary Get test execution overview
-     * @param {string} testId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public testTestIdExecutionOverviewGet(testId: string, options?: RawAxiosRequestConfig) {
-        return TestApiFp(this.configuration).testTestIdExecutionOverviewGet(testId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Close an active test session and return the finished session id.
-     * @summary Finish test
-     * @param {string} testId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public testTestIdFinishPost(testId: string, options?: RawAxiosRequestConfig) {
-        return TestApiFp(this.configuration).testTestIdFinishPost(testId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
      * 
      * @summary Get test by id
      * @param {string} testId 
@@ -2049,41 +2198,6 @@ export class TestApi extends BaseAPI {
      */
     public testTestIdGet(testId: string, options?: RawAxiosRequestConfig) {
         return TestApiFp(this.configuration).testTestIdGet(testId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Get finished launches for a test owned by the current user, ordered by started_at descending.
-     * @summary Get test history
-     * @param {string} testId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public testTestIdHistoryGet(testId: string, options?: RawAxiosRequestConfig) {
-        return TestApiFp(this.configuration).testTestIdHistoryGet(testId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Get overview for a finished test session owned by the current user, including questions and registered users with their answers.
-     * @summary Get test session overview
-     * @param {string} testId 
-     * @param {string} sessionId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public testTestIdHistorySessionIdGet(testId: string, sessionId: string, options?: RawAxiosRequestConfig) {
-        return TestApiFp(this.configuration).testTestIdHistorySessionIdGet(testId, sessionId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Set the current question for a MANUAL run mode session and return the updated execution overview.
-     * @summary Move to next question
-     * @param {string} testId 
-     * @param {TestNextQuestionRequestBody} testNextQuestionRequestBody 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public testTestIdNextQuestionPost(testId: string, testNextQuestionRequestBody: TestNextQuestionRequestBody, options?: RawAxiosRequestConfig) {
-        return TestApiFp(this.configuration).testTestIdNextQuestionPost(testId, testNextQuestionRequestBody, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2120,18 +2234,6 @@ export class TestApi extends BaseAPI {
      */
     public testTestIdSettingsPatch(testId: string, testSettingsUpdateRequestBody: TestSettingsUpdateRequestBody, options?: RawAxiosRequestConfig) {
         return TestApiFp(this.configuration).testTestIdSettingsPatch(testId, testSettingsUpdateRequestBody, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Open test for execution.
-     * @summary Start test
-     * @param {string} testId 
-     * @param {TestStartRequestBody} [testStartRequestBody] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public testTestIdStartPost(testId: string, testStartRequestBody?: TestStartRequestBody, options?: RawAxiosRequestConfig) {
-        return TestApiFp(this.configuration).testTestIdStartPost(testId, testStartRequestBody, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

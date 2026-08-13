@@ -3,7 +3,9 @@ import type { Control } from "react-hook-form";
 import { normalizeOptionsForm } from "./question-type-options";
 import type { Question } from "@entities/question";
 
-export type TQuestionFormModel = Omit<Question, "id" | "testId" | "sortKey">;
+export type TQuestionFormModel = Omit<Question, "id" | "testId" | "sortKey" | "image"> & {
+	imageFile: File | null;
+};
 
 const optionSchema = zod.object({
 	id: zod.string(),
@@ -15,6 +17,8 @@ export type TQuestionFormOption = zod.infer<typeof optionSchema>;
 
 export const questionFormModelSchema = zod.object({
 	description: zod.string().min(1, "question_form.validation_errors.question_description"),
+	score: zod.number().int().min(1, "question_form.validation_errors.score_min"),
+	imageFile: zod.instanceof(File).nullable(),
 	config: zod.discriminatedUnion(
 		"type",
 		[
@@ -52,15 +56,21 @@ export type QuestionFormComponentProps<T> = T & {
 };
 
 export const getFormQuestionValues = (question: Question): TQuestionForm => {
+	const baseValues = {
+		description: question.description,
+		score: question.score,
+		imageFile: null,
+	};
+
 	if (!("options" in question.config)) {
 		return {
-			description: question.description,
+			...baseValues,
 			config: question.config as TQuestionForm["config"],
 		};
 	}
 
 	return {
-		description: question.description,
+		...baseValues,
 		config: {
 			...question.config,
 			options: normalizeOptionsForm(question.config.options),

@@ -5,12 +5,12 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "tsc -b && vite build",
+		"build": "tsc -b tsconfig.app.json tsconfig.node.json && vite build",
 		"lint": "eslint .",
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
 		"preview": "vite preview",
-		"api-generate": "openapi-generator-cli generate -i http://localhost:8031/swagger.json -g typescript-axios -o src/shared/api/generated"
+		"api-generate": "openapi-generator-cli generate -i http://localhost:8031/swagger.json -g typescript-axios -o src/shared/api/generated && node scripts/add-ts-nocheck-to-generated.mjs"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^5.4.0",

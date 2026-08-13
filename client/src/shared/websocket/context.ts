@@ -2,7 +2,7 @@ import { createContext } from "react";
 
 export type WebSocketContextValue = {
 	lastMessage: MessageEvent | null;
-	sendMessage: (data: string | ArrayBufferLike | Blob | ArrayBufferView) => void;
+	sendMessage: (data: Parameters<WebSocket["send"]>[0]) => void;
 	readyState: number;
 };
 

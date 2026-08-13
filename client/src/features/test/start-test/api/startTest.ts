@@ -1,7 +1,7 @@
 import type { AxiosResponse } from "axios";
-import { testApi } from "@shared/api";
-import type { MessageResponse, TestStartRequestBody } from "@shared/api/generated";
 import { toStartTestRequest, type StartTestForm } from "../model/startTestForm";
+import { sessionApi } from "@shared/api";
+import type { MessageResponse, TestStartRequestBody } from "@shared/api/generated";
 
 export function startTest(testId: string, data: StartTestForm): Promise<AxiosResponse<MessageResponse>> {
 	const { runMode, duration } = toStartTestRequest(data);
@@ -14,5 +14,5 @@ export function startTest(testId: string, data: StartTestForm): Promise<AxiosRes
 		requestBody.duration = duration;
 	}
 
-	return testApi.testTestIdStartPost(testId, requestBody);
+	return sessionApi.sessionTestIdStartPost(testId, requestBody);
 }

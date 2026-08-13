@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
-import { AuthApi, QuestionApi, TestApi, TestExecutionApi, UserApi } from "./generated";
+import { AuthApi, HistoryApi, QuestionApi, SessionApi, TestApi, TestExecutionApi, UserApi } from "./generated";
 import { ACCESS_TOKEN_KEY } from "@shared/constant";
 
 const baseURL = import.meta.env.VITE_API_URL as string | undefined;
@@ -77,5 +77,8 @@ apiInstance.interceptors.response.use(
 export const authApi = new AuthApi(undefined, baseURL, apiInstance);
 export const userApi = new UserApi(undefined, baseURL, apiInstance);
 export const testApi = new TestApi(undefined, baseURL, apiInstance);
+export const historyApi = new HistoryApi(undefined, baseURL, apiInstance);
+export const sessionApi = new SessionApi(undefined, baseURL, apiInstance);
 export const testExecutionApi = new TestExecutionApi(undefined, baseURL, apiInstance);
 export const questionApi = new QuestionApi(undefined, baseURL, apiInstance);
+export { apiInstance as apiClient };

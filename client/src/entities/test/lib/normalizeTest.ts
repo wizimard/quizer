@@ -114,6 +114,7 @@ export function normalizeTestSessionOverview(response: TestSessionOverviewRespon
 		id: response.id,
 		title: response.title,
 		run_mode: response.run_mode,
+		max_score: response.max_score,
 		questions,
 		registered_users: registeredUsers,
 		started_at: new Date(response.started_at),

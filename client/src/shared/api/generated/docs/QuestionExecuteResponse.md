@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **test_id** | **string** |  | [default to undefined]
 **sort_key** | **number** |  | [default to undefined]
 **description** | **string** |  | [default to undefined]
+**image** | **string** | Relative URL to the question image, or null | [default to undefined]
 **config** | [**QuestionExecuteConfig**](QuestionExecuteConfig.md) |  | [default to undefined]
 
 ## Example
@@ -21,6 +22,7 @@ const instance: QuestionExecuteResponse = {
     test_id,
     sort_key,
     description,
+    image,
     config,
 };
 ```

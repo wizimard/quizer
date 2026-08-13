@@ -8,6 +8,8 @@ export function normalizeQuestion(question: QuestionResponse): Question {
 		testId: question.test_id,
 		sortKey: question.sort_key,
 		description: question.description,
+		score: question.score,
+		image: question.image,
 		config: question.config,
 	};
 }
@@ -20,6 +22,7 @@ export function normalizeExecutionQuestion(question: QuestionExecuteResponse): Q
 		testId: question.test_id,
 		sortKey: question.sort_key,
 		description: question.description,
+		image: question.image,
 		config,
 	};
 }

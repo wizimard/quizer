@@ -255,8 +255,16 @@
 	},
 	"question_form": {
 		"description": {
-			"label": "Описание задачи",
-			"placeholder": "Введите описание задачи"
+			"label": "Описание вопроса",
+			"placeholder": "Введите описание вопроса"
+		},
+		"score": {
+			"label": "Баллы",
+			"placeholder": "1"
+		},
+		"image": {
+			"label": "Изображение",
+			"hint": "PNG, JPG или GIF до 5 МБ"
 		},
 		"type": {
 			"label": "Тип ответа",
@@ -278,11 +286,23 @@
 		},
 		"validation_errors": {
 			"option_value": "Введите вариант ответа",
-			"question_description": "Введите описание задачи",
+			"question_description": "Введите описание вопроса",
 			"question_type": "Выберите тип вопроса",
 			"answer_input": "Введите ответ",
 			"answer_single_choise": "Выберите правильный ответ",
-			"answer_multiple_choise": "Выберите правильные ответы"
+			"answer_multiple_choise": "Выберите правильные ответы",
+			"score_min": "Баллы должны быть не меньше 1"
+		}
+	},
+	"image_upload": {
+		"preview_alt": "Предпросмотр изображения",
+		"current_image": "Текущее изображение",
+		"replace": "Заменить",
+		"dropzone_title": "Перетащите изображение или нажмите для выбора",
+		"dropzone_hint": "Поддерживаются форматы изображений до 5 МБ",
+		"errors": {
+			"invalid_type": "Допустимы только файлы изображений",
+			"too_large": "Размер файла не должен превышать 5 МБ"
 		}
 	},
 	"errors": {

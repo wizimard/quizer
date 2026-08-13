@@ -29,7 +29,5 @@
 			"@/*": ["./src/*"]
 		}
 	},
-	"include": ["src"],
-	"exclude": ["src/shared/api/generated"],
-	"references": [{ "path": "./tsconfig.generated.json" }]
+	"include": ["src"]
 }

@@ -65,7 +65,7 @@ export const WebSocketProvider = ({ url, queryParams, shouldReconnect = true, re
 		}
 	};
 
-	const sendMessage = (data: string | ArrayBufferLike | Blob | ArrayBufferView) => {
+	const sendMessage = (data: Parameters<WebSocket["send"]>[0]) => {
 		if (wsRef.current?.readyState === WebSocket.OPEN) {
 			wsRef.current.send(data);
 		}

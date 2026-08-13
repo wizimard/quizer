@@ -1,17 +1,17 @@
 import type { TQuestionForm } from "../model/question-form";
-import type { QuestionCreateRequestBody } from "@shared/api/generated";
-import { questionApi } from "@shared/api";
+import type { QuestionResponse } from "@shared/api/generated";
+import { apiClient } from "@shared/api";
 import type { Question } from "@entities/question";
+import { buildQuestionFormData, buildQuestionRequestBody } from "./buildQuestionRequest";
 
 export function createQuestion(question: Question, data: TQuestionForm) {
 	if (!data.config) {
 		throw new Error("Config is required");
 	}
 
-	const requestBody: QuestionCreateRequestBody = {
-		description: data.description,
-		config: data.config,
-	};
+	if (data.imageFile) {
+		return apiClient.post<QuestionResponse>(`/question/${question.testId}/questions`, buildQuestionFormData(data));
+	}
 
-	return questionApi.questionTestIdQuestionsPost(question.testId, requestBody);
+	return apiClient.post<QuestionResponse>(`/question/${question.testId}/questions`, buildQuestionRequestBody(data));
 }

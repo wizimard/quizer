@@ -9,6 +9,8 @@ Name | Type | Description | Notes
 **test_id** | **string** |  | [default to undefined]
 **sort_key** | **number** |  | [default to undefined]
 **description** | **string** |  | [default to undefined]
+**score** | **number** | Points awarded for a correct answer | [default to undefined]
+**image** | **string** | Relative URL to the question image, or null | [default to undefined]
 **config** | [**QuestionRequestConfig**](QuestionRequestConfig.md) |  | [default to undefined]
 
 ## Example
@@ -21,6 +23,8 @@ const instance: QuestionResponse = {
     test_id,
     sort_key,
     description,
+    score,
+    image,
     config,
 };
 ```

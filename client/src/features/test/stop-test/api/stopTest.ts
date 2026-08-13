@@ -1,4 +1,4 @@
-import { testApi } from "@shared/api";
+import { sessionApi } from "@shared/api";
 
 export type StoppableTest = {
 	id: string;
@@ -10,5 +10,5 @@ export function stopTest(test: StoppableTest) {
 		throw new Error("Test is not open");
 	}
 
-	return testApi.testTestIdFinishPost(test.id);
+	return sessionApi.sessionTestIdFinishPost(test.id);
 }

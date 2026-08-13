@@ -9,7 +9,8 @@ Name | Type | Description | Notes
 **title** | **string** |  | [default to undefined]
 **run_mode** | **string** |  | [default to undefined]
 **questions** | [**Array&lt;TestExecutionOverviewQuestionResponse&gt;**](TestExecutionOverviewQuestionResponse.md) |  | [default to undefined]
-**registered_users** | [**Array&lt;TestExecutionOverviewRegisteredUserResponse&gt;**](TestExecutionOverviewRegisteredUserResponse.md) |  | [default to undefined]
+**registered_users** | [**Array&lt;TestSessionOverviewRegisteredUserResponse&gt;**](TestSessionOverviewRegisteredUserResponse.md) |  | [default to undefined]
+**max_score** | **number** | Maximum points available from all questions | [default to undefined]
 **started_at** | **string** |  | [default to undefined]
 **finished_at** | **string** |  | [default to undefined]
 
@@ -24,6 +25,7 @@ const instance: TestSessionOverviewResponse = {
     run_mode,
     questions,
     registered_users,
+    max_score,
     started_at,
     finished_at,
 };

@@ -42,8 +42,18 @@ export const FormTextField = <T extends object>({ control, name, type = "text", 
 							aria-invalid={fieldState.invalid}
 							placeholder={placeholder ? t(placeholder) : undefined}
 							className={inputClassName}
-							{...field}
 							{...props}
+							{...field}
+							value={field.value ?? ""}
+							onChange={(event) => {
+								if (type === "number") {
+									const nextValue = event.target.value;
+									field.onChange(nextValue === "" ? "" : Number(nextValue));
+									return;
+								}
+
+								field.onChange(event);
+							}}
 						/>
 					)}
 					{fieldState.invalid && fieldState.error?.message && <FieldError>{t(fieldState.error.message)}</FieldError>}
