@@ -152,6 +152,27 @@ describe('POST /api/session/:testId/start', () => {
 		await finishTest(createRes.body.id);
 	});
 
+	it('closes test automatically when duration expires', async () => {
+		const createRes = await testUtils.createTest('Auto close by duration');
+
+		const startRes = await startTest(createRes.body.id, { run_mode: 'FREE', duration: 2 });
+
+		expect(startRes.statusCode).toBe(200);
+		expect(startRes.body).toEqual({ message: 'Test started successfully' });
+
+		await new Promise((resolve) => setTimeout(resolve, 3500));
+
+		const executeRes = await request(application.app).get(`/api/test-execute/${createRes.body.id}`);
+
+		expect(executeRes.statusCode).toBe(200);
+		expect(executeRes.body.status).toBe('closed');
+
+		const finishRes = await finishTest(createRes.body.id);
+
+		expect(finishRes.statusCode).toBe(400);
+		expect(finishRes.body).toEqual({ message: 'errors.finish_test_closed' });
+	}, 10000);
+
 	it('returns 400 when starting an already open test', async () => {
 		const createRes = await testUtils.createTest('Start twice');
 
