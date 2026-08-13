@@ -3,19 +3,12 @@ import { useTranslation } from "react-i18next";
 import { useTestExecutionStore, type TestExecution } from "@entities/test";
 import { Card, CardContent } from "@shared/ui/kit/card";
 import { CenterElement } from "@shared/ui/layout";
+import { WaitingDots } from "@shared/ui/loading";
 import { Typography } from "@shared/ui/typography";
 
 interface TestQuestionWaitingScreenProps {
 	test: TestExecution;
 }
-
-const WaitingDots = () => (
-	<span className="inline-flex items-center gap-1" aria-hidden>
-		{[0, 150, 300].map((delay) => (
-			<span key={delay} className="size-1.5 animate-bounce rounded-full bg-sky-500/70" style={{ animationDelay: `${delay}ms` }} />
-		))}
-	</span>
-);
 
 export const TestQuestionWaitingScreen = ({ test }: TestQuestionWaitingScreenProps) => {
 	const { t } = useTranslation();
@@ -82,7 +75,7 @@ export const TestQuestionWaitingScreen = ({ test }: TestQuestionWaitingScreenPro
 					</Typography>
 
 					<div className="flex items-center gap-2 text-sm text-muted-foreground">
-						<WaitingDots />
+						<WaitingDots className="bg-sky-500/70" />
 						<span>{t("test_execute.question_waiting.refreshing")}</span>
 					</div>
 				</CardContent>
