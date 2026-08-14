@@ -1,7 +1,8 @@
 import { useParams } from "react-router-dom";
 import { TestManageHeader } from "./ui/TestManageHeader";
 import { TestManageParticipants } from "./ui/TestManageParticipants";
-import { useGetTestOverview, useTestExecutionOverviewSocket } from "@entities/test";
+import { useGetTestOverview } from "@entities/test";
+import { useTestExecutionOverviewSocket } from "./hooks/useTestExecutionOverviewSocket";
 import { Separator } from "@shared/ui/kit/separator";
 import { LoadingLayout } from "@shared/ui/layout";
 import { TestCurrentQuestionWidget } from "@widgets/TestCurrentQuestion";

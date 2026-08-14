@@ -1,8 +1,9 @@
 import { useParams } from "react-router-dom";
 import { memo } from "react";
+import { useTestExecutionSocket } from "./hooks/useTestExecutionSocket";
 import { TestExecuteContent } from "./ui/TestExecuteContent";
+import { useGetExecutionTest } from "@entities/test";
 import { LoadingLayout } from "@shared/ui/layout";
-import { useGetExecutionTest, useTestExecutionSocket } from "@entities/test";
 import { WEBSOCKET_GROUPS, WebSocketProvider } from "@shared/websocket";
 
 const TestExecutePage = memo(() => {

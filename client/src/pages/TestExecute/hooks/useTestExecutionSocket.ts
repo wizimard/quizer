@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { useTestExecutionStore } from "../model/test-execution.store";
-import { normalizeExecutionQuestion } from "@entities/question/lib/normalizeQuestion";
+import { normalizeExecutionQuestion } from "@entities/question";
+import { useTestExecutionStore } from "@entities/test";
 import { useWebSocket } from "@shared/websocket";
 
 export const useTestExecutionSocket = (refetch: () => void) => {

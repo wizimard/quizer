@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useTestExecutionStore, type TestExecutionUser } from "../model/test-execution.store";
-import type { QuestionExecution } from "@entities/question/model/question-execution.interface";
+import type { QuestionExecution } from "@entities/question";
 
 export const useSetExecutionState = () => {
 	return useCallback((testId: string, user: TestExecutionUser, currentQuestion: QuestionExecution | null, currentQuestionIndex: number, totalQuestions: number) => {

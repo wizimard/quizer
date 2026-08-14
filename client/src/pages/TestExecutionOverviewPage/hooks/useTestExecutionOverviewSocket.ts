@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import type { TestExecutionOverview, TestExecutionOverviewRegisteredUser } from "../model/test-execution-overview.interface";
+import type { TestExecutionOverview, TestExecutionOverviewRegisteredUser } from "@entities/test";
 import { useWebSocket } from "@shared/websocket";
 import { QUERY_KEYS } from "@shared/constant";
 

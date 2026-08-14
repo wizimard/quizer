@@ -1,8 +1,9 @@
 export { type Question } from "./model/question.interface";
 export { QUESTION_TYPES } from "./model/question-types.enum";
 export { createNewQuestion, type ICreateNewQuestionProps } from "./model/question.factory";
+export { type QuestionExecution } from "./model/question-execution.interface";
 
-export { normalizeQuestion } from "./lib/normalizeQuestion";
+export { normalizeQuestion, normalizeExecutionQuestion } from "./lib/normalizeQuestion";
 
 export { QuestionView } from "./ui/QuestionView";
 export { QuestionListItemContainer } from "./ui/QuestionListItemContainer";
